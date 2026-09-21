@@ -3,27 +3,96 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#0b0f16">
 <link rel="manifest" href="manifest.json">
-<title>Institutional Radar V2.1</title>
+<title>Institutional Radar V2.2</title>
 <style>
-*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:16px}h1{margin:0 0 4px;font-size:24px}.sub{color:#8b949e;margin-bottom:12px;line-height:1.35}.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}button{background:#238636;color:#fff;border:0;border-radius:9px;padding:10px 14px;font-weight:700}.pill{background:#161b22;border:1px solid #30363d;border-radius:999px;padding:7px 10px;color:#8b949e;font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:14px}.card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:15px}.name{font-size:20px;font-weight:700}.price{font-size:25px;margin:7px 0}.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #21262d}.good{color:#3fb950}.warn{color:#d29922}.bad{color:#f85149}.neutral{color:#c9d1d9}.score{font-size:21px;font-weight:700;margin-top:11px}.regime{margin-top:9px;padding:9px;border-radius:9px;background:#0d1117;border:1px solid #21262d}.bar{height:7px;background:#21262d;border-radius:99px;overflow:hidden;margin-top:7px}.fill{height:100%;background:#58a6ff}.note{font-size:11px;color:#8b949e;margin-top:8px;line-height:1.4}.alert{margin-top:10px;padding:9px;border:1px solid #30363d;border-radius:9px;background:#0d1117}.section{margin-top:18px;font-size:17px;font-weight:700}.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.legend div{padding:9px;background:#161b22;border:1px solid #30363d;border-radius:9px;font-size:12px}.mini{font-size:12px;color:#8b949e}.big{font-size:18px;font-weight:700}.up{color:#3fb950}.down{color:#f85149}
+:root{
+  --bg:#0b0f16;--panel:#131a24;--panel2:#0f151e;--line:#263241;
+  --text:#edf2f7;--muted:#8e9aaa;--blue:#58a6ff;--green:#35c759;
+  --red:#ff5c5c;--orange:#ffb020;--cyan:#4dd0e1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b0f16,#0d121b);color:var(--text);font-family:Arial,sans-serif;padding:16px}
+button{font:inherit}
+h1{font-size:25px;margin:0}
+h2{font-size:22px;margin:0 0 6px}
+.sub{color:var(--muted);line-height:1.4;margin:6px 0 14px}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:11px;padding:11px 15px;background:#1f8f3a;color:white;font-weight:800}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:var(--muted);font-size:12px}
+.section{margin:22px 0 10px;font-size:19px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.card{background:linear-gradient(180deg,#151c27,#111821);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.coinCard{cursor:pointer;transition:.15s transform,.15s border-color}
+.coinCard:active{transform:scale(.99);border-color:#4b637e}
+.cardHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.name{font-size:22px;font-weight:900}
+.price{font-size:27px;margin:8px 0 10px}
+.chev{font-size:25px;color:var(--blue)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #202a36}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--orange)}.neutral{color:#d2d9e1}
+.regime,.signal,.explain{margin-top:10px;padding:11px;border-radius:12px;background:#0c121a;border:1px solid #202b38}
+.score{font-size:21px;font-weight:900;margin-top:12px}
+.bar{height:8px;background:#202a36;border-radius:99px;overflow:hidden;margin-top:7px}
+.fill{height:100%;background:var(--blue)}
+.note{font-size:11px;color:var(--muted);line-height:1.45;margin-top:9px}
+.tap{font-size:12px;color:var(--blue);margin-top:10px;font-weight:700}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.legend div{padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:12px;line-height:1.4}
+.hidden{display:none!important}
+.detailTop{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.back{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;font-weight:800}
+.detailMeta{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px}
+.kpi span{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+.kpi b{font-size:18px}
+.chartCard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:12px}
+.chartTitle{font-weight:800;margin-bottom:2px}
+.chartSub{font-size:12px;color:var(--muted);margin-bottom:9px}
+canvas{width:100%;height:190px;display:block}
+.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+.tab{white-space:nowrap;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 11px;border-radius:999px}
+.tab.active{color:#fff;border-color:#4b78a8;background:#162235}
+.smallGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.smallBox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;line-height:1.4}
+.smallBox b{display:block;font-size:14px;margin-top:4px}
+@media(max-width:430px){body{padding:12px}.legend{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<h1>🏦 Institutional Radar <span class="pill">V2.1</span></h1>
-<div class="sub">OKX • activité, OI, volume, funding et liquidations. Le radar détecte des configurations de marché ; il ne peut pas identifier avec certitude un acteur institutionnel.</div>
-<div class="top"><button onclick="loadAll()">↻ Actualiser</button><span class="pill" id="wsState">WS : connexion…</span><span class="pill" id="status">Chargement…</span></div>
-<div class="section">Radar de flux</div>
-<div id="grid" class="grid"></div>
-<div class="section">Comment lire les configurations</div>
-<div class="legend">
-<div><b>Prix ↑ + OI ↑</b><br><span class="mini">Nouvelles positions / levier en hausse.</span></div>
-<div><b>Prix ↑ + OI ↓</b><br><span class="mini">Hausse avec réduction d'OI, souvent compatible avec clôtures de shorts.</span></div>
-<div><b>Prix ↓ + OI ↑</b><br><span class="mini">Baisse avec nouvelles positions, souvent compatible avec shorts entrants.</span></div>
-<div><b>Prix ↓ + OI ↓</b><br><span class="mini">Baisse avec réduction d'OI, souvent compatible avec clôtures de longs.</span></div>
+
+<div id="home">
+  <h1>🏦 Institutional Radar <span class="pill">V2.2</span></h1>
+  <div class="sub">OKX • activité, OI, volume, funding et liquidations. Chaque crypto est maintenant cliquable pour ouvrir son analyse détaillée.</div>
+  <div class="top">
+    <button class="btn" onclick="loadAll()">↻ Actualiser</button>
+    <span class="pill" id="wsState">WS : connexion…</span>
+    <span class="pill" id="status">Chargement…</span>
+  </div>
+
+  <div class="section">Radar de flux</div>
+  <div id="grid" class="grid"></div>
+
+  <div class="section">Comment lire le radar</div>
+  <div class="legend">
+    <div><b>Prix ↑ + OI ↑</b><br>De nouvelles positions accompagnent la hausse.</div>
+    <div><b>Prix ↑ + OI ↓</b><br>Hausse avec réduction de positions ouvertes.</div>
+    <div><b>Prix ↓ + OI ↑</b><br>De nouvelles positions accompagnent la baisse.</div>
+    <div><b>Prix ↓ + OI ↓</b><br>Réduction de positions pendant la baisse.</div>
+  </div>
+  <div class="note">⚠️ Ce radar décrit des configurations de marché. Il ne peut pas identifier avec certitude un acteur institutionnel et ne constitue pas un signal d'achat/vente.</div>
 </div>
-<div class="note">Sources : données publiques OKX. Les liquidations affichées sont les événements reçus par le flux public OKX et ne représentent pas nécessairement toutes les liquidations de la plateforme. citeturn2view3</div>
+
+<div id="detail" class="hidden">
+  <div class="detailTop">
+    <button class="back" onclick="showHome()">← Radar</button>
+    <div><h2 id="dName">SOL</h2><div class="detailMeta" id="dMeta">Analyse détaillée</div></div>
+  </div>
+  <div id="detailBody"></div>
+</div>
+
 <script>
 const assets=[
 {name:'SOL',spot:'SOL-USDT',perp:'SOL-USDT-SWAP'},
@@ -32,30 +101,196 @@ const assets=[
 {name:'ONDO',spot:'ONDO-USDT',perp:'ONDO-USDT-SWAP'},
 {name:'ETH',spot:'ETH-USDT',perp:'ETH-USDT-SWAP'},
 {name:'BTC',spot:'BTC-USDT',perp:'BTC-USDT-SWAP'}];
+
 const base='https://www.okx.com';
 const state={};
-const storeKey='ir_v2_snapshots';
+const storeKey='ir_v22_snapshots';
+const dataCache={};
+
 function num(x){return Number(x||0)}
 function pct(x){return (num(x)>=0?'+':'')+num(x).toFixed(2)+'%'}
 function fmt(x,d=1){return num(x).toLocaleString('fr-FR',{maximumFractionDigits:d})}
 function cls(x){return num(x)>0?'good':num(x)<0?'bad':'neutral'}
-async function get(path){const r=await fetch(base+path);if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j.code!=='0')throw Error(j.msg||'OKX error');return j.data}
 function loadSnaps(){try{return JSON.parse(localStorage.getItem(storeKey)||'{}')}catch(e){return {}}}
 function saveSnaps(x){localStorage.setItem(storeKey,JSON.stringify(x))}
-function remember(name,oi){const all=loadSnaps();all[name]=all[name]||[];all[name].push({t:Date.now(),oi});all[name]=all[name].filter(x=>Date.now()-x.t<26*3600*1000).slice(-200);saveSnaps(all);return all[name]}
-function oiDelta(name,current,ms){const a=loadSnaps()[name]||[];const now=Date.now();const target=now-ms;let old=null;let best=Infinity;for(const x of a){if(!x||!x.oi||x.t>=now)continue;const diff=Math.abs(x.t-target);if(diff<best){best=diff;old=x}}if(!old||best>25*60*1000)return null;return ((current-old.oi)/old.oi*100)}
-function regime(m,od){if(m>0.15&&od>0.15)return ['Prix ↑ + OI ↑','up'];if(m>0.15&&od<-0.15)return ['Prix ↑ + OI ↓','up'];if(m<-0.15&&od>0.15)return ['Prix ↓ + OI ↑','down'];if(m<-0.15&&od<-0.15)return ['Prix ↓ + OI ↓','down'];return ['Mixte / faible variation','neutral']}
-function score(d){let s=50;s+=Math.min(15,Math.max(-15,d.mom*4));s+=Math.min(15,Math.max(-15,(d.volRatio-1)*12));if(d.oi1h!=null)s+=Math.min(15,Math.max(-15,d.oi1h*2));s+=Math.min(5,Math.max(-5,(d.liq5||0)*0.8));return Math.round(Math.max(0,Math.min(100,s)))}
-function render(d){const r=regime(d.mom,d.oi1h||0);const oi=d.oiUsd/1e6;const card=document.createElement('div');card.className='card';const liq=d.liq5||0;card.innerHTML=`<div class="name">${d.name}</div><div class="price">${fmt(d.price, d.price<10?4:2)} USDT</div><div class="row"><span>Volume spot 24h</span><b>${fmt(d.vol24/1e6,1)} M$</b></div><div class="row"><span>Open Interest</span><b>${fmt(oi,1)} M$</b></div><div class="row"><span>OI Δ ~1h</span><b class="${cls(d.oi1h||0)}">${d.oi1h==null?'en attente':pct(d.oi1h)}</b></div><div class="row"><span>Funding</span><b class="${cls(d.funding)}">${pct(d.funding)}</b></div><div class="row"><span>Momentum ~24h</span><b class="${cls(d.mom)}">${pct(d.mom)}</b></div><div class="row"><span>Dernière heure / moyenne 24h</span><b class="${d.volRatio>=1.8?'warn':'neutral'}">${d.volRatio.toFixed(1)}×</b></div><div class="row"><span>Liquidations reçues ~5 min</span><b>${liq}</b></div><div class="regime"><span class="mini">Configuration</span><br><b class="${r[1]}">${r[0]}</b></div><div class="score">Activité / flux : ${d.score}/100</div><div class="bar"><div class="fill" style="width:${d.score}%"></div></div><div class="alert">${d.signal}</div><div class="note">OI en USD fourni par OKX. La variation OI ~1h apparaît après qu'un historique d'environ 1 h a été collecté. Le ratio de volume utilise la dernière heure clôturée, comparée aux 24 heures précédentes. La combinaison prix/OI/volume est un indicateur de contexte, pas une preuve d'activité institutionnelle.</div>`;return card}
+function remember(name,oi){const all=loadSnaps();all[name]=all[name]||[];all[name].push({t:Date.now(),oi});all[name]=all[name].filter(x=>Date.now()-x.t<30*3600*1000).slice(-300);saveSnaps(all)}
+function oiDelta(name,current,ms){const a=loadSnaps()[name]||[];const now=Date.now(),target=now-ms;let old=null,best=Infinity;for(const x of a){if(!x||!x.oi||x.t>=now)continue;const diff=Math.abs(x.t-target);if(diff<best){best=diff;old=x}}if(!old||best>25*60*1000)return null;return ((current-old.oi)/old.oi*100)}
+function regime(m,od){
+ if(m>0.15&&od>0.15)return ['Prix ↑ + OI ↑','up'];
+ if(m>0.15&&od<-0.15)return ['Prix ↑ + OI ↓','up'];
+ if(m<-0.15&&od>0.15)return ['Prix ↓ + OI ↑','down'];
+ if(m<-0.15&&od<-0.15)return ['Prix ↓ + OI ↓','down'];
+ return ['Mixte / faible variation','neutral'];
+}
+function score(d){
+ let s=50;
+ s+=Math.min(15,Math.max(-15,d.mom*4));
+ s+=Math.min(15,Math.max(-15,(d.volRatio-1)*12));
+ if(d.oi1h!=null)s+=Math.min(15,Math.max(-15,d.oi1h*2));
+ s+=Math.min(5,Math.max(-5,(d.liq5||0)*0.8));
+ return Math.round(Math.max(0,Math.min(100,s)));
+}
+async function get(path){
+ const r=await fetch(base+path);
+ if(!r.ok)throw Error('HTTP '+r.status);
+ const j=await r.json();
+ if(j.code!=='0')throw Error(j.msg||'OKX error');
+ return j.data;
+}
 async function one(a){
  const [tick,oi,fund,candles]=await Promise.all([
- get('/api/v5/market/ticker?instId='+a.spot),
- get('/api/v5/public/open-interest?instType=SWAP&instId='+a.perp),
- get('/api/v5/public/funding-rate?instId='+a.perp),
- get('/api/v5/market/candles?instId='+a.spot+'&bar=1H&limit=26')]);
- const t=tick[0],o=oi[0],f=fund[0];const rows=candles.map(x=>({ts:num(x[0]),c:num(x[4]),volQuote:num(x[7]||0),h:num(x[2]),l:num(x[3])})).sort((x,y)=>x.ts-y.ts);const closed=rows.slice(0,-1);const last24=closed.slice(-24);const completedHour=closed.at(-1)?.volQuote||0;const prev24=closed.slice(-25,-1);const avg=prev24.length?prev24.reduce((s,x)=>s+x.volQuote,0)/prev24.length:0;const currentHour=completedHour;const mom=closed.length>=25?(closed.at(-1).c/closed.at(-25).c-1)*100:0;const oiUsd=num(o.oiUsd);remember(a.name,oiUsd);const oi1h=oiDelta(a.name,oiUsd,3600000);const volRatio=avg?currentHour/avg:0;let signal='Flux normal';if(volRatio>=2&&oi1h!=null&&Math.abs(oi1h)>=0.5)signal='⚡ Volume anormal + variation d’OI : activité à surveiller';else if(volRatio>=2)signal='🔎 Pic de volume : surveiller la suite';else if(oi1h!=null&&Math.abs(oi1h)>=0.8)signal='🔎 Variation d’OI notable';const d={...a,name:a.name,price:num(t.last),vol24:num(t.volCcy24h),oiUsd,funding:num(f.fundingRate)*100,mom,oi1h,volRatio,liq5:state[a.name]?.liq5||0};d.signal=signal;d.score=score(d);return d}
-async function loadAll(){document.getElementById('status').textContent='Mise à jour…';const out=await Promise.all(assets.map(a=>one(a).catch(e=>({name:a.name,error:e.message}))));const grid=document.getElementById('grid');grid.innerHTML='';out.forEach(d=>{if(d.error){const x=document.createElement('div');x.className='card';x.innerHTML='<div class="name">'+d.name+'</div><div class="bad">Erreur : '+d.error+'</div>';grid.appendChild(x)}else grid.appendChild(render(d))});document.getElementById('status').textContent='Mis à jour : '+new Date().toLocaleTimeString('fr-FR');}
-function startWS(){const ws=new WebSocket('wss://ws.okx.com:8443/ws/v5/public');ws.onopen=()=>{document.getElementById('wsState').textContent='WS : connecté';const args=[];assets.forEach(a=>args.push({channel:'open-interest',instId:a.perp}));args.push({channel:'liquidation-orders',instType:'SWAP'});ws.send(JSON.stringify({op:'subscribe',args}));};ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.arg?.channel==='open-interest'){const x=m.data?.[0];if(x){const a=assets.find(z=>z.perp===x.instId);if(a)remember(a.name,num(x.oiUsd));}}if(m.arg?.channel==='liquidation-orders'){for(const item of (m.data||[])){const a=assets.find(z=>z.perp===item.instId);if(!a)continue;const n=(item.details||[]).length;state[a.name]=state[a.name]||{liq5:0,events:[]};state[a.name].events=(state[a.name].events||[]).concat(Array(n).fill(Date.now()));state[a.name].events=state[a.name].events.filter(t=>Date.now()-t<300000);state[a.name].liq5=state[a.name].events.length;}}}catch(_){} };ws.onclose=()=>{document.getElementById('wsState').textContent='WS : reconnexion…';setTimeout(startWS,3000)};ws.onerror=()=>ws.close()}
+  get('/api/v5/market/ticker?instId='+a.spot),
+  get('/api/v5/public/open-interest?instType=SWAP&instId='+a.perp),
+  get('/api/v5/public/funding-rate?instId='+a.perp),
+  get('/api/v5/market/candles?instId='+a.spot+'&bar=1H&limit=50')
+ ]);
+ const t=tick[0],o=oi[0],f=fund[0];
+ const rows=candles.map(x=>({ts:num(x[0]),c:num(x[4]),volQuote:num(x[7]||0),h:num(x[2]),l:num(x[3])})).sort((x,y)=>x.ts-y.ts);
+ const closed=rows.slice(0,-1);
+ const completedHour=closed.at(-1)?.volQuote||0;
+ const prev24=closed.slice(-25,-1);
+ const avg=prev24.length?prev24.reduce((s,x)=>s+x.volQuote,0)/prev24.length:0;
+ const mom=closed.length>=25?(closed.at(-1).c/closed.at(-25).c-1)*100:0;
+ const oiUsd=num(o.oiUsd);
+ remember(a.name,oiUsd);
+ const oi1h=oiDelta(a.name,oiUsd,3600000);
+ const volRatio=avg?completedHour/avg:0;
+ let signal='Flux normal';
+ if(volRatio>=2&&oi1h!=null&&Math.abs(oi1h)>=0.5)signal='⚡ Volume anormal + variation d’OI : activité à surveiller';
+ else if(volRatio>=2)signal='🔎 Pic de volume : surveiller la suite';
+ else if(oi1h!=null&&Math.abs(oi1h)>=0.8)signal='🔎 Variation d’OI notable';
+ const d={...a,name:a.name,price:num(t.last),vol24:num(t.volCcy24h),oiUsd,funding:num(f.fundingRate)*100,mom,oi1h,volRatio,liq5:state[a.name]?.liq5||0};
+ d.signal=signal; d.score=score(d); d.candles=closed.slice(-36);
+ dataCache[a.name]=d;
+ return d;
+}
+function render(d){
+ const r=regime(d.mom,d.oi1h||0);
+ const card=document.createElement('div');
+ card.className='card coinCard';
+ card.onclick=()=>openDetail(d.name);
+ const oi=d.oiUsd/1e6;
+ card.innerHTML=
+ `<div class="cardHead"><div class="name">${d.name}</div><div class="chev">›</div></div>
+ <div class="price">${fmt(d.price,d.price<10?4:2)} USDT</div>
+ <div class="row"><span>Volume spot 24h</span><b>${fmt(d.vol24/1e6,1)} M$</b></div>
+ <div class="row"><span>Open Interest</span><b>${fmt(oi,1)} M$</b></div>
+ <div class="row"><span>OI Δ ~1h</span><b class="${cls(d.oi1h||0)}">${d.oi1h==null?'en attente':pct(d.oi1h)}</b></div>
+ <div class="row"><span>Funding</span><b class="${cls(d.funding)}">${pct(d.funding)}</b></div>
+ <div class="row"><span>Momentum ~24h</span><b class="${cls(d.mom)}">${pct(d.mom)}</b></div>
+ <div class="row"><span>Dernière heure / moyenne 24h</span><b>${d.volRatio.toFixed(1)}×</b></div>
+ <div class="row"><span>Liquidations reçues ~5 min</span><b>${d.liq5||0}</b></div>
+ <div class="regime"><span class="mini">Configuration</span><br><b class="${r[1]}">${r[0]}</b></div>
+ <div class="score">Activité / flux : ${d.score}/100</div>
+ <div class="bar"><div class="fill" style="width:${d.score}%"></div></div>
+ <div class="signal">${d.signal}</div>
+ <div class="tap">Appuyer pour ouvrir les graphiques et l'explication →</div>`;
+ return card;
+}
+async function loadAll(){
+ document.getElementById('status').textContent='Mise à jour…';
+ const out=await Promise.all(assets.map(a=>one(a).catch(e=>({name:a.name,error:e.message}))));
+ const grid=document.getElementById('grid');grid.innerHTML='';
+ out.forEach(d=>{
+   if(d.error){const x=document.createElement('div');x.className='card';x.innerHTML='<div class="name">'+d.name+'</div><div class="bad">Erreur : '+d.error+'</div>';grid.appendChild(x)}
+   else grid.appendChild(render(d));
+ });
+ document.getElementById('status').textContent='Mis à jour : '+new Date().toLocaleTimeString('fr-FR');
+}
+function drawLine(canvas,values,labels,title){
+ const ctx=canvas.getContext('2d'),w=canvas.clientWidth*devicePixelRatio,h=canvas.clientHeight*devicePixelRatio;
+ canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);
+ const pad=28*devicePixelRatio, max=Math.max(...values), min=Math.min(...values),range=(max-min)||1;
+ ctx.strokeStyle='#263241';ctx.lineWidth=1*devicePixelRatio;
+ for(let i=0;i<4;i++){const y=pad+(h-pad*1.5)*i/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad/2,y);ctx.stroke()}
+ ctx.beginPath();
+ values.forEach((v,i)=>{const x=pad+(w-pad*1.5)*(i/(values.length-1||1));const y=pad+(h-pad*1.5)*(1-(v-min)/range);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+ ctx.strokeStyle='#58a6ff';ctx.lineWidth=2.5*devicePixelRatio;ctx.stroke();
+ ctx.fillStyle='#8e9aaa';ctx.font=`${10*devicePixelRatio}px Arial`;
+ ctx.fillText(title,pad,12*devicePixelRatio);
+ ctx.fillText(String(labels[0]||''),pad,h-6*devicePixelRatio);
+ ctx.fillText(String(labels.at(-1)||''),w-65*devicePixelRatio,h-6*devicePixelRatio);
+ ctx.fillText(String(max.toFixed(2)),2,h/2);
+}
+function explanation(d){
+ const parts=[];
+ if(d.mom>0.5 && d.oi1h!=null && d.oi1h>0.3)parts.push('Le prix et l’OI montent ensemble : de nouvelles positions accompagnent la hausse.');
+ else if(d.mom>0.5 && d.oi1h!=null && d.oi1h<-0.3)parts.push('Le prix monte alors que l’OI baisse : la hausse peut être compatible avec des clôtures de positions.');
+ else if(d.mom<-0.5 && d.oi1h!=null && d.oi1h>0.3)parts.push('Le prix baisse avec un OI en hausse : de nouvelles positions accompagnent la baisse.');
+ else parts.push('Les données ne montrent pas actuellement une configuration prix/OI fortement marquée.');
+ if(d.funding>0.01)parts.push('Funding positif : les longs paient les shorts lorsque le paiement de funding est effectué.');
+ else if(d.funding<-0.01)parts.push('Funding négatif : les shorts paient les longs lorsque le paiement de funding est effectué.');
+ else parts.push('Funding proche de zéro : pression de financement relativement modérée.');
+ if(d.volRatio>=2)parts.push('Le volume horaire est nettement supérieur à sa moyenne récente : activité à surveiller.');
+ else parts.push('Le volume de la dernière heure reste inférieur à la moyenne récente.');
+ return parts.join(' ');
+}
+function openDetail(name){
+ const d=dataCache[name];if(!d)return;
+ document.getElementById('home').classList.add('hidden');
+ document.getElementById('detail').classList.remove('hidden');
+ document.getElementById('dName').textContent=d.name;
+ document.getElementById('dMeta').textContent='Analyse détaillée • données OKX';
+ const body=document.getElementById('detailBody');
+ const vals=d.candles.map(x=>x.c), labels=d.candles.map(x=>new Date(x.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+ body.innerHTML=
+ `<div class="kpis">
+   <div class="kpi"><span>Prix</span><b>${fmt(d.price,d.price<10?4:2)} USDT</b></div>
+   <div class="kpi"><span>Open Interest</span><b>${fmt(d.oiUsd/1e6,1)} M$</b></div>
+   <div class="kpi"><span>Funding</span><b class="${cls(d.funding)}">${pct(d.funding)}</b></div>
+   <div class="kpi"><span>Activité</span><b>${d.score}/100</b></div>
+ </div>
+ <div class="chartCard"><div class="chartTitle">Prix — dernières heures</div><div class="chartSub">Évolution du prix sur les bougies 1H.</div><canvas id="priceChart"></canvas></div>
+ <div class="chartCard"><div class="chartTitle">Volume horaire</div><div class="chartSub">Comparaison visuelle de l’activité récente.</div><canvas id="volChart"></canvas></div>
+ <div class="explain"><b>🧠 Ce que le radar comprend</b><br><span>${explanation(d)}</span></div>
+ <div class="smallGrid">
+   <div class="smallBox">Momentum ~24h<b class="${cls(d.mom)}">${pct(d.mom)}</b></div>
+   <div class="smallBox">Volume / moyenne<b>${d.volRatio.toFixed(1)}×</b></div>
+   <div class="smallBox">OI Δ ~1h<b>${d.oi1h==null?'En attente':pct(d.oi1h)}</b></div>
+   <div class="smallBox">Liquidations ~5 min<b>${d.liq5||0}</b></div>
+ </div>
+ <div class="chartCard"><div class="chartTitle">Interprétation des 4 configurations</div>
+ <div class="smallBox"><b>Prix ↑ + OI ↑</b>Nouvelles positions accompagnant la hausse.</div>
+ <div class="smallBox"><b>Prix ↑ + OI ↓</b>Hausse avec réduction d’OI.</div>
+ <div class="smallBox"><b>Prix ↓ + OI ↑</b>Nouvelles positions accompagnant la baisse.</div>
+ <div class="smallBox"><b>Prix ↓ + OI ↓</b>Réduction d’OI pendant la baisse.</div></div>
+ <div class="note">⚠️ Ces données décrivent le marché et ne permettent pas d’identifier avec certitude des institutions. Elles ne constituent pas une recommandation de trading.</div>`;
+ setTimeout(()=>{
+   drawLine(document.getElementById('priceChart'),vals,labels,'Prix');
+   drawLine(document.getElementById('volChart'),d.candles.map(x=>x.volQuote/1e6),labels,'Volume (M$)');
+ },30);
+}
+function showHome(){document.getElementById('detail').classList.add('hidden');document.getElementById('home').classList.remove('hidden')}
+function startWS(){
+ const ws=new WebSocket('wss://ws.okx.com:8443/ws/v5/public');
+ ws.onopen=()=>{
+  document.getElementById('wsState').textContent='WS : connecté';
+  const args=assets.map(a=>({channel:'open-interest',instId:a.perp}));
+  args.push({channel:'liquidation-orders',instType:'SWAP'});
+  ws.send(JSON.stringify({op:'subscribe',args}));
+ };
+ ws.onmessage=e=>{
+  try{
+   const m=JSON.parse(e.data);
+   if(m.arg?.channel==='open-interest'){
+    const x=m.data?.[0];if(x){const a=assets.find(z=>z.perp===x.instId);if(a)remember(a.name,num(x.oiUsd));}
+   }
+   if(m.arg?.channel==='liquidation-orders'){
+    for(const item of (m.data||[])){
+     const a=assets.find(z=>z.perp===item.instId);if(!a)continue;
+     const n=(item.details||[]).length;
+     state[a.name]=state[a.name]||{liq5:0,events:[]};
+     state[a.name].events=(state[a.name].events||[]).concat(Array(n).fill(Date.now()));
+     state[a.name].events=state[a.name].events.filter(t=>Date.now()-t<300000);
+     state[a.name].liq5=state[a.name].events.length;
+    }
+   }
+  }catch(_){}
+ };
+ ws.onclose=()=>{document.getElementById('wsState').textContent='WS : reconnexion…';setTimeout(startWS,3000)};
+ ws.onerror=()=>ws.close();
+}
 startWS();loadAll();setInterval(loadAll,60000);
 </script>
-</body></html>
+</body>
+</html>
