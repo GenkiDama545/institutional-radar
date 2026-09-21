@@ -1,17 +1,15 @@
-# Institutional Radar V6.0
+# Institutional Radar V6.1
 
-Version mobile/PWA du radar crypto.
+Version de finition de V6.
 
-## Déploiement GitHub Pages
+## Corrections
+- Numérotation explicite du classement (01, 02, 03…).
+- Axes X/Y et unités sur les graphiques prix et graphiques détaillés.
+- Temps affiché sur l’axe horizontal.
+- Unités adaptées : prix en $, volume/OI en $, funding et momentum en %.
+- Correction de l’affichage des prix sous 1 $ dans les cartes.
+- Correction du calcul d’affichage du momentum afin d’éviter une conversion % x100 incorrecte.
+- Historique local V6.1 séparé, avec compatibilité de lecture de l’historique V5.2.
+- Cache Service Worker V6.1.
 
-Copier le contenu du dossier dans le dépôt `institutional-radar`, puis laisser GitHub Pages publier la branche configurée.
-
-## Données
-
-Le radar utilise les API publiques OKX pour tickers, chandelles, open interest et funding. Les graphiques multi-unités/périodes récupèrent les chandelles historiques à la demande.
-
-La couche Smart Money sépare volontairement les données observées des interprétations : elle ne prétend pas identifier une banque ou un whale sans source indépendante.
-
-## Cache PWA
-
-Le service worker est versionné `institutional-radar-v6.0.1` pour forcer le renouvellement du cache lors du déploiement.
+Les données de marché restent basées sur les API publiques OKX utilisées par le radar.
