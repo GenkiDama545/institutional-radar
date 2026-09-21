@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f16">
 <link rel="manifest" href="manifest.json">
-<title>Institutional Radar V2.3</title>
+<title>Institutional Radar V2.3.1</title>
 <style>
 :root{
   --bg:#0b0f16;--panel:#131a24;--panel2:#0f151e;--line:#263241;
@@ -77,7 +77,7 @@ canvas{width:100%;height:190px;display:block}
 <body>
 
 <div id="home">
-  <h1>🏦 Institutional Radar <span class="pill">V2.3</span></h1>
+  <h1>🏦 Institutional Radar <span class="pill">V2.3.1</span></h1>
   <div class="sub">OKX • activité, OI, volume, funding et liquidations. Chaque crypto est maintenant cliquable pour ouvrir son analyse détaillée.</div>
   <div class="top">
     <button class="btn" onclick="loadAll()">↻ Actualiser</button>
@@ -222,7 +222,9 @@ async function loadAll(){
  document.getElementById('status').textContent='Mis à jour : '+new Date().toLocaleTimeString('fr-FR');
 }
 function drawLine(canvas,values,labels,title,unit=''){
- const ctx=canvas.getContext('2d'),w=canvas.clientWidth*devicePixelRatio,h=canvas.clientHeight*devicePixelRatio;
+ const ctx=canvas.getContext('2d'),w=Math.max(1,Math.round(canvas.clientWidth*devicePixelRatio)),h=Math.max(1,Math.round(canvas.clientHeight*devicePixelRatio));
+ canvas.width=w; canvas.height=h;
+ ctx.setTransform(1,0,0,1,0,0);
  ctx.clearRect(0,0,w,h);
  const padL=46*devicePixelRatio,padR=12*devicePixelRatio,padT=25*devicePixelRatio,padB=24*devicePixelRatio;
  const max=Math.max(...values),min=Math.min(...values),current=values.at(-1),range=(max-min)||Math.max(Math.abs(max)*0.01,1);
