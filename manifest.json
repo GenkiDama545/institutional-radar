@@ -1,7 +1,7 @@
 {
-  "name": "Institutional Radar V6.2",
+  "name": "Institutional Radar V6.3",
   "short_name": "Radar Crypto",
-  "start_url": "./?v=6.2",
+  "start_url": "./?v=6.3",
   "display": "standalone",
   "background_color": "#e9dfcf",
   "theme_color": "#e9dfcf",
