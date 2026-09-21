@@ -1,23 +1,12 @@
 {
-  "name": "Institutional Radar",
-  "short_name": "Radar Crypto",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#0d1117",
-  "lang": "fr",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+  "name":"Institutional Radar V3",
+  "short_name":"Radar V3",
+  "start_url":".",
+  "display":"standalone",
+  "background_color":"#0b0f16",
+  "theme_color":"#0b0f16",
+  "icons":[
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
   ]
 }
