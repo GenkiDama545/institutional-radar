@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f16">
 <link rel="manifest" href="manifest.json">
-<title>Institutional Radar V2.2</title>
+<title>Institutional Radar V2.3</title>
 <style>
 :root{
   --bg:#0b0f16;--panel:#131a24;--panel2:#0f151e;--line:#263241;
@@ -59,12 +59,25 @@ canvas{width:100%;height:190px;display:block}
 .smallBox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;line-height:1.4}
 .smallBox b{display:block;font-size:14px;margin-top:4px}
 @media(max-width:430px){body{padding:12px}.legend{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+
+.selectorWrap{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.coinSelect{flex:1;min-width:0;background:#151c27;color:#edf2f7;border:1px solid #334255;border-radius:12px;padding:12px;font-weight:800}
+.smallBtn{padding:10px 12px;white-space:nowrap}
+.compactGrid{display:grid;grid-template-columns:1fr;gap:7px}
+.compactRow{display:grid;grid-template-columns:58px 1fr 1fr 1fr 28px;align-items:center;gap:7px;background:#131a24;border:1px solid #263241;border-radius:12px;padding:9px 10px;cursor:pointer}
+.compactRow:active{border-color:#4b637e}
+.compactName{font-weight:900;font-size:16px}
+.compactCell{font-size:11px;color:#8e9aaa}
+.compactCell b{display:block;color:#edf2f7;font-size:13px;margin-top:2px}
+.compactArrow{font-size:21px;color:#58a6ff;text-align:right}
+.selectedRow{border-color:#4b78a8;background:#162235}
+@media(max-width:430px){.selectorWrap{flex-direction:column;align-items:stretch}.smallBtn{width:100%}}
 </style>
 </head>
 <body>
 
 <div id="home">
-  <h1>🏦 Institutional Radar <span class="pill">V2.2</span></h1>
+  <h1>🏦 Institutional Radar <span class="pill">V2.3</span></h1>
   <div class="sub">OKX • activité, OI, volume, funding et liquidations. Chaque crypto est maintenant cliquable pour ouvrir son analyse détaillée.</div>
   <div class="top">
     <button class="btn" onclick="loadAll()">↻ Actualiser</button>
@@ -72,8 +85,14 @@ canvas{width:100%;height:190px;display:block}
     <span class="pill" id="status">Chargement…</span>
   </div>
 
-  <div class="section">Radar de flux</div>
-  <div id="grid" class="grid"></div>
+  <div class="section">Choisir une crypto</div>
+  <div class="selectorWrap">
+    <select id="coinSelect" class="coinSelect" onchange="selectCoin(this.value)">
+      <option value="">— Sélectionner une crypto —</option>
+    </select>
+    <button class="btn smallBtn" onclick="openSelected()">Ouvrir l'analyse →</button>
+  </div>
+  <div id="grid" class="compactGrid"></div>
 
   <div class="section">Comment lire le radar</div>
   <div class="legend">
@@ -104,7 +123,7 @@ const assets=[
 
 const base='https://www.okx.com';
 const state={};
-const storeKey='ir_v22_snapshots';
+const storeKey='ir_v23_snapshots';
 const dataCache={};
 
 function num(x){return Number(x||0)}
@@ -165,52 +184,84 @@ async function one(a){
  return d;
 }
 function render(d){
- const r=regime(d.mom,d.oi1h||0);
  const card=document.createElement('div');
- card.className='card coinCard';
+ card.className='compactRow';
+ card.id='row-'+d.name;
  card.onclick=()=>openDetail(d.name);
- const oi=d.oiUsd/1e6;
  card.innerHTML=
- `<div class="cardHead"><div class="name">${d.name}</div><div class="chev">›</div></div>
- <div class="price">${fmt(d.price,d.price<10?4:2)} USDT</div>
- <div class="row"><span>Volume spot 24h</span><b>${fmt(d.vol24/1e6,1)} M$</b></div>
- <div class="row"><span>Open Interest</span><b>${fmt(oi,1)} M$</b></div>
- <div class="row"><span>OI Δ ~1h</span><b class="${cls(d.oi1h||0)}">${d.oi1h==null?'en attente':pct(d.oi1h)}</b></div>
- <div class="row"><span>Funding</span><b class="${cls(d.funding)}">${pct(d.funding)}</b></div>
- <div class="row"><span>Momentum ~24h</span><b class="${cls(d.mom)}">${pct(d.mom)}</b></div>
- <div class="row"><span>Dernière heure / moyenne 24h</span><b>${d.volRatio.toFixed(1)}×</b></div>
- <div class="row"><span>Liquidations reçues ~5 min</span><b>${d.liq5||0}</b></div>
- <div class="regime"><span class="mini">Configuration</span><br><b class="${r[1]}">${r[0]}</b></div>
- <div class="score">Activité / flux : ${d.score}/100</div>
- <div class="bar"><div class="fill" style="width:${d.score}%"></div></div>
- <div class="signal">${d.signal}</div>
- <div class="tap">Appuyer pour ouvrir les graphiques et l'explication →</div>`;
+ `<div class="compactName">${d.name}</div>
+  <div class="compactCell">Prix<b>${fmt(d.price,d.price<10?4:2)} $</b></div>
+  <div class="compactCell">OI<b>${fmt(d.oiUsd/1e6,1)} M$</b></div>
+  <div class="compactCell">Flux<b class="${d.score>=70?'good':d.score<=40?'bad':'neutral'}">${d.score}/100</b></div>
+  <div class="compactArrow">›</div>`;
  return card;
+}
+function selectCoin(name){
+ if(!name)return;
+ document.querySelectorAll('.compactRow').forEach(x=>x.classList.remove('selectedRow'));
+ const row=document.getElementById('row-'+name); if(row)row.classList.add('selectedRow');
+}
+function openSelected(){
+ const name=document.getElementById('coinSelect').value;
+ if(name)openDetail(name);
 }
 async function loadAll(){
  document.getElementById('status').textContent='Mise à jour…';
  const out=await Promise.all(assets.map(a=>one(a).catch(e=>({name:a.name,error:e.message}))));
  const grid=document.getElementById('grid');grid.innerHTML='';
+ const sel=document.getElementById('coinSelect'); const previous=sel.value;
+ sel.innerHTML='<option value="">— Sélectionner une crypto —</option>';
  out.forEach(d=>{
    if(d.error){const x=document.createElement('div');x.className='card';x.innerHTML='<div class="name">'+d.name+'</div><div class="bad">Erreur : '+d.error+'</div>';grid.appendChild(x)}
-   else grid.appendChild(render(d));
+   else {
+     grid.appendChild(render(d));
+     const opt=document.createElement('option'); opt.value=d.name; opt.textContent=d.name+' — '+fmt(d.price,d.price<10?4:2)+' USDT'; sel.appendChild(opt);
+   }
  });
+ if(previous && dataCache[previous]){sel.value=previous;selectCoin(previous)}
  document.getElementById('status').textContent='Mis à jour : '+new Date().toLocaleTimeString('fr-FR');
 }
-function drawLine(canvas,values,labels,title){
+function drawLine(canvas,values,labels,title,unit=''){
  const ctx=canvas.getContext('2d'),w=canvas.clientWidth*devicePixelRatio,h=canvas.clientHeight*devicePixelRatio;
- canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);
- const pad=28*devicePixelRatio, max=Math.max(...values), min=Math.min(...values),range=(max-min)||1;
- ctx.strokeStyle='#263241';ctx.lineWidth=1*devicePixelRatio;
- for(let i=0;i<4;i++){const y=pad+(h-pad*1.5)*i/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad/2,y);ctx.stroke()}
+ ctx.clearRect(0,0,w,h);
+ const padL=46*devicePixelRatio,padR=12*devicePixelRatio,padT=25*devicePixelRatio,padB=24*devicePixelRatio;
+ const max=Math.max(...values),min=Math.min(...values),current=values.at(-1),range=(max-min)||Math.max(Math.abs(max)*0.01,1);
+ const plotW=w-padL-padR,plotH=h-padT-padB;
+ const xAt=i=>padL+plotW*(i/(values.length-1||1));
+ const yAt=v=>padT+plotH*(1-(v-min)/range);
+ ctx.strokeStyle='#263241';ctx.lineWidth=devicePixelRatio;
+ ctx.font=`${10*devicePixelRatio}px Arial`;
+ ctx.fillStyle='#8e9aaa';
+ for(let i=0;i<4;i++){
+   const v=max-range*i/3,y=yAt(v);
+   ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+   ctx.fillText(formatChartValue(v,unit),2,y+4*devicePixelRatio);
+ }
  ctx.beginPath();
- values.forEach((v,i)=>{const x=pad+(w-pad*1.5)*(i/(values.length-1||1));const y=pad+(h-pad*1.5)*(1-(v-min)/range);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+ values.forEach((v,i)=>{const x=xAt(i),y=yAt(v);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
  ctx.strokeStyle='#58a6ff';ctx.lineWidth=2.5*devicePixelRatio;ctx.stroke();
- ctx.fillStyle='#8e9aaa';ctx.font=`${10*devicePixelRatio}px Arial`;
- ctx.fillText(title,pad,12*devicePixelRatio);
- ctx.fillText(String(labels[0]||''),pad,h-6*devicePixelRatio);
- ctx.fillText(String(labels.at(-1)||''),w-65*devicePixelRatio,h-6*devicePixelRatio);
- ctx.fillText(String(max.toFixed(2)),2,h/2);
+ ctx.fillStyle='#edf2f7';ctx.font=`700 ${11*devicePixelRatio}px Arial`;
+ ctx.fillText(title,padL,14*devicePixelRatio);
+ ctx.fillStyle='#35c759';
+ ctx.fillText('Actuel '+formatChartValue(current,unit),padL,h-7*devicePixelRatio);
+ ctx.fillStyle='#edf2f7';
+ ctx.fillText('Max '+formatChartValue(max,unit),w-125*devicePixelRatio,14*devicePixelRatio);
+ ctx.fillStyle='#ffb020';
+ ctx.fillText('Min '+formatChartValue(min,unit),w-125*devicePixelRatio,h-7*devicePixelRatio);
+ // Mark max/min points.
+ [[max,'#35c759','MAX'],[min,'#ffb020','MIN']].forEach(([v,col,label])=>{
+   const i=values.indexOf(v),x=xAt(i),y=yAt(v);
+   ctx.beginPath();ctx.arc(x,y,4*devicePixelRatio,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+   ctx.fillStyle=col;ctx.font=`700 ${9*devicePixelRatio}px Arial`;ctx.fillText(label,Math.min(x+5*devicePixelRatio,w-35*devicePixelRatio),Math.max(y-7*devicePixelRatio,20*devicePixelRatio));
+ });
+ ctx.fillStyle='#8e9aaa';ctx.font=`${9*devicePixelRatio}px Arial`;
+ ctx.fillText(labels[0]||'',padL,h-1*devicePixelRatio);
+ ctx.fillText(labels.at(-1)||'',w-45*devicePixelRatio,h-1*devicePixelRatio);
+}
+function formatChartValue(v,unit){
+ if(unit==='USDT') return fmt(v,v<10?4:2)+' $';
+ if(unit==='M$') return fmt(v,1)+' M$';
+ return fmt(v,2);
 }
 function explanation(d){
  const parts=[];
@@ -242,6 +293,15 @@ function openDetail(name){
  </div>
  <div class="chartCard"><div class="chartTitle">Prix — dernières heures</div><div class="chartSub">Évolution du prix sur les bougies 1H.</div><canvas id="priceChart"></canvas></div>
  <div class="chartCard"><div class="chartTitle">Volume horaire</div><div class="chartSub">Comparaison visuelle de l’activité récente.</div><canvas id="volChart"></canvas></div>
+ <div class="chartCard">
+   <div class="chartTitle">Amplitude de prix</div>
+   <div class="smallGrid">
+     <div class="smallBox">Depuis le plus bas<b class="good">+${(((d.price/Math.min(...vals))-1)*100).toFixed(2)}%</b></div>
+     <div class="smallBox">Sous le plus haut<b class="warn">${(((d.price/Math.max(...vals))-1)*100).toFixed(2)}%</b></div>
+     <div class="smallBox">Amplitude min → max<b>${(((Math.max(...vals)/Math.min(...vals))-1)*100).toFixed(2)}%</b></div>
+     <div class="smallBox">Écart en dollars<b>${fmt(Math.max(...vals)-Math.min(...vals),d.price<10?4:2)} $</b></div>
+   </div>
+ </div>
  <div class="explain"><b>🧠 Ce que le radar comprend</b><br><span>${explanation(d)}</span></div>
  <div class="smallGrid">
    <div class="smallBox">Momentum ~24h<b class="${cls(d.mom)}">${pct(d.mom)}</b></div>
