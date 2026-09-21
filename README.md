@@ -1,4 +1,4 @@
-# Institutional Radar V6.6
+# Institutional Radar V6.7
 
 Evolution de V6 sans changement d’architecture.
 
