@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<title>Institutional Radar</title>
+<style>
+body{font-family:Arial,sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:18px}
+h1{margin:0 0 5px;font-size:24px}.sub{color:#8b949e;margin-bottom:16px}
+button{background:#238636;color:#fff;border:0;border-radius:9px;padding:10px 14px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:16px}
+.name{font-size:20px;font-weight:700}.price{font-size:24px;margin:8px 0}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #21262d}
+.good{color:#3fb950}.warn{color:#d29922}.bad{color:#f85149}
+.score{font-size:22px;font-weight:700;margin-top:12px}
+small{color:#8b949e;display:block;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>🏦 Institutional Radar</h1>
+<div class="sub">V1 — marché OKX • Institutionnel/RWA à ajouter ensuite</div>
+<button onclick="loadAll()">↻ Actualiser</button>
+<div id="status" class="sub">Chargement…</div>
+<div id="grid" class="grid"></div>
+<script>
+const assets=[
+{name:"SOL",spot:"SOL-USDT",perp:"SOL-USDT-SWAP"},
+{name:"XRP",spot:"XRP-USDT",perp:"XRP-USDT-SWAP"},
+{name:"LINK",spot:"LINK-USDT",perp:"LINK-USDT-SWAP"},
+{name:"ONDO",spot:"ONDO-USDT",perp:"ONDO-USDT-SWAP"},
+{name:"ETH",spot:"ETH-USDT",perp:"ETH-USDT-SWAP"},
+{name:"BTC",spot:"BTC-USDT",perp:"BTC-USDT-SWAP"}];
+const base="https://www.okx.com";
+async function get(path){
+ const r=await fetch(base+path); if(!r.ok) throw Error("HTTP "+r.status);
+ const j=await r.json(); if(j.code!=="0") throw Error(j.msg||"OKX error"); return j.data;
+}
+async function one(a){
+ const [t,oi,f,c]=await Promise.all([
+  get("/api/v5/market/ticker?instId="+a.spot),
+  get("/api/v5/public/open-interest?instType=SWAP&instId="+a.perp),
+  get("/api/v5/public/funding-rate?instId="+a.perp),
+  get("/api/v5/market/candles?instId="+a.spot+"&bar=1H&limit=25")]);
+ const price=+t[0].last,vol=+t[0].volCcy24h,funding=+f[0].fundingRate*100;
+ const closes=c.map(x=>+x[4]).reverse(),old=closes[0],recent=closes.at(-1);
+ const mom=(recent/old-1)*100,hi=Math.max(...closes),lo=Math.min(...closes),pos=(price-lo)/(hi-lo||1);
+ let score=50;if(mom>2)score+=12;else if(mom<-2)score-=12;
+ if(Math.abs(funding)<.02)score+=8;else if(Math.abs(funding)>.08)score-=8;
+ if(pos>.75)score+=8;if(pos<.25)score-=8;
+ return {a,price,vol,oi:+oi[0].oi,funding,mom,pos,score:Math.max(0,Math.min(100,Math.round(score)))};
+}
+const fmt=(n,d=2)=>Number(n).toLocaleString("fr-FR",{maximumFractionDigits:d});
+function card(x){
+ const range=x.pos>.75?"haut de range":x.pos<.25?"bas de range":"milieu de range";
+ return `<div class="card"><div class="name">${x.a.name}</div>
+ <div class="price">${fmt(x.price,x.price<1?4:2)} USDT</div>
+ <div class="row"><span>Volume spot 24h</span><b>${fmt(x.vol/1e6,1)} M$</b></div>
+ <div class="row"><span>Open Interest</span><b>${fmt(x.oi/1e6,1)} M$</b></div>
+ <div class="row"><span>Funding</span><b class="${Math.abs(x.funding)<.02?'good':Math.abs(x.funding)<.08?'warn':'bad'}">${fmt(x.funding,4)}%</b></div>
+ <div class="row"><span>Momentum ~24h</span><b class="${x.mom>0?'good':'bad'}">${x.mom>0?'+':''}${fmt(x.mom,2)}%</b></div>
+ <div class="row"><span>Range 25h</span><b>${range}</b></div>
+ <div class="score">Score activité : ${x.score}/100</div>
+ <small>⚠️ Pas un signal d'achat/vente. V1 n'intègre pas encore les flux institutionnels.</small></div>`;
+}
+async function loadAll(){
+ document.getElementById("status").textContent="Récupération des données OKX…";
+ document.getElementById("grid").innerHTML="";
+ const out=[];
+ for(const a of assets){try{out.push(await one(a));}catch(e){out.push({a,error:e.message});}}
+ document.getElementById("grid").innerHTML=out.map(x=>x.error?
+ `<div class="card"><div class="name">${x.a.name}</div><p class="bad">Erreur : ${x.error}</p></div>`:card(x)).join("");
+ document.getElementById("status").textContent="Mis à jour : "+new Date().toLocaleString("fr-FR");
+}
+if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+loadAll();
+</script>
+</body></html>
