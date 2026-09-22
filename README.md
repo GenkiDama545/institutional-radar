@@ -1,13 +1,16 @@
-# Institutional Radar V7.2 — Adaptive Scenario Monitor
+# Institutional Radar V7.3
 
-Evolution of V7.1 focused on scenario tracking.
-- Locked scenario levels: trigger, invalidation, TP1/TP2/TP3 do not move during monitoring.
-- Explicit scenario state: formation, trigger close, activation, invalidation.
-- Timeframe buttons for the projection chart: 1m, 5m, 15m, 30m, 1H, 4H, 1D.
-- Zoom controls change the visible candle window without changing scenario levels.
-- Dashed levels are drawn directly on the candlestick chart.
-- Monitor refreshes live price and confirmation data about every 10 seconds while open.
-- Invalidated setups can be cleared manually to search for a new configuration.
-- Fixed OI delta display scaling and removed fixed 5m/15m wording from trader guidance.
+V7.3 refond le moteur de scénario et la lecture trader.
 
-All scenario levels are hypothetical calculations from market data and must not be treated as guarantees.
+## Changements principaux
+- scénario verrouillé uniquement si son invalidation n'est pas déjà franchie à la création ;
+- recherche d'une nouvelle configuration fonctionnelle après invalidation ;
+- niveaux d'un scénario verrouillé conservés pendant tout son suivi ;
+- prix et bougies du graphique actualisés périodiquement ;
+- RSI conservé et StochRSI corrigé avec lignes K/D ;
+- étiquettes Déclencheur / Invalidation / TP1 / TP2 / TP3 mieux réservées à droite du graphique ;
+- blocs Lecture trader, Contexte & acteurs et Scénarios enrichis ;
+- nettoyage du texte de développement présent sur l'accueil ;
+- menu horizontal des indicateurs conservé.
+
+Les scénarios restent conditionnels : une activation signifie que les conditions définies par le moteur sont remplies, pas qu'un résultat financier est garanti.
