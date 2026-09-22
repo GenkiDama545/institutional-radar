@@ -1,16 +1,7 @@
-# Institutional Radar V7.3
+# Institutional Radar V8.4 — Extension Risk
 
-V7.3 refond le moteur de scénario et la lecture trader.
+Build de travail / release candidate.
 
-## Changements principaux
-- scénario verrouillé uniquement si son invalidation n'est pas déjà franchie à la création ;
-- recherche d'une nouvelle configuration fonctionnelle après invalidation ;
-- niveaux d'un scénario verrouillé conservés pendant tout son suivi ;
-- prix et bougies du graphique actualisés périodiquement ;
-- RSI conservé et StochRSI corrigé avec lignes K/D ;
-- étiquettes Déclencheur / Invalidation / TP1 / TP2 / TP3 mieux réservées à droite du graphique ;
-- blocs Lecture trader, Contexte & acteurs et Scénarios enrichis ;
-- nettoyage du texte de développement présent sur l'accueil ;
-- menu horizontal des indicateurs conservé.
+Nouveauté principale : le moteur distingue désormais momentum et risque d'extension. Une forte hausse ou baisse n'est pas interprétée automatiquement comme un signal inverse ; elle augmente le risque de retracement lorsque plusieurs facteurs d'extension convergent (variation, RSI, Bollinger, funding, OI, position dans la range). Ce risque pénalise la tradabilité mais ne force pas un biais LONG/SHORT.
 
-Les scénarios restent conditionnels : une activation signifie que les conditions définies par le moteur sont remplies, pas qu'un résultat financier est garanti.
+Le classement continue d'utiliser le moteur central partagé.
