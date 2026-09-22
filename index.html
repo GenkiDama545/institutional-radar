@@ -15,7 +15,7 @@
 @media(max-width:520px){.signalSummary{grid-template-columns:repeat(2,minmax(0,1fr))}.monitorMini{grid-template-columns:1fr 1fr 1fr}.monitorHeadline{font-size:20px}}
 </style>
 </style></head><body><div class="wrap">
-<header class="top"><div class="brand"><div class="logo">🏦</div><div><div class="h1">Institutional Radar <span class="pill">V8.4 • Adaptive Brain</span></div><div class="sub">Détection → compréhension → lecture trader → scénario → simulation</div></div></div><div class="pill" id="clock">--:--</div></header>
+<header class="top"><div class="brand"><div class="logo">🏦</div><div><div class="h1">Institutional Radar <span class="pill">V8.4.2 • Adaptive Brain</span></div><div class="sub">Détection → compréhension → lecture trader → scénario → simulation</div></div></div><div class="pill" id="clock">--:--</div></header>
 <section id="home">
 <div class="toolbar"><button class="btn" id="scan">↻ Scanner</button><span class="pill" id="status">Initialisation…</span><span class="pill">40 contrats • catégories par qualité</span></div>
 <div class="panel"><h2>🔥 Classement de tradabilité</h2><div class="sub">Cohérence observable des signaux. Un score ne constitue ni une probabilité de gain ni une garantie d’entrée.</div><div class="rank" id="rank"></div></div>
@@ -38,7 +38,7 @@ const n=x=>Number.isFinite(Number(x))?Number(x):0;
 const price=x=>{x=n(x);if(!Number.isFinite(x))return 'N/D';const a=Math.abs(x);if(a===0)return '0';if(a<1e-9)return x.toLocaleString('fr-FR',{minimumFractionDigits:14,maximumFractionDigits:16,useGrouping:false});if(a<1e-6)return x.toLocaleString('fr-FR',{minimumFractionDigits:12,maximumFractionDigits:14,useGrouping:false});if(a<1e-4)return x.toLocaleString('fr-FR',{minimumFractionDigits:10,maximumFractionDigits:12,useGrouping:false});if(a<1e-2)return x.toLocaleString('fr-FR',{minimumFractionDigits:8,maximumFractionDigits:10,useGrouping:false});if(a<1)return x.toLocaleString('fr-FR',{minimumFractionDigits:6,maximumFractionDigits:8,useGrouping:false});if(a<1000)return x.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:4,useGrouping:true});return x.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:true})};
 const money=x=>{x=n(x);return x>=1e9?(x/1e9).toFixed(1)+' Md$':x>=1e6?(x/1e6).toFixed(1)+' M$':x>=1e3?(x/1e3).toFixed(0)+' k$':x.toFixed(0)+' $'};
 const pct=x=>(n(x)*100).toFixed(3)+'%'; const chg=x=>n(x).toFixed(2)+'%';
-async function get(path){const r=await fetch(API+path);if(!r.ok)throw Error('API '+r.status);const j=await r.json();if(j.code&&j.code!=='0')throw Error(j.msg||'API');return j.data||[]}
+async function get(path,timeoutMs=9000){const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),timeoutMs);try{const r=await fetch(API+path,{signal:ctl.signal});if(!r.ok)throw Error('API '+r.status);const j=await r.json();if(j.code&&j.code!=='0')throw Error(j.msg||'API');return j.data||[]}catch(e){if(e?.name==='AbortError')throw Error('API timeout');throw e}finally{clearTimeout(timer)}}
 function tier(v,a){let vs=a.map(x=>x.vol).sort((a,b)=>b-a),i=vs.indexOf(v)/Math.max(1,vs.length-1);if(i<.08)return['mega','Très grosse'];if(i<.25)return['large','Grosse'];if(i<.62)return['mid','Intermédiaire'];return['small','Plus petite']}
 /* V8.4 — CENTRAL SIGNAL ENGINE
    One shared vocabulary for ranking, analysis and scenarios.
@@ -388,8 +388,8 @@ function adaptiveEngine(frames,currentData){
 function scenarioLevel(label,v,cls=''){return `<div class="levelBox"><small>${label}</small><b class="${cls}">${axisPrice(v)}</b></div>`}
 function scenarioCard(title,icon,s,side,condition,next,why,kind){let dir=side==='long'?'LONG':side==='short'?'SHORT':'ATTENTE',risk=s.risk,rr1=s.rr[0],rr2=s.rr[1],rr3=s.rr[2];return `<div class="scenarioCard ${side==='short'?'danger':''}"><div class="sectionTitle"><h3>${icon} ${title}</h3><span class="tag ${side==='short'?'r':'b'}">${dir}</span></div><div class="scenarioMeta"><span class="tag">Entrée conditionnelle</span><span class="tag">R/R TP1 ${rr1.toFixed(1)}</span><span class="tag">R/R TP2 ${rr2.toFixed(1)}</span><span class="tag">R/R TP3 ${rr3.toFixed(1)}</span></div><div class="scenarioLevels">${scenarioLevel('Entrée',s.entry,'blue')}${scenarioLevel('Stop / invalidation',s.stop,'bad')}${scenarioLevel('TP1',s.tp1,'good')}${scenarioLevel('TP2',s.tp2,'good')}${scenarioLevel('TP3',s.tp3,'good')}${scenarioLevel('Risque / unité',risk,'warn')}</div><div class="scenarioWhy"><b>Déclencheur :</b> ${condition}<br><b>Pourquoi :</b> ${why}<br><b>Invalidation :</b> le stop est franchi avec une clôture confirmée. Dans ce cas, le scénario est abandonné, pas déplacé pour "laisser respirer".</div><div class="monitorOpen"><button class="btn secondary" onclick="openScenarioMonitor('${current.id}','${kind}')">📈 Ouvrir la projection en temps réel →</button></div><div class="nextCheck"><span>⏱️ <b>Prochaine action</b><br><span class="sub">${next}</span></span><span class="tag">À attendre</span></div></div>`}
 async function scenarioHtml(){
- const specs=[['1m',360],['5m',300],['15m',240],['30m',180],['1H',180],['4H',120],['1D',90]];
- const got=await Promise.all(specs.map(async ([k,n])=>[k,await candles(current.id,k,n)]));
+ const specs=[['5m',180],['15m',180],['30m',150],['1H',150],['4H',100],['1D',80]];
+ const got=await Promise.all(specs.map(async ([k,n])=>{try{return [k,await candles(current.id,k,n)]}catch(err){return [k,[]]}}));
  const frames=Object.fromEntries(got),e=adaptiveEngine(frames,current);
  if(!e)return `<div class="panel"><div class="empty">Pas assez de données pour construire des scénarios chiffrés fiables.</div></div>`;
  const c=e.signalCounts;
