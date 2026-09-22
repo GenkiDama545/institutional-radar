@@ -1,7 +1,13 @@
-# Institutional Radar V8.4 — Extension Risk
+# Institutional Radar V8.4.4 — Scenario + Simulator
 
-Build de travail / release candidate.
+Corrections :
+- libellés des niveaux du scénario déplacés à gauche du graphique ;
+- prix live affiché à gauche ;
+- projection du scénario conservée en actualisation live (~10 s) ;
+- simulateur intégré directement sous la projection ;
+- gains TP1 / TP2 / TP3, perte au stop et R/R TP1/TP2/TP3 ;
+- simulation liée aux niveaux verrouillés du scénario ;
+- simulateur indépendant conservé dans Outils ;
+- prise en charge LONG / SHORT dans le simulateur indépendant.
 
-Nouveauté principale : le moteur distingue désormais momentum et risque d'extension. Une forte hausse ou baisse n'est pas interprétée automatiquement comme un signal inverse ; elle augmente le risque de retracement lorsque plusieurs facteurs d'extension convergent (variation, RSI, Bollinger, funding, OI, position dans la range). Ce risque pénalise la tradabilité mais ne force pas un biais LONG/SHORT.
-
-Le classement continue d'utiliser le moteur central partagé.
+La simulation est hypothétique et n'intègre pas frais, funding, slippage ou fiscalité.
