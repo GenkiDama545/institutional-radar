@@ -18,6 +18,9 @@ const rejectionLevels={entry:100,stop:105,tp1:95,tp2:90,tp3:85,risk:5,rr:[1,2,3]
 context.testEngine={live:102,shortSetup:true,shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
 assert.equal(run('chooseFreshScenario(testEngine,"rejection")'),'rejection');
 assert.equal(run('scenarioLockFromEngine(testEngine,"rejection")?.entry'),100);
+assert.equal(run("accountCanTradePerp('FIL-USDT-SWAP')"),false,'a public swap is not assumed available in the account');
+run("all=[{id:'FIL-USDT',sym:'FIL',perpId:'FIL-USDT-SWAP',analysisCoverage:'complete',perpAnalysisCoverage:'complete',perpScenarioModel:{shortSetup:true,shortPattern:'rejection'},shortScore:90,hasShortScenario:true,hasLongScenario:false}]");
+assert.equal(run('scenarioCandidates().length'),0,'unverified swaps cannot become trade candidates');
 const now=Date.now(),barMs=300000;
 const bar=(t,o,h,l,c,confirm=1)=>({t,o,h,l,c,v:100,confirm});
 const lock={id:'long-1',entry:100,stop:95,tp1:105};
@@ -70,8 +73,8 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script/g)||[]).length,1);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.2"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.2'/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.3"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.3'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
