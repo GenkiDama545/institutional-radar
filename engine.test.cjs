@@ -9,6 +9,11 @@ const localStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k
 const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,setInterval,clearInterval,crypto:{randomUUID:()=> 'test-uuid'}});
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
+context.document={querySelectorAll:()=>[],getElementById:()=>null};
+run("all=[{id:'FIL-USDT',sym:'FIL',perpId:'FIL-USDT-SWAP',price:1,perpPrice:1}];current=all[0];scenarioLocks[scenarioLockKey('FIL-USDT','rejection')]={id:'favorite-lock',entry:.92,stop:.93,tp1:.9};toggleFavoriteScenario('FIL-USDT','rejection')");
+assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.rejection,'favorite-lock','a scenario favorite preserves the exact lock');
+run("toggleFavoriteScenario('FIL-USDT','rejection')");
+assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.rejection,undefined,'the same button removes the favorite');
 const rejectionLevels={entry:100,stop:105,tp1:95,tp2:90,tp3:85,risk:5,rr:[1,2,3]};
 context.testEngine={live:102,shortSetup:true,shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
 assert.equal(run('chooseFreshScenario(testEngine,"rejection")'),'rejection');
@@ -65,8 +70,8 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script/g)||[]).length,1);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.0"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.0'/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.2"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.2'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
