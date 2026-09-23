@@ -1,4 +1,4 @@
-const CACHE='institutional-radar-v8.6.7';
+const CACHE='institutional-radar-v8.6.8';
 const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('institutional-radar-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
