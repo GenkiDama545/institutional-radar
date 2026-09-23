@@ -708,9 +708,10 @@ function scenarioValid(kind,sc,live){
 }
 function scenarioMarket(kind){return isShortScenarioKind(kind)?'perp':(currentScenarioInstrument==='perp'?'perp':'spot')}
 function scenarioDirection(kind){return isShortScenarioKind(kind)?'short':'long'}
+function scenarioLevelsFromEngine(e,kind){return e?.[kind==='rejection'?'shortRejection':kind]}
 function scenarioActionLabel(kind){const m=scenarioMarket(kind),d=scenarioDirection(kind);return `${m==='perp'?'⚡ PERP':'💰 SPOT'} • ${d==='short'?'🔴 SHORT':'🟢 LONG'}`}
 function scenarioLockFromEngine(e,kind){
- const sc=e?.[kind];if(!sc||!scenarioValid(kind,sc,e.live))return null;
+ const sc=scenarioLevelsFromEngine(e,kind);if(!sc||!scenarioValid(kind,sc,e.live))return null;
  return {id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),kind,market:scenarioMarket(kind),direction:scenarioDirection(kind),createdAt:Date.now(),anchorKey:e.anchorKey,triggerKey:e.triggerKey,entry:sc.entry,stop:sc.stop,tp1:sc.tp1,tp2:sc.tp2,tp3:sc.tp3,risk:sc.risk,rr:[...sc.rr],score:e.score,signals:e.signals.map(s=>({...s})),confluences:[...e.confluences]};
 }
 function chooseFreshScenario(e,preferred){
@@ -720,7 +721,8 @@ function chooseFreshScenario(e,preferred){
  const order=[preferred,...base].filter((x,i,a)=>x&&a.indexOf(x)===i);
  for(const k of order){
   const allowed=isShortScenarioKind(k)?e?.shortSetup:e?.longSetup;
-  if(e?.[k]&&allowed&&scenarioValid(k,e[k],e.live))return k;
+  const sc=scenarioLevelsFromEngine(e,k);
+  if(sc&&allowed&&scenarioValid(k,sc,e.live))return k;
  }
  return null;
 }
@@ -760,7 +762,7 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
  for(const b of refreshBars)scenarioMonitorFrames[b]=await candles(marketInstId,b,b==='1m'?300:180);
  const e=adaptiveEngine(scenarioMonitorFrames,{...current,id:marketInstId,price:live});if(seq!==scenarioMonitorSeq||!e)return;
  let actualKind=kind;const lockKey=scenarioLockKey(current.id,actualKind);let lock=scenarioLocks[lockKey];
- if(!lock){actualKind=e[kind]&&(isShortScenarioKind(kind)?e.shortSetup:e.longSetup)&&scenarioValid(kind,e[kind],e.live)?kind:null;if(!actualKind){$('deepBody').innerHTML=`<button class="btn secondary" onclick="closeScenarioMonitor()">← Scénarios</button><div class="panel"><div class="monitorAction bad"><div class="actionTitle">🔴 AUCUNE CONFIGURATION VALIDE</div><div class="monitorSub">Le moteur refuse de verrouiller un scénario dont l'invalidation est déjà franchie.</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${kind}')">🔎 Rechercher à nouveau</button></div></div>`;return}const nk=scenarioLockKey(current.id,actualKind);lock=scenarioLockFromEngine(e,actualKind);if(!lock)return;lock.instrumentId=marketInstId;scenarioLocks[nk]=lock;saveScenarioLocks();scenarioMonitorKind=actualKind;journalCreate(e,actualKind,lock)}
+ if(!lock){const candidate=scenarioLevelsFromEngine(e,kind);actualKind=candidate&&(isShortScenarioKind(kind)?e.shortSetup:e.longSetup)&&scenarioValid(kind,candidate,e.live)?kind:null;if(!actualKind){$('deepBody').innerHTML=`<button class="btn secondary" onclick="closeScenarioMonitor()">← Scénarios</button><div class="panel"><div class="monitorAction bad"><div class="actionTitle">🔴 AUCUNE CONFIGURATION VALIDE</div><div class="monitorSub">Le moteur refuse de verrouiller un scénario dont l'invalidation est déjà franchie.</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${kind}')">🔎 Rechercher à nouveau</button></div></div>`;return}const nk=scenarioLockKey(current.id,actualKind);lock=scenarioLockFromEngine(e,actualKind);if(!lock)return;lock.instrumentId=marketInstId;scenarioLocks[nk]=lock;saveScenarioLocks();scenarioMonitorKind=actualKind;journalCreate(e,actualKind,lock)}
  const triggerKey=lock.triggerKey||e.triggerKey,anchorKey=lock.anchorKey||e.anchorKey;
  if(!scenarioMonitorFrames[triggerKey])scenarioMonitorFrames[triggerKey]=await candles(marketInstId,triggerKey,180);
  if(scenarioMonitorBar!==triggerKey&&!scenarioMonitorFrames[scenarioMonitorBar])scenarioMonitorFrames[scenarioMonitorBar]=await candles(marketInstId,scenarioMonitorBar,300);
