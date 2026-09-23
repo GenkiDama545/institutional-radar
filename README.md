@@ -29,3 +29,11 @@ Les résultats réels ne réécrivent jamais directement le moteur. Ils servent 
 
 ## Publication
 Décompresser et publier les fichiers du dossier sur GitHub Pages.
+
+
+## Interface V8.6.2
+- En-tête synchronisé sur V8.6.2 • Learning Engine.
+- Top des configurations tous marchés confondus.
+- Identification explicite SPOT + LONG / PERP + SHORT.
+- Filtres de lecture : Tout, Spot, Long, Short.
+- Les catégories Très tradables / Tradables / Surveillance / Faible intérêt restent séparées.
