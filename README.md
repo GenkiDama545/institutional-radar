@@ -1,9 +1,31 @@
-Institutional Radar — V8.4.8
+# Institutional Radar V8.6.2 — Learning Engine
 
-Correction ciblée du chargement Scénarios.
+Fondation Spot + Perp, moteur directionnel LONG/SHORT et mémoire d'apprentissage gouvernée.
 
-Cause corrigée : le moteur utilisait `mtf.major.length` alors que l'objet retourné par le consensus ne contenait pas de propriété `major`. Cela provoquait exactement l'erreur « Cannot read properties of undefined (reading 'length') ».
+## Principes
+- Univers Spot large ; perpétuel associé quand disponible.
+- Analyse technique commune aux deux produits.
+- Données spécifiques aux dérivés conservées : OI, funding, liquidations quand disponibles.
+- Spot : scénario LONG ; Perp : LONG et SHORT.
+- LONG et SHORT sont évalués séparément.
+- Aucun scénario est une sortie valide.
+- Les scénarios sont conditionnels : entrée, invalidation, TP1/TP2/TP3.
+- Les données manquantes restent N/D.
 
-V8.4.8 calcule maintenant le nombre de timeframes majeures à partir de `mtf.rows` avant d'évaluer l'alignement.
+## Learning Engine
+Chaque scénario verrouillé dans la projection live est enregistré localement avec :
+- contexte marché au moment de la création ;
+- direction, produit, régime, MTF ;
+- scores LONG/SHORT et qualité ;
+- signaux et confluences ;
+- niveaux Entry/SL/TP ;
+- résultat final et R réalisé.
 
-Conserve les corrections précédentes : labels de projection à gauche, actualisation live, simulation intégrée TP1/TP2/TP3.
+Les données restent dans le navigateur. Elles ne remontent pas automatiquement vers ChatGPT.
+Le bouton **Mémoire & apprentissage → Exporter les données d'apprentissage** produit un JSON `IR_LEARNING_V1` qui peut ensuite être envoyé ici pour analyse.
+
+## Gouvernance
+Les résultats réels ne réécrivent jamais directement le moteur. Ils servent à formuler des hypothèses qui doivent passer par DEV, validation, puis HOLDOUT avant adoption.
+
+## Publication
+Décompresser et publier les fichiers du dossier sur GitHub Pages.
