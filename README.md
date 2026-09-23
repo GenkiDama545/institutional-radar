@@ -1,4 +1,4 @@
-# Institutional Radar V8.6.4 — Learning Engine
+# Institutional Radar V8.6.5 — Learning Engine
 
 Fondation Spot + Perp, moteur directionnel LONG/SHORT et mémoire d'apprentissage gouvernée.
 
@@ -31,8 +31,8 @@ Les résultats réels ne réécrivent jamais directement le moteur. Ils servent 
 Décompresser et publier les fichiers du dossier sur GitHub Pages.
 
 
-## Interface V8.6.4
-- En-tête synchronisé sur V8.6.4 • Learning Engine.
+## Interface V8.6.5
+- En-tête synchronisé sur V8.6.5 • Learning Engine.
 - Top des configurations tous marchés confondus.
 - Identification explicite SPOT + LONG / PERP + SHORT.
 - Filtres de lecture : Tout, Spot, Long, Short.
