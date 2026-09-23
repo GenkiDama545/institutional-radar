@@ -1,4 +1,4 @@
-# Institutional Radar V8.7.1
+# Institutional Radar V8.7.3
 
 Radar de marché Spot OKX avec Perp associé, classements LONG/SHORT, scénarios conditionnels et mémoire locale. Le score classe les configurations ; il ne mesure pas une probabilité de gain.
 
@@ -21,4 +21,9 @@ Publier les fichiers de ce dossier à la racine du dépôt. `index.html` charge 
 
 ## Limites
 
-Les taux historiques ne représentent pas la performance d'un compte de trading. Le laboratoire ne dispose pas de séries historiques d'OI, de funding, de frais, de slippage ou d'ordres exécutés. Le modèle d'un actif non inspecté en profondeur ne reçoit pas de scénario certifié. Les observations du journal ne peuvent pas remplacer un relevé d'ordres OKX.
+Les taux historiques ne représentent pas la performance d'un compte de trading. Le laboratoire ne dispose pas de séries historiques d'OI, de funding, de frais, de slippage ou d'ordres exécutés. Une analyse dont les bougies manquent ne reçoit pas de scénario certifié. Les observations du journal ne peuvent pas remplacer un relevé d'ordres OKX.
+
+## V8.7.3 — couverture et lisibilité
+Tous les 150 actifs Spot retenus par volume sont analysés, et tous leurs Perps associés peuvent entrer dans la sélection SHORT. Le scan peut durer plus longtemps. Une carte « scénario conditionnel » indique que les niveaux existent, sans déclarer que l’entrée s’est produite.
+
+Le classement affiche l'heure de fin de scan et son âge ; il ne se recalcule qu'à la demande ou au chargement. Les graphiques indiquent l'heure de consultation et la dernière bougie. Le graphique approfondi et celui de la fiche ouverte interrogent les bougies toutes les 10 secondes tant qu'ils sont ouverts ; les autres pages graphiques disposent d'un bouton d'actualisation. L'historique du funding demande l'identifiant Perp, et indique clairement l'absence de Perp le cas échéant. Les petites étiquettes mobiles, les commandes au clavier et la lecture de la fiche ont été améliorées.

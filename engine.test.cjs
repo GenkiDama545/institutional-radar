@@ -65,7 +65,7 @@ assert.match(html,/<script src="\.\/app\.js"><\/script>/);
 assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js'/);
 console.log('checks passed: journal, historical replay, missing data, ranking and single source');
 const elements=new Map();
-context.document={getElementById:id=>{if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',value:id==='tier'?'all':id==='sort'?'score':'',disabled:false});return elements.get(id)}};
+context.document={getElementById:id=>{if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',value:id==='tier'?'all':id==='sort'?'score':'',disabled:false});return elements.get(id)},querySelectorAll:()=>[]};
 const ticker=(name)=>({instId:name+'-USDT',last:'100',open24h:'98',volCcy24h:'1000000',high24h:'102',low24h:'95',ts:String(now)});
 put('spotRows',[ticker('BTC'),ticker('ETH')]);
 put('swapRows',[{instId:'BTC-USDT-SWAP'},{instId:'ETH-USDT-SWAP'}]);
@@ -94,6 +94,24 @@ run('scan()').then(()=>{
       assert.ok(run('all[0].perpScenarioModel?.shortPattern'),'Perp bearish pattern is evaluated');
       assert.ok(run('all[0].shortScore>=62'),'Perp direction feeds SHORT score');
       console.log('instrument check: Perp bearish configuration reaches directional gate');
+      put('spotRows',Array.from({length:101},(_,i)=>ticker('ASSET'+i)));
+      put('swapRows',[]);
+      run('candles=async ()=>mockBars');
+      return run('scan()').then(()=>{
+        assert.equal(run('all.length'),101);
+        assert.equal(run('all[100].analysisCoverage'),'complete','asset after the previous top-100 limit is analyzed');
+        console.log('universe check: asset 101 receives complete technical analysis');
+        context.document.querySelectorAll=()=>[];
+        run('current={...all[0],perpId:"ASSET0-USDT-SWAP"};get=async path=>{lastFundingPath=path;return [{fundingTime:String(Date.now()-3600000),fundingRate:"0.0001"},{fundingTime:String(Date.now()),fundingRate:"0.0002"}]}');
+        return run('metricPage("Funding")').then(()=>{
+          assert.match(run('lastFundingPath'),/instId=ASSET0-USDT-SWAP/,'funding history must use the Perp instrument');
+          run('current={...current,perpId:null}');
+          return run('metricPage("Funding")').then(()=>{
+            assert.match(elements.get('deepBody').innerHTML,/Pas de contrat perpétuel associé/);
+            console.log('funding check: Perp identifier and clear Spot-only state');
+          });
+        });
+      });
     });
   });
 }).catch(e=>{console.error(e);process.exitCode=1});
