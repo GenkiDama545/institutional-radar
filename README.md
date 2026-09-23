@@ -1,4 +1,4 @@
-# Institutional Radar V8.7.3
+# Institutional Radar V8.8.0
 
 Radar de marché Spot OKX avec Perp associé, classements LONG/SHORT, scénarios conditionnels et mémoire locale. Le score classe les configurations ; il ne mesure pas une probabilité de gain.
 
@@ -23,7 +23,15 @@ Publier les fichiers de ce dossier à la racine du dépôt. `index.html` charge 
 
 Les taux historiques ne représentent pas la performance d'un compte de trading. Le laboratoire ne dispose pas de séries historiques d'OI, de funding, de frais, de slippage ou d'ordres exécutés. Une analyse dont les bougies manquent ne reçoit pas de scénario certifié. Les observations du journal ne peuvent pas remplacer un relevé d'ordres OKX.
 
-## V8.7.3 — couverture et lisibilité
+## V8.8.0 — couverture et lisibilité
 Tous les 150 actifs Spot retenus par volume sont analysés, et tous leurs Perps associés peuvent entrer dans la sélection SHORT. Le scan peut durer plus longtemps. Une carte « scénario conditionnel » indique que les niveaux existent, sans déclarer que l’entrée s’est produite.
 
 Le classement affiche l'heure de fin de scan et son âge ; il ne se recalcule qu'à la demande ou au chargement. Les graphiques indiquent l'heure de consultation et la dernière bougie. Le graphique approfondi et celui de la fiche ouverte interrogent les bougies toutes les 10 secondes tant qu'ils sont ouverts ; les autres pages graphiques disposent d'un bouton d'actualisation. L'historique du funding demande l'identifiant Perp, et indique clairement l'absence de Perp le cas échéant. Les petites étiquettes mobiles, les commandes au clavier et la lecture de la fiche ont été améliorées.
+
+## V8.8.0 — mise à jour et mobile
+L’HTML indique la version du moteur JavaScript réellement chargé. Le fichier du moteur reçoit un identifiant de version dans son URL pour éviter de garder une ancienne copie après une mise à jour. Le menu flottant et les filtres fixes se masquent dans les vues détaillées, afin de libérer le graphique et le scénario sur téléphone.
+
+## V8.8.0 — parcours et graphique direct
+Accueil : classement et choix de sens visibles, marché complet et glossaire repliables. La fiche présente quatre étapes : résumé, graphique, lecture trader, scénario. Price Action, signaux et contexte sont regroupés sous Analyses supplémentaires. Les pastilles EMA, RSI et autres dans le graphique indiquent des éléments affichés, ce ne sont pas des boutons.
+
+Le graphique approfondi s’abonne aux bougies OKX du seul instrument et intervalle ouverts via WebSocket public ; la bougie en cours se redessine à réception des messages, avec limite de rafraîchissement visuel. Si le flux ne fonctionne pas, les bougies se rechargent toutes les dix secondes. Le classement, le score, OI et funding se recalculent lors d’un scan et ne bougent pas avec chaque bougie. Les scénarios verrouillés ne deviennent pas des ordres automatiques. La connexion de flux dépend du navigateur et de la disponibilité du service OKX ; elle n’a pas été testée sur le téléphone du destinataire.

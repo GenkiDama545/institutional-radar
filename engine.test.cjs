@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'app.js'),'utf8');
 const storage=new Map();
 const localStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
-const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,crypto:{randomUUID:()=> 'test-uuid'}});
+const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,setInterval,clearInterval,crypto:{randomUUID:()=> 'test-uuid'}});
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
 const now=Date.now(),barMs=300000;
@@ -61,8 +61,25 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script/g)||[]).length,1);
-assert.match(html,/<script src="\.\/app\.js"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js'/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.0"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.0'/);
+assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
+assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
+class MockSocket{
+  constructor(url){this.url=url;this.readyState=1;MockSocket.latest=this}
+  send(message){this.lastSent=message}
+  close(){this.closed=true}
+}
+put('WebSocket',MockSocket);
+run('testStreamBars=[];testStreamStates=[];testStream=subscribeCandleStream("BTC-USDT","1m",c=>testStreamBars.push(c),s=>testStreamStates.push(s))');
+assert.match(MockSocket.latest.url,/\/business$/);
+MockSocket.latest.onopen();
+assert.match(MockSocket.latest.lastSent,/"channel":"candle1m"/);
+MockSocket.latest.onmessage({data:JSON.stringify({arg:{instId:'BTC-USDT',channel:'candle1m'},data:[[String(now),'100','101','99','100.5','10','0','1000','0']]})});
+assert.equal(run('testStreamBars.length'),1,'live candle reaches the chart model');
+assert.equal(run('testStreamBars[0].c'),100.5);
+run('testStream.stop()');
+assert.equal(MockSocket.latest.closed,true,'leaving a chart closes its stream');
 console.log('checks passed: journal, historical replay, missing data, ranking and single source');
 const elements=new Map();
 context.document={getElementById:id=>{if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',value:id==='tier'?'all':id==='sort'?'score':'',disabled:false});return elements.get(id)},querySelectorAll:()=>[]};
