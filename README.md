@@ -1,4 +1,4 @@
-# Institutional Radar V8.6.9 — Learning Engine
+# Institutional Radar V8.7.0 — Learning Engine
 
 Fondation Spot + Perp, moteur directionnel LONG/SHORT et mémoire d'apprentissage gouvernée.
 
@@ -31,14 +31,14 @@ Les résultats réels ne réécrivent jamais directement le moteur. Ils servent 
 Décompresser et publier les fichiers du dossier sur GitHub Pages.
 
 
-## Interface V8.6.9
-- En-tête synchronisé sur V8.6.9 • Learning Engine.
+## Interface V8.7.0
+- En-tête synchronisé sur V8.7.0 • Learning Engine.
 - Top des configurations tous marchés confondus.
 - Identification explicite SPOT + LONG / PERP + SHORT.
 - Filtres de lecture : Tout, Spot, Long, Short.
 - Les catégories Très tradables / Tradables / Surveillance / Faible intérêt restent séparées.
 
-## V8.6.9 — nettoyage et gouvernance renforcée
+## V8.7.0 — nettoyage et gouvernance renforcée
 - Une seule clé canonique pour l’historique des scans et une seule pour le journal d’apprentissage. Les anciennes clés sont migrées une fois puis ne sont plus écrites.
 - Journal d’apprentissage idempotent : un verrou de scénario ne crée pas de doublon après rafraîchissement.
 - Export `IR_LEARNING_V2` avec version applicative explicite.
@@ -46,17 +46,20 @@ Décompresser et publier les fichiers du dossier sur GitHub Pages.
 - Les statistiques servent à générer des hypothèses ; elles ne réécrivent jamais automatiquement les poids du moteur.
 - Limite locale du journal portée à 1500 observations.
 
-## V8.6.9 — SHORT et cache
+## V8.7.0 — SHORT et cache
 - Les catégories utilisent le score LONG/SHORT propre à chaque scénario.
 - Un SHORT cohérent mais en attente du niveau de déclenchement est visible avec le statut « Déclencheur en attente ». Le Top ne montre que les scénarios valides.
 - Le service worker est enregistré et sa version de cache suit la version du code.
 - `app.js` est une copie du moteur intégré dans `index.html`. `_script.js` et `check.js` sont des copies historiques non chargées par le navigateur et ne font pas partie de cette livraison.
 - Les fichiers locaux de mémoire de l’application ne sont pas supprimés lors de la mise à jour.
 
-## Diagnostic SHORT V8.6.9
+## Diagnostic SHORT V8.7.0
 Le déclencheur utilise 5m, 15m, 30m ou 1H ; 4H/1D restent des unités de contexte. Le mode SHORT affiche les nombres de perpétuels, d’actifs analysés, de motifs baissiers, de scores éligibles, de scénarios valides et d’erreurs. Ces nombres sont issus du scan réel, pas des tests de laboratoire.
 
-## V8.6.9
+## V8.7.0
 - Le tableau « Explorer tout le marché » s’affiche et ouvre les fiches sans variables JavaScript manquantes.
 - Les requêtes dérivés et chandeliers sont étalées ; les erreurs d’analyse sont affichées par cause en mode SHORT.
 - Une erreur d’API n’est pas masquée par un scénario fabriqué.
+
+## V8.7.0 — score commun
+Le même score calibré classe tous les actifs explorés, les cartes Spot/LONG et les cartes SHORT/PERP. Il combine qualité des signaux (42 %), direction (26 %), liquidité relative (12 %), risque d'extension (10 %) et maturité du scénario (10 %). Les actifs sans analyse complète et ceux sans scénario confirmé ont un plafond explicite. Les filtres d'éligibilité des scénarios sont conservés. Le score n'est pas une probabilité de gain.
