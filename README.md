@@ -1,4 +1,4 @@
-# Institutional Radar V8.9.12
+# Institutional Radar V8.9.13
 
 ## Surveillance continue (service déployé)
 
@@ -10,7 +10,7 @@ Radar d'observation crypto sur les marchés publics OKX, publié par GitHub Page
 
 1. Récupérer les tickers Spot USDT et les contrats FUTURES X-Perp actifs publiés par OKX, sans liste de bases imposée. Les swaps USDT publics ne sont pas traités comme disponibles sur ce compte.
 2. Comparer les bougies 1 minute de chaque marché accessible au volume habituel du même marché. Une hausse simultanée du volume et du prix peut aussi être une chute du prix : elle reste une découverte, pas un trade.
-3. Conserver **toutes** ces découvertes dans l'explorateur, y compris celles hors de la présélection des 150 Spot pour l'analyse approfondie. Les favoris restent analysés. L'ouverture d'une découverte non encore analysée lance son analyse technique à la demande.
+3. Conserver **toutes** ces découvertes dans l'explorateur, y compris celles hors de la présélection des 150 Spot pour l'analyse approfondie. Les favoris restent analysés. Après 30 places réservées aux Spot les plus liquides, la priorité spécifique aux poussées minute s’arrête à 65 actifs sélectionnés au total ; les autres places vont au filtre général de mouvement. Une poussée peut aussi satisfaire ce filtre général. Les références de volume et les catégories de taille sont calculées séparément pour Spot et X-Perp. L'ouverture d'une découverte non encore analysée lance son analyse technique à la demande.
 4. Pour les marchés présélectionnés, analyser les unités de temps, l'OI et le funding uniquement pour les X-Perps publics. Rafraîchir les tickers à la fin du scan : une cotation absente, vieille de plus de deux minutes ou décalée de plus de 1 % par rapport au prix analysé bloque le classement d'un scénario.
 5. Un scénario chiffré requiert des niveaux cohérents, un prix récent, un écart achat/vente disponible et inférieur ou égal à 1 %, ainsi qu'un volume 24 h d'au moins 100 000 $ **ou** 5 000 $ sur la minute observée. Pour les Spot, les vingt premiers niveaux du carnet doivent en outre montrer au moins 500 $ de chaque côté à moins de 1 % du prix. Ces seuils sont des filtres exploratoires, non une garantie de liquidité. Les autres mouvements restent visibles dans « Cryptos qui sortent du lot ».
 
