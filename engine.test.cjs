@@ -19,6 +19,13 @@ context.testEngine={live:102,shortSetup:true,shortRejection:rejectionLevels,anch
 assert.equal(run('chooseFreshScenario(testEngine,"rejection")'),'rejection');
 assert.equal(run('scenarioLockFromEngine(testEngine,"rejection")?.entry'),100);
 assert.equal(run("accountCanTradePerp('FIL-USDT-SWAP')"),false,'a public swap is not assumed available in the account');
+context.testXperpInstruments=[{instId:'ALLO-USD_UM_XPERP-310101',ruleType:'xperp',state:'live'},{instId:'ALLO-USDT-SWAP',ruleType:'normal',state:'live'}];
+context.testXperpTickers=[{instId:'ALLO-USD_UM_XPERP-310101',last:'0.30',open24h:'0.25',volCcy24h:'5000000',ts:'1'}];
+assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers).length'),1,'live X-Perps use their own FUTURES universe');
+assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers)[0].id'),'ALLO-USD_UM_XPERP-310101');
+run("all=[{...xperpUniverse(testXperpInstruments,testXperpTickers)[0],analysisCoverage:'complete',hasLongScenario:true,longScore:80,signalModel:{qualityScore:80,extensionRisk:10},directional:{longScore:80,shortScore:60},scenarioModel:{breakout:{entry:.31,stop:.29,tp1:.33},pullback:{entry:.29,stop:.27,tp1:.32}}}];current=all[0]");
+assert.equal(run('scenarioCandidates()[0].market'),'perp','ALLO X-Perp is not mislabeled as Spot');
+assert.equal(run('scenarioMarket("breakout")'),'perp','a long X-Perp retains its contract market');
 run("all=[{id:'FIL-USDT',sym:'FIL',perpId:'FIL-USDT-SWAP',analysisCoverage:'complete',perpAnalysisCoverage:'complete',perpScenarioModel:{shortSetup:true,shortPattern:'rejection'},shortScore:90,hasShortScenario:true,hasLongScenario:false}]");
 assert.equal(run('scenarioCandidates().length'),0,'unverified swaps cannot become trade candidates');
 const now=Date.now(),barMs=300000;
@@ -73,8 +80,8 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script/g)||[]).length,1);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.3"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.3'/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.8\.4"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.8\.4'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
