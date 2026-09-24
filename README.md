@@ -1,4 +1,4 @@
-# Institutional Radar V8.9.6
+# Institutional Radar V8.9.7
 
 ## Surveillance continue (service déployé)
 
