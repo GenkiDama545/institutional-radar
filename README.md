@@ -1,4 +1,8 @@
-# Institutional Radar V8.9.1
+# Institutional Radar V8.9.2
+
+## Surveillance continue (préparée, non déployée)
+
+La rubrique « Surveillance continue » est prévue pour les mouvements Spot USDT d'un service hébergé indépendant. Tant que `hosted-config.js` n'a pas d'URL vérifiée, elle signale que ce service est en préparation et le scan existant continue à fonctionner. Après raccordement, seuls les mouvements très récents avec un flux en état sont affichés. Ils ne deviennent jamais des scénarios automatiquement. Le service, ses limites et sa procédure d'installation figurent dans `server/README.md`.
 
 Radar d'observation crypto sur les marchés publics OKX, publié par GitHub Pages. Aucun ordre n'est envoyé. Le score classe des configurations observées, sans représenter une probabilité de gain.
 
