@@ -109,11 +109,11 @@ assert.equal(run('money(null)'),'N/D');
 assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.equal((html.match(/<script /g)||[]).length,3);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.1"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.1"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.1"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.1'/);
+assert.equal((html.match(/<script /g)||[]).length,5);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.2"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.2"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.2"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.2'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
