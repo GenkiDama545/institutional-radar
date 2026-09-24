@@ -1,13 +1,24 @@
 // Continuous public-trade observer. Prices and quote volumes are observed, not executable orders.
 export class MarketMonitor {
-  constructor({now=()=>Date.now(),keep=500}={}){this.now=now;this.keep=keep;this.bars=new Map();this.events=[];this.seen=new Map();this.connections=0;this.lastTradeAt=null}
+  constructor({now=()=>Date.now(),keep=500}={}){this.now=now;this.keep=keep;this.bars=new Map();this.events=[];this.seen=new Map();this.pending=new Map();this.connections=0;this.lastTradeAt=null}
+  observeLater(id,price,ts){
+    const active=this.pending.get(id);if(!active)return;
+    for(const e of active){
+      for(const minutes of [5,15,60]){
+        if(e.markouts?.[minutes]||ts<e.detectedAt+minutes*60000)continue;
+        e.markouts??={};e.markouts[minutes]={price,movePct:+((price/e.referencePrice-1)*100).toFixed(3),observedAt:ts,delayMs:ts-e.detectedAt-minutes*60000};
+      }
+    }
+    const remaining=active.filter(e=>this.events.includes(e)&&!e.markouts?.[60]);
+    if(remaining.length)this.pending.set(id,remaining);else this.pending.delete(id);
+  }
   trade(row){
     const id=row.instId,price=Number(row.px),size=Number(row.sz),ts=Number(row.ts);
     if(!/^[A-Z0-9]+-USDT$/.test(id)||!(price>0)||!(size>0)||!Number.isFinite(ts)||ts>this.now()+60000||ts<this.now()-120000)return;
     const key=id+':'+row.tradeId;
     if(row.tradeId&&this.seen.has(key))return;
     if(row.tradeId)this.seen.set(key,ts);
-    this.lastTradeAt=this.now();
+    this.lastTradeAt=this.now();this.observeLater(id,price,ts);
     const minute=Math.floor(ts/60000)*60000,series=this.bars.get(id)||[];
     let bar=series.at(-1);
     if(!bar||bar.ts!==minute){if(bar&&bar.ts>minute)return;bar={ts:minute,open:price,close:price,usd:0,count:0};series.push(bar);while(series.length>25)series.shift();this.bars.set(id,series)}
@@ -22,11 +33,12 @@ export class MarketMonitor {
     if(ratio<3||Math.abs(movePct)<.5)return;
     const existing=this.events.find(e=>e.instId===id&&e.minute===minute);
     if(existing){existing.ratio=ratio;existing.movePct=movePct;existing.usd=bar.usd;existing.price=price;existing.updatedAt=this.now();return}
-    this.events.unshift({instId:id,market:'spot',minute,detectedAt:this.now(),updatedAt:this.now(),ratio,movePct,usd:bar.usd,price,status:'detected',execution:'unverified'});
+    const event={instId:id,market:'spot',minute,detectedAt:this.now(),updatedAt:this.now(),ratio,movePct,usd:bar.usd,price,referencePrice:price,markouts:{},status:'detected',execution:'unverified'};
+    this.events.unshift(event);this.pending.set(id,[...(this.pending.get(id)||[]),event]);
     if(this.events.length>this.keep)this.events.length=this.keep;
   }
   prune(){const cutoff=this.now()-30*60000;for(const [key,ts] of this.seen)if(ts<cutoff)this.seen.delete(key);for(const [id,series] of this.bars){const recent=series.filter(b=>b.ts>=this.now()-30*60000);if(recent.length)this.bars.set(id,recent);else this.bars.delete(id)}}
   snapshot(){return {version:1,updatedAt:this.now(),lastTradeAt:this.lastTradeAt,connections:this.connections,events:this.events,bars:[...this.bars]}}
-  restore(saved){if(saved?.version!==1)return;this.events=Array.isArray(saved.events)?saved.events.slice(0,this.keep):[];this.bars=new Map(Array.isArray(saved.bars)?saved.bars:[]);this.lastTradeAt=saved.lastTradeAt||null;this.prune()}
+  restore(saved){if(saved?.version!==1)return;this.events=Array.isArray(saved.events)?saved.events.slice(0,this.keep):[];this.bars=new Map(Array.isArray(saved.bars)?saved.bars:[]);this.lastTradeAt=saved.lastTradeAt||null;this.pending.clear();for(const e of this.events)if(e.referencePrice>0&&!e.markouts?.[60]&&this.now()-e.detectedAt<90*60000)this.pending.set(e.instId,[...(this.pending.get(e.instId)||[]),e]);this.prune()}
   publicState(){const fresh=this.lastTradeAt!==null&&this.now()-this.lastTradeAt<120000&&this.connections>0;return {fresh,lastTradeAt:this.lastTradeAt,connections:this.connections,coverage:this.bars.size,events:this.events.map(e=>({...e,live:fresh&&this.now()-e.updatedAt<120000&&this.bars.get(e.instId)?.at(-1)?.ts>=this.now()-120000}))}}
 }
