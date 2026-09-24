@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.8.6';
+const APP_VERSION='V8.8.7';
 // Public OKX market data does not prove that a contract is available to this account.
 // X-Perp bases observed in account screenshots are matched against live instrument IDs.
 const ACCOUNT_VERIFIED_XPERP_BASES=new Set(['ALLO','FIL','SOL']); // Observed in the user's OKX screenshots.
@@ -179,12 +179,13 @@ function refreshScanFreshness(){const el=$('scanFreshness');if(!el)return;el.tex
 // Inspect each market's minute candles before choosing the expensive six-timeframe analysis.
 function minuteVolumePulse(rows){
  if(!Array.isArray(rows))return null;
- const bars=rows.map(r=>({ts:Number(r[0]),quote:Number(r[7]),confirm:Number(r[8])})).filter(b=>Number.isFinite(b.ts)&&Number.isFinite(b.quote)&&b.quote>=0).sort((a,b)=>a.ts-b.ts);
+ const bars=rows.map(r=>({ts:Number(r[0]),close:Number(r[4]),quote:Number(r[7]),confirm:Number(r[8])})).filter(b=>Number.isFinite(b.ts)&&Number.isFinite(b.quote)&&b.quote>=0&&Number.isFinite(b.close)).sort((a,b)=>a.ts-b.ts);
  const completed=bars.filter(b=>b.confirm===1),baseline=completed.slice(-21,-1).map(b=>b.quote).sort((a,b)=>a-b);
  if(baseline.length<8)return null;
  const typical=(baseline[Math.floor((baseline.length-1)/2)]+baseline[Math.ceil((baseline.length-1)/2)])/2;
- const recent=Math.max(completed.at(-1)?.quote||0,bars.at(-1)?.confirm===0?bars.at(-1).quote:0);
- return {ratio:typical>0?recent/typical:recent>0?Infinity:0,recentUsd:recent,baselineUsd:typical,ts:bars.at(-1)?.ts};
+ const latest=bars.at(-1),lastCompleted=completed.at(-1),observed=latest?.confirm===0&&latest.quote>(lastCompleted?.quote||0)?latest:lastCompleted;
+ const recent=observed?.quote||0,previous=bars[bars.indexOf(observed)-1];
+ return {ratio:typical>0?recent/typical:recent>0?Infinity:0,recentUsd:recent,baselineUsd:typical,priceMovePct:previous?.close>0?(observed.close/previous.close-1)*100:null,ts:observed?.ts};
 }
 function selectSpotForAnalysis(assets,limit=150){
  const eligible=assets.filter(x=>x.market==='spot'&&x.price>0&&x.volUsd>0);
@@ -268,9 +269,9 @@ function scenarioCandidates(){
  all.forEach(x=>{
   if(x.analysisCoverage==='complete'&&x.hasLongScenario&&x.longScore>=66){
    const longKind=(scenarioValid('breakout',x.scenarioModel?.breakout,x.price)?'breakout':'pullback');
-   out.push({x,direction:'long',market:x.market==='xperp'?'perp':'spot',score:calibratedScore(x,'long'),kind:longKind,instruments:[x.market==='xperp'?'perp':'spot']});
+   if(scenarioValid(longKind,x.scenarioModel?.[longKind],x.price))out.push({x,direction:'long',market:x.market==='xperp'?'perp':'spot',score:calibratedScore(x,'long'),ready:true,kind:longKind,instruments:[x.market==='xperp'?'perp':'spot']});
   }
-  if(accountCanTradePerp(x.perpId)&&x.perpAnalysisCoverage==='complete'&&x.perpScenarioModel?.shortSetup&&x.shortScore>=62)out.push({x,direction:'short',market:'perp',score:calibratedScore(x,'short'),ready:x.hasShortScenario,kind:x.perpScenarioModel.shortPattern==='reversal'?'rejection':(x.perpScenarioModel.shortPattern||'breakdown'),instruments:['perp']});
+  if(accountCanTradePerp(x.perpId)&&x.perpAnalysisCoverage==='complete'&&x.hasShortScenario&&x.shortScore>=62){const kind=x.perpScenarioModel.shortPattern==='reversal'?'rejection':(x.perpScenarioModel.shortPattern||'breakdown'),levels=x.perpScenarioModel[kind==='rejection'?'shortRejection':kind];if(scenarioValid(kind,levels,x.perpPrice))out.push({x,direction:'short',market:'perp',score:calibratedScore(x,'short'),ready:true,kind,instruments:['perp']})}
  });
  return out;
 }
@@ -279,10 +280,13 @@ function marketModeHint(){return 'Spot et X-Perps identifiés dans ton OKX (ALLO
 function configCard(c,i,compact=false){const {x,direction,market,score}=c,tr=terrain(score),isShort=direction==='short';return `<div tabindex="0" role="button" class="rankcard compactRank ${compact?'topRankCard':''}" onclick="openDetail('${x.id}','${market}','${direction}')"><div class="rankTop"><span class="ranknum">${String(i+1).padStart(2,'0')}</span><b class="rankSym">${esc(x.sym)}</b><span class="tag ${market==='spot'?'b':'r'}">${market==='spot'?'💰 SPOT':'⚡ X-PERP'}</span><span class="tag ${isShort?'r':'g'}">${isShort?'🔴 SHORT':'🟢 LONG'}</span><span class="scoreBadge">${score}/100</span></div>${x.minutePulse?.recentUsd>=200&&x.minutePulse.ratio>=3?`<div class="sub">⚡ Volume 1 min ×${x.minutePulse.ratio===Infinity?'∞':x.minutePulse.ratio.toFixed(1)} • ${money(x.minutePulse.recentUsd)} récemment${x.volUsd<100000?' • faible liquidité 24 h':''}</div>`:''}${x.market==='xperp'?`<div class="sub" style="overflow-wrap:anywhere">${esc(x.id)}</div>`:''}<div class="rankMetrics"><div class="metric"><small>Prix</small><b>${price(isShort?x.perpPrice:x.price)}</b></div><div class="metric"><small>24h</small><b class="${x.chg>=0?'good':'bad'}">${chg(x.chg)}</b></div><div class="metric"><small>Volume</small><b>${money(x.volUsd)}</b></div></div><div class="meter"><i style="width:${score}%"></i></div><div class="rankFoot"><span class="tag ${tr[1]}">${tr[0]}</span><span class="sub">${c.ready===false?'⏳ Attendre le déclencheur':'🎯 Étudier les conditions'}</span></div></div>`}
 function renderRank(){
  const candidates=scenarioCandidates();
+ const readyIds=new Set(candidates.map(c=>c.x.id));
+ const discovery=all.filter(x=>!readyIds.has(x.id)&&x.minutePulse?.recentUsd>=200&&x.minutePulse.ratio>=3&&Number.isFinite(x.minutePulse.priceMovePct)&&Math.abs(x.minutePulse.priceMovePct)>=.5).sort((a,b)=>Math.abs(b.minutePulse.priceMovePct)*Math.min(20,b.minutePulse.ratio)-Math.abs(a.minutePulse.priceMovePct)*Math.min(20,a.minutePulse.ratio)).slice(0,12);
+ $('discovery').innerHTML=discovery.length?`<div class="rank">${discovery.map(x=>`<div tabindex="0" role="button" class="rankcard" onclick="openDetail('${x.id}')"><b>${esc(x.sym)}</b> <span class="tag y">À analyser • aucun scénario confirmé</span><div class="sub">${x.market==='xperp'?'X-Perp':'Spot'} • volume 1 min ×${x.minutePulse.ratio===Infinity?'∞':x.minutePulse.ratio.toFixed(1)} • prix 1 min ${chg(x.minutePulse.priceMovePct)} • ${money(x.minutePulse.recentUsd)} échangés</div><div class="sub">${x.analysisCoverage==='complete'?'Attendre un déclencheur avec invalidation':'Données techniques incomplètes'}${x.volUsd<100000?' • liquidité faible':''}</div></div>`).join('')}</div>`:'<div class="empty">Aucune poussée simultanée du prix et du volume hors scénarios actuellement analysés.</div>';
  const top=[...candidates].filter(c=>c.ready!==false).sort((a,b)=>b.score-a.score).slice(0,5);
  $('topConfigs').innerHTML=top.length?`<div class="topRankGrid">${top.map((c,i)=>configCard(c,i,true)).join('')}</div>`:'<div class="empty">Aucun scénario suffisamment construit pour constituer le Top.</div>';
  const filtered=candidates.filter(c=>marketMode==='all'||(marketMode==='spot'&&c.market==='spot')||(marketMode==='long'&&c.direction==='long')||(marketMode==='short'&&c.direction==='short')).filter(c=>bucket(c.score)===filter).sort((a,b)=>b.score-a.score);
- $('rankTitle').textContent=`${bucketName(filter)} • ${modeLabel()}`;
+ $('rankTitle').textContent=`Scénarios chiffrés • ${bucketName(filter)} • ${modeLabel()}`;
  $('modeHint').textContent=marketModeHint();
  $('rank').innerHTML=filtered.length?`<div class="rank">${filtered.map((c,i)=>configCard(c,i)).join('')}</div>`:`<div class="empty">Aucune configuration ${marketMode==='short'?'SHORT / PERP ':marketMode==='spot'?'SPOT ':marketMode==='long'?'LONG ':''}dans ${bucketName(filter)} actuellement.<br><span class="sub">Vérifie aussi les autres catégories : le classement LONG et SHORT dépend du score propre à chaque sens.</span></div>`;
 }
