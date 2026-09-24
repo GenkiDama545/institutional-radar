@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.9.2';
+const APP_VERSION='V8.9.3';
 // Public OKX market data does not prove that a contract is available to this account.
 // X-Perp bases observed in account screenshots are matched against live instrument IDs.
 const ACCOUNT_VERIFIED_XPERP_BASES=new Set(['ALLO','FIL','SOL']); // Observed in the user's OKX screenshots.
@@ -945,4 +945,4 @@ function backHome(){stopGraphUpdates();$('deep').classList.add('hidden');$('deta
 document.querySelectorAll('#marketMode .modeBtn').forEach(b=>b.onclick=()=>{marketMode=b.dataset.mode;document.querySelectorAll('#marketMode .modeBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});$('scan').onclick=scan;$('back1').onclick=backHome;$('back2').onclick=backDetail;$('sort').onchange=drawTable;$('tier').onchange=drawTable;$('search').oninput=drawTable;document.querySelectorAll('#tradeTabs button').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('#tradeTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});$('toolsBtn').onclick=()=>$('drawer').classList.add('open');$('closeDrawer').onclick=()=>$('drawer').classList.remove('open');$('drawer').onclick=e=>{if(e.target===$('drawer'))$('drawer').classList.remove('open')};document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click()}});bindAcc();setInterval(refreshScanFreshness,60000);setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('fr-FR')},1000);$('clock').textContent=new Date().toLocaleTimeString('fr-FR');$('runtimeVersion').textContent=APP_VERSION+' • Learning Engine';scan();
 
 renderHostedFeed();refreshHostedFeed();setInterval(refreshHostedFeed,30000);
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.2',{updateViaCache:'none'}).catch(console.warn));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.3',{updateViaCache:'none'}).catch(console.warn));
