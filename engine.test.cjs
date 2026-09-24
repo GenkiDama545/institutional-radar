@@ -58,6 +58,11 @@ context.testSpotPool=Array.from({length:170},(_,i)=>({id:`BIG${i}-USDT`,market:'
 context.testSpotPool.push({id:'SMALL-USDT',market:'spot',price:1,volUsd:160000,chg:24,high:1.3,low:.95});
 assert.equal(run('selectSpotForAnalysis(testSpotPool).some(x=>x.id==="SMALL-USDT")'),true,'liquid small asset with movement is analyzed beyond the volume top 150');
 assert.equal(run('selectSpotForAnalysis(testSpotPool).length'),150,'preliminary screen bounds the expensive candle scan');
+context.testBurstPool=Array.from({length:260},(_,i)=>({id:`BURST${i}-USDT`,market:'spot',price:1,volUsd:1000000-i*100,vol:1000000-i*100,chg:i>=160?20:0,high:1.1,low:.9,minutePulse:i<160?{ratio:30-i/100,recentUsd:10000}:null}));
+const balanced=run('selectSpotForAnalysis(testBurstPool)');
+assert.equal(balanced.length,150,'deep scan retains its bounded budget');
+assert.ok(balanced.filter(x=>!x.minutePulse).length>=80,'minute bursts cannot occupy most deep-analysis places');
+
 context.testMinuteBars=Array.from({length:21},(_,i)=>[String(1000+i*60000),'1','1','1','1','0','0',String(i===20?900:40),'1']);
 assert.ok(run('minuteVolumePulse(testMinuteBars).ratio')>=20,'minute spike is measured against the same market baseline');
 context.testSpotPool.push({id:'TINY-USDT',market:'spot',price:1,volUsd:1000,chg:0,high:1.01,low:.99,minutePulse:{ratio:22.5,recentUsd:900}});
@@ -119,10 +124,10 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script /g)||[]).length,6);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.12"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.12"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.12"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.12'/);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.13"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.13"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.13"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.13'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{

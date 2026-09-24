@@ -20,7 +20,9 @@
   const movement=x=>Math.min(35,Math.abs(x.chg||0))*Math.min(1,Math.log10(1+x.volUsd)/6)+Math.min(20,Math.max(0,(x.high-x.low)/x.price*100));
   const byOpportunity=[...eligible].sort((a,b)=>movement(b)-movement(a)||b.volUsd-a.volUsd);
   const picked=new Map(byVolume.map(x=>[x.id,x]));
-  for(const x of byPulse){if(picked.size>=Math.min(limit,120))break;picked.set(x.id,x)}
+  // Reserve most deep-analysis slots for the broader market opportunity screen.
+  // Every burst remains discoverable and can be analyzed on demand.
+  for(const x of byPulse){if(picked.size>=Math.min(limit,65))break;picked.set(x.id,x)}
   for(const x of byOpportunity){if(picked.size>=limit)break;picked.set(x.id,x)}
   for(const x of eligible)if(favorites[x.id])picked.set(x.id,x);
   return [...picked.values()];
