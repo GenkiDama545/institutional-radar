@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.9.1';
+const APP_VERSION='V8.9.2';
 // Public OKX market data does not prove that a contract is available to this account.
 // X-Perp bases observed in account screenshots are matched against live instrument IDs.
 const ACCOUNT_VERIFIED_XPERP_BASES=new Set(['ALLO','FIL','SOL']); // Observed in the user's OKX screenshots.
@@ -183,6 +183,23 @@ const isDiscovery=RadarMarket.isDiscovery;
 const executionCheck=RadarMarket.executionCheck;
 const bookDepthUsd=RadarMarket.bookDepthUsd;
 let discoveries=[],discoveryExpanded=false;
+let hostedFeed=null,hostedFeedError=null;
+async function refreshHostedFeed(){
+ const url=String(globalThis.RADAR_HOSTED_URL||'').replace(/\/$/,'');if(!url)return;
+ try{const response=await fetch(url+'/api/discoveries',{signal:AbortSignal.timeout(8000),cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);
+  hostedFeed=RadarHosted.normalize(await response.json());hostedFeedError=null;
+ }catch(e){hostedFeed=null;hostedFeedError=String(e.message||e)}
+ renderHostedFeed();
+}
+function renderHostedFeed(){
+ const el=$('hostedDiscoveries');if(!el)return;
+ const url=String(globalThis.RADAR_HOSTED_URL||'');if(!url){el.textContent='Service continu en préparation. Le scan du navigateur reste disponible.';return}
+ if(hostedFeedError){el.textContent='Surveillance continue indisponible : '+hostedFeedError+'. Lance un scan pour vérifier le marché.';return}
+ if(!hostedFeed){el.textContent='Connexion à la surveillance continue…';return}
+ if(!hostedFeed.fresh){el.textContent='Flux interrompu ou données périmées. Les mouvements enregistrés ne sont pas présentés comme actuels.';return}
+ const live=hostedFeed.events.filter(e=>e.live);
+ el.innerHTML=`<div class="sub">${hostedFeed.coverage} marchés observés • ${live.length} mouvement(s) récent(s) • ces alertes ne constituent pas des scénarios.</div>${live.length?`<div class="rank">${live.slice(0,8).map(e=>`<div class="rankcard"><b>${esc(e.instId)}</b> <span class="tag y">À vérifier • Spot</span><div class="sub">Volume 1 min ×${Number(e.ratio).toFixed(1)} • prix ${chg(e.movePct)} • ${money(e.usd)} échangés</div><div class="sub">Détecté à ${timeLabel(Number(e.detectedAt))} • liquidité et prix à revérifier par le scan</div></div>`).join('')}</div>`:'<div class="sub">Aucune poussée récente enregistrée.</div>'}`;
+}
 async function scan(){
  if(scanRunning)return;scanRunning=true;$('scan').disabled=true;refreshScanFreshness();
  $('status').textContent='Construction de l’univers Spot…';
@@ -927,4 +944,5 @@ function toolPage(type){stopGraphUpdates();$('back2').onclick=backHome;if(scenar
 function backHome(){stopGraphUpdates();$('deep').classList.add('hidden');$('detail').classList.add('hidden');$('home').classList.remove('hidden')}
 document.querySelectorAll('#marketMode .modeBtn').forEach(b=>b.onclick=()=>{marketMode=b.dataset.mode;document.querySelectorAll('#marketMode .modeBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});$('scan').onclick=scan;$('back1').onclick=backHome;$('back2').onclick=backDetail;$('sort').onchange=drawTable;$('tier').onchange=drawTable;$('search').oninput=drawTable;document.querySelectorAll('#tradeTabs button').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('#tradeTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});$('toolsBtn').onclick=()=>$('drawer').classList.add('open');$('closeDrawer').onclick=()=>$('drawer').classList.remove('open');$('drawer').onclick=e=>{if(e.target===$('drawer'))$('drawer').classList.remove('open')};document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click()}});bindAcc();setInterval(refreshScanFreshness,60000);setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('fr-FR')},1000);$('clock').textContent=new Date().toLocaleTimeString('fr-FR');$('runtimeVersion').textContent=APP_VERSION+' • Learning Engine';scan();
 
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.1',{updateViaCache:'none'}).catch(console.warn));
+renderHostedFeed();refreshHostedFeed();setInterval(refreshHostedFeed,30000);
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.2',{updateViaCache:'none'}).catch(console.warn));
