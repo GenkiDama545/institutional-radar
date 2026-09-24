@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.8.4';
+const APP_VERSION='V8.8.5';
 // Public OKX market data does not prove that a contract is available to this account.
 // X-Perp bases observed in account screenshots are matched against live instrument IDs.
 const ACCOUNT_VERIFIED_XPERP_BASES=new Set(['ALLO','FIL','SOL']); // Observed in the user's OKX screenshots.
@@ -176,6 +176,18 @@ function makeSpark(vals,color='#65b8ff'){if(!vals||vals.length<2)return '';vals=
 let lastCompletedScanAt=null;
 function clockStamp(ts){return ts?new Date(ts).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'inconnue'}
 function refreshScanFreshness(){const el=$('scanFreshness');if(!el)return;el.textContent=scanRunning?'Scan en cours : le classement précédent reste affiché.':lastCompletedScanAt?`Classement calculé le ${clockStamp(lastCompletedScanAt)} • ${Math.floor((Date.now()-lastCompletedScanAt)/60000)} min écoulée(s). Appuie sur Scanner pour recalculer.`:'Aucun scan terminé : résultats en attente.'}
+// The expensive six-timeframe scan follows a broad ticker screen, not a market-cap or volume-only ranking.
+function selectSpotForAnalysis(assets,limit=150){
+ const eligible=assets.filter(x=>x.market==='spot'&&x.price>0&&x.volUsd>=100000);
+ const byVolume=[...eligible].sort((a,b)=>b.volUsd-a.volUsd).slice(0,Math.min(40,limit));
+ const movement=x=>Math.min(35,Math.abs(x.chg||0))*Math.min(1,Math.log10(1+x.volUsd)/6)+Math.min(20,Math.max(0,(x.high-x.low)/x.price*100));
+ const byOpportunity=[...eligible].sort((a,b)=>movement(b)-movement(a)||b.volUsd-a.volUsd);
+ const picked=new Map(byVolume.map(x=>[x.id,x]));
+ for(const x of byOpportunity){if(picked.size>=limit)break;picked.set(x.id,x)}
+ // A saved asset remains inspectable even if it drops out of today's preliminary ranking.
+ for(const x of eligible)if(favorites[x.id])picked.set(x.id,x);
+ return [...picked.values()];
+}
 async function scan(){
  if(scanRunning)return;scanRunning=true;$('scan').disabled=true;refreshScanFreshness();
  $('status').textContent='Construction de l’univers Spot…';
@@ -184,9 +196,10 @@ async function scan(){
    const [futureInstruments,futureTickers]=await Promise.allSettled([get('/public/instruments?instType=FUTURES'),get('/market/tickers?instType=FUTURES')]);
    const xperps=futureInstruments.status==='fulfilled'&&futureTickers.status==='fulfilled'?xperpUniverse(futureInstruments.value,futureTickers.value):[];
    const swaps=new Map(swapTickers.filter(x=>x.instId.endsWith('-USDT-SWAP')).map(x=>[x.instId.replace('-USDT-SWAP',''),x]));
-   let raw=spotTickers.filter(x=>x.instId.endsWith('-USDT')).map(x=>{const last=n(x.last),open=n(x.open24h),vol=n(x.volCcy24h),sym=x.instId.replace('-USDT','');return {id:x.instId,spotId:x.instId,perpId:swaps.get(sym)?.instId||null,perpPrice:nullableNumber(swaps.get(sym)?.last),sym,market:'spot',hasPerp:!!swaps.get(sym),price:last,vol,volUsd:vol,chg:open>0?((last-open)/open)*100:0,high:n(x.high24h),low:n(x.low24h),oi:null,funding:null,oiDelta:null,marketTs:nullableNumber(x.ts),oiTs:null,fundingTs:null,rangePos:last&&n(x.high24h)>n(x.low24h)?(last-n(x.low24h))/Math.max(1e-12,n(x.high24h)-n(x.low24h)):null}}).filter(x=>x.vol>0&&x.price>0).sort((a,b)=>b.vol-a.vol).slice(0,150).concat(xperps);
+   const spotAssets=spotTickers.filter(x=>x.instId.endsWith('-USDT')).map(x=>{const last=n(x.last),open=n(x.open24h),vol=n(x.volCcy24h),sym=x.instId.replace('-USDT','');return {id:x.instId,spotId:x.instId,perpId:swaps.get(sym)?.instId||null,perpPrice:nullableNumber(swaps.get(sym)?.last),sym,market:'spot',hasPerp:!!swaps.get(sym),price:last,vol,volUsd:vol,chg:open>0?((last-open)/open)*100:0,high:n(x.high24h),low:n(x.low24h),oi:null,funding:null,oiDelta:null,marketTs:nullableNumber(x.ts),oiTs:null,fundingTs:null,rangePos:last&&n(x.high24h)>n(x.low24h)?(last-n(x.low24h))/Math.max(1e-12,n(x.high24h)-n(x.low24h)):null}});
+   let raw=selectSpotForAnalysis(spotAssets).concat(xperps);
    const med=raw.reduce((s,x)=>s+x.vol,0)/Math.max(1,raw.length);raw.forEach(x=>{x.medVol=med;x.marketMedianVol=raw[Math.floor(raw.length/2)]?.vol||med});
-   $('universeInfo').textContent=`${raw.length-xperps.length} Spot actifs • ${xperps.length} X-Perps identifiés dans OKX`;
+   $('universeInfo').textContent=`${spotAssets.length} Spot examinés • ${raw.length-xperps.length} retenus pour l'analyse • ${xperps.length} X-Perps`;
    await chunkRequests(raw.filter(x=>x.perpId),4,async x=>{try{const o=await get('/public/open-interest?instType='+(x.market==='xperp'?'FUTURES':'SWAP')+'&instId='+encodeURIComponent(x.perpId));x.oi=nullableNumber(o[0]?.oiUsd);x.oiTs=x.oi==null?null:Date.now()}catch{x.oi=null}try{const f=await get('/public/funding-rate?instId='+encodeURIComponent(x.perpId));x.funding=nullableNumber(f[0]?.fundingRate);x.fundingTs=x.funding==null?null:Date.now()}catch{x.funding=null}const h=history[x.id]||{samples:[]},prev=h.samples?.at(-1);x.oiDelta=prev&&Number.isFinite(prev.oi)&&prev.oi>0&&Number.isFinite(x.oi)?((x.oi-prev.oi)/prev.oi)*100:null;h.samples=[...(h.samples||[]),{ts:Date.now(),oi:x.oi,price:x.price,vol:x.vol,funding:x.funding,score:0}].slice(-192);history[x.id]=h});
    const deepUniverse=raw;shortScanErrors=0;scanErrorReasons={};$('status').textContent=`Analyse technique de ${deepUniverse.length}/${raw.length} actifs…`;
    const chunk=chunkRequests;
