@@ -13,9 +13,9 @@ Pour Railway, `railway.json` configure le Dockerfile, le contrôle HTTP et le re
 ## Limites à lever avant raccordement à l'application
 
 - La fenêtre de référence nécessite environ neuf minutes de transactions consécutives ; les actifs sans transaction durant une minute ne disposent pas d'une série régulière. Les données perdues lors d'une coupure WebSocket ne sont pas reconstruites. Les événements anciens restent enregistrés mais `live` devient faux.
-- Les nouveaux instruments apparus après le démarrage ne sont pas encore ajoutés aux abonnements actifs : redémarrer le service après une nouvelle cotation. Les abonnements refusés par OKX sont seulement journalisés ; la couverture doit être confrontée aux instruments visibles sur OKX.
+- Les nouveaux instruments et les retraits sont pris en compte lors du rafraîchissement horaire des abonnements. Les abonnements refusés par OKX sont seulement journalisés ; la couverture doit être confrontée aux instruments visibles sur OKX.
 - `fresh` est global : il ne garantit ni la fraîcheur individuelle de chaque instrument ni l'exécution d'un ordre. La profondeur, l'écart achat/vente, les frais et le slippage restent à vérifier par le moteur avant toute proposition de scénario.
 - La mémoire des événements est bornée aux 500 derniers ; le fichier d'état est écrit toutes les minutes, avec une éventuelle perte de la dernière minute en cas d'arrêt brutal. Ce n'est pas encore une base de données pour mesurer les résultats des signaux.
 - Seul le marché Spot USDT est suivi ici. Les X-Perp nécessitent une prise en compte correcte de la taille des contrats et une validation séparée.
 
-Tests : `node --test server/monitor.test.mjs`.
+Tests : `node --test server/*.test.mjs`.
