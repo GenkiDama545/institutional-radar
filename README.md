@@ -1,8 +1,8 @@
-# Institutional Radar V8.9.2
+# Institutional Radar V8.9.3
 
-## Surveillance continue (préparée, non déployée)
+## Surveillance continue (service déployé)
 
-La rubrique « Surveillance continue » est prévue pour les mouvements Spot USDT d'un service hébergé indépendant. Tant que `hosted-config.js` n'a pas d'URL vérifiée, elle signale que ce service est en préparation et le scan existant continue à fonctionner. Après raccordement, seuls les mouvements très récents avec un flux en état sont affichés. Ils ne deviennent jamais des scénarios automatiquement. Le service, ses limites et sa procédure d'installation figurent dans `server/README.md`.
+La rubrique « Surveillance continue » est prévue pour les mouvements Spot USDT d'un service hébergé indépendant. `hosted-config.js` indique désormais le service Railway testé le 24 septembre 2026 (`/health` : `fresh: true`, 9 connexions actives, 262 marchés observés). En cas d’indisponibilité, le scan dans le navigateur reste utilisable. Seuls les mouvements très récents avec un flux en état sont affichés. Ils ne deviennent jamais des scénarios automatiquement. Le service, ses limites et sa procédure d'installation figurent dans `server/README.md`.
 
 Radar d'observation crypto sur les marchés publics OKX, publié par GitHub Pages. Aucun ordre n'est envoyé. Le score classe des configurations observées, sans représenter une probabilité de gain.
 
