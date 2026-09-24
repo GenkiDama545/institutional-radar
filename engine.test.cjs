@@ -12,6 +12,7 @@ vm.runInContext(fs.readFileSync(path.join(root,'signal-engine.js'),'utf8'),conte
 vm.runInContext(fs.readFileSync(path.join(root,'engine-core.js'),'utf8'),context);
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
+assert.match(run('simForm()'),/Saisie manuelle/,'simulator remains available when the market API fails');
 context.document={querySelectorAll:()=>[],getElementById:()=>null};
 run("all=[{id:'FIL-USDT',sym:'FIL',perpId:'FIL-USDT-SWAP',price:1,perpPrice:1}];current=all[0];scenarioLocks[scenarioLockKey('FIL-USDT','rejection')]={id:'favorite-lock',entry:.92,stop:.93,tp1:.9};toggleFavoriteScenario('FIL-USDT','rejection')");
 assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.rejection,'favorite-lock','a scenario favorite preserves the exact lock');
@@ -116,10 +117,10 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script /g)||[]).length,6);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.8"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.8"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.8"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.8'/);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.9"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.9"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.9"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.9'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
