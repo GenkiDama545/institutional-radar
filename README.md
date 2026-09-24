@@ -1,4 +1,4 @@
-# Institutional Radar V8.9.0
+# Institutional Radar V8.9.1
 
 Radar d'observation crypto sur les marchés publics OKX, publié par GitHub Pages. Aucun ordre n'est envoyé. Le score classe des configurations observées, sans représenter une probabilité de gain.
 
@@ -15,11 +15,12 @@ Les scénarios indiquent un déclencheur futur et une invalidation. Ils ne sont 
 ## Structure
 
 - `market-screen.js` : calculs purs de volume minute, présélection, découvertes et premiers contrôles d'exécution ; chargés avant `app.js`.
-- `app.js` : récupération de données, moteur de scénarios, affichage et suivi. Il reste encore volumineux : son découpage en modules plus petits et un service de collecte continu seront des chantiers distincts.
+- `engine-core.js` : indicateurs, régime, moteur de scénarios et scores directionnels. La suite de tests charge le même code que la page.
+- `app.js` : récupération de données, affichage et suivi. Son découpage restant et un service de collecte continu seront des chantiers distincts.
 - `index.html`, `sw.js`, `manifest.json`, icônes : interface et installation mobile. Le numéro de cache et les URLs des scripts changent à chaque version.
 - `engine.test.cjs` : tests de règles, scénarios, couverture, exclusion des swaps non vérifiés et conservation des découvertes au-delà de 150 analyses approfondies. Lancer `node engine.test.cjs` et `node --check app.js`.
 
-Le journal conserve des scénarios `FORMING`, `ACTIVATED`, `CLOSED`, `CANCELLED` et `UNVERIFIED` dans le stockage local du navigateur. Ses résultats sont des observations de bougies, pas un relevé d'ordres. Le laboratoire historique sépare DEV, VALIDATION et HOLDOUT ; il n'intègre pas encore les frais, le glissement, le funding historique ni l'OI historique. Une bonne performance historique ne suffit donc pas à prouver la rentabilité. Ne pas effacer les données du navigateur sans avoir exporté les scénarios conservés.
+Le journal conserve des scénarios `FORMING`, `ACTIVATED`, `CLOSED`, `CANCELLED` et `UNVERIFIED` dans le stockage local du navigateur. Ses résultats sont des observations de bougies, pas un relevé d'ordres. Le laboratoire historique sépare DEV, VALIDATION et HOLDOUT ; il affiche la moyenne en unités de risque parmi les scénarios TP1/SL, ainsi que deux hypothèses de coûts aller-retour (0,2 % et 0,5 %). Ce ne sont pas les frais réels ; les scénarios sans entrée et les timeouts restent distincts. Il n'intègre pas encore le funding historique ni l'OI historique. Un échantillon de moins de 30 décisions est signalé comme insuffisant. Une bonne performance historique ne suffit donc pas à prouver la rentabilité. Ne pas effacer les données du navigateur sans avoir exporté les scénarios conservés.
 
 ## Limites à résoudre ensuite
 
