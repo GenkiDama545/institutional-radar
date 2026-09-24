@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.8.5';
+const APP_VERSION='V8.8.6';
 // Public OKX market data does not prove that a contract is available to this account.
 // X-Perp bases observed in account screenshots are matched against live instrument IDs.
 const ACCOUNT_VERIFIED_XPERP_BASES=new Set(['ALLO','FIL','SOL']); // Observed in the user's OKX screenshots.
@@ -176,13 +176,25 @@ function makeSpark(vals,color='#65b8ff'){if(!vals||vals.length<2)return '';vals=
 let lastCompletedScanAt=null;
 function clockStamp(ts){return ts?new Date(ts).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'inconnue'}
 function refreshScanFreshness(){const el=$('scanFreshness');if(!el)return;el.textContent=scanRunning?'Scan en cours : le classement précédent reste affiché.':lastCompletedScanAt?`Classement calculé le ${clockStamp(lastCompletedScanAt)} • ${Math.floor((Date.now()-lastCompletedScanAt)/60000)} min écoulée(s). Appuie sur Scanner pour recalculer.`:'Aucun scan terminé : résultats en attente.'}
-// The expensive six-timeframe scan follows a broad ticker screen, not a market-cap or volume-only ranking.
+// Inspect each market's minute candles before choosing the expensive six-timeframe analysis.
+function minuteVolumePulse(rows){
+ if(!Array.isArray(rows))return null;
+ const bars=rows.map(r=>({ts:Number(r[0]),quote:Number(r[7]),confirm:Number(r[8])})).filter(b=>Number.isFinite(b.ts)&&Number.isFinite(b.quote)&&b.quote>=0).sort((a,b)=>a.ts-b.ts);
+ const completed=bars.filter(b=>b.confirm===1),baseline=completed.slice(-21,-1).map(b=>b.quote).sort((a,b)=>a-b);
+ if(baseline.length<8)return null;
+ const typical=(baseline[Math.floor((baseline.length-1)/2)]+baseline[Math.ceil((baseline.length-1)/2)])/2;
+ const recent=Math.max(completed.at(-1)?.quote||0,bars.at(-1)?.confirm===0?bars.at(-1).quote:0);
+ return {ratio:typical>0?recent/typical:recent>0?Infinity:0,recentUsd:recent,baselineUsd:typical,ts:bars.at(-1)?.ts};
+}
 function selectSpotForAnalysis(assets,limit=150){
- const eligible=assets.filter(x=>x.market==='spot'&&x.price>0&&x.volUsd>=100000);
- const byVolume=[...eligible].sort((a,b)=>b.volUsd-a.volUsd).slice(0,Math.min(40,limit));
+ const eligible=assets.filter(x=>x.market==='spot'&&x.price>0&&x.volUsd>0);
+ const byVolume=[...eligible].sort((a,b)=>b.volUsd-a.volUsd).slice(0,Math.min(30,limit));
+ const burst=x=>x.minutePulse?.recentUsd>=200&&x.minutePulse?.ratio>=3;
+ const byPulse=eligible.filter(burst).sort((a,b)=>Math.log10(1+b.minutePulse.recentUsd)*Math.min(30,b.minutePulse.ratio)-Math.log10(1+a.minutePulse.recentUsd)*Math.min(30,a.minutePulse.ratio));
  const movement=x=>Math.min(35,Math.abs(x.chg||0))*Math.min(1,Math.log10(1+x.volUsd)/6)+Math.min(20,Math.max(0,(x.high-x.low)/x.price*100));
  const byOpportunity=[...eligible].sort((a,b)=>movement(b)-movement(a)||b.volUsd-a.volUsd);
  const picked=new Map(byVolume.map(x=>[x.id,x]));
+ for(const x of byPulse){if(picked.size>=Math.min(limit,120))break;picked.set(x.id,x)}
  for(const x of byOpportunity){if(picked.size>=limit)break;picked.set(x.id,x)}
  // A saved asset remains inspectable even if it drops out of today's preliminary ranking.
  for(const x of eligible)if(favorites[x.id])picked.set(x.id,x);
@@ -197,9 +209,12 @@ async function scan(){
    const xperps=futureInstruments.status==='fulfilled'&&futureTickers.status==='fulfilled'?xperpUniverse(futureInstruments.value,futureTickers.value):[];
    const swaps=new Map(swapTickers.filter(x=>x.instId.endsWith('-USDT-SWAP')).map(x=>[x.instId.replace('-USDT-SWAP',''),x]));
    const spotAssets=spotTickers.filter(x=>x.instId.endsWith('-USDT')).map(x=>{const last=n(x.last),open=n(x.open24h),vol=n(x.volCcy24h),sym=x.instId.replace('-USDT','');return {id:x.instId,spotId:x.instId,perpId:swaps.get(sym)?.instId||null,perpPrice:nullableNumber(swaps.get(sym)?.last),sym,market:'spot',hasPerp:!!swaps.get(sym),price:last,vol,volUsd:vol,chg:open>0?((last-open)/open)*100:0,high:n(x.high24h),low:n(x.low24h),oi:null,funding:null,oiDelta:null,marketTs:nullableNumber(x.ts),oiTs:null,fundingTs:null,rangePos:last&&n(x.high24h)>n(x.low24h)?(last-n(x.low24h))/Math.max(1e-12,n(x.high24h)-n(x.low24h)):null}});
+   const minuteMarkets=spotAssets.filter(x=>x.price>0).concat(xperps);let minuteDone=0,minuteMissing=0;
+   $('status').textContent=`Recherche des poussées de volume : 0/${minuteMarkets.length} marchés…`;
+   await chunkRequests(minuteMarkets,6,async x=>{try{x.minutePulse=minuteVolumePulse(await get('/market/candles?instId='+encodeURIComponent(x.id)+'&bar=1m&limit=22'));if(!x.minutePulse)minuteMissing++}catch(_){minuteMissing++}finally{minuteDone++;$('status').textContent=`Recherche des poussées de volume : ${minuteDone}/${minuteMarkets.length} • ${minuteMissing} sans comparaison`}});
    let raw=selectSpotForAnalysis(spotAssets).concat(xperps);
    const med=raw.reduce((s,x)=>s+x.vol,0)/Math.max(1,raw.length);raw.forEach(x=>{x.medVol=med;x.marketMedianVol=raw[Math.floor(raw.length/2)]?.vol||med});
-   $('universeInfo').textContent=`${spotAssets.length} Spot examinés • ${raw.length-xperps.length} retenus pour l'analyse • ${xperps.length} X-Perps`;
+   $('universeInfo').textContent=`${spotAssets.length} Spot examinés en 1 min • ${raw.length-xperps.length} en analyse approfondie • ${xperps.length} X-Perps • ${minuteMissing} sans comparaison de volume`;
    await chunkRequests(raw.filter(x=>x.perpId),4,async x=>{try{const o=await get('/public/open-interest?instType='+(x.market==='xperp'?'FUTURES':'SWAP')+'&instId='+encodeURIComponent(x.perpId));x.oi=nullableNumber(o[0]?.oiUsd);x.oiTs=x.oi==null?null:Date.now()}catch{x.oi=null}try{const f=await get('/public/funding-rate?instId='+encodeURIComponent(x.perpId));x.funding=nullableNumber(f[0]?.fundingRate);x.fundingTs=x.funding==null?null:Date.now()}catch{x.funding=null}const h=history[x.id]||{samples:[]},prev=h.samples?.at(-1);x.oiDelta=prev&&Number.isFinite(prev.oi)&&prev.oi>0&&Number.isFinite(x.oi)?((x.oi-prev.oi)/prev.oi)*100:null;h.samples=[...(h.samples||[]),{ts:Date.now(),oi:x.oi,price:x.price,vol:x.vol,funding:x.funding,score:0}].slice(-192);history[x.id]=h});
    const deepUniverse=raw;shortScanErrors=0;scanErrorReasons={};$('status').textContent=`Analyse technique de ${deepUniverse.length}/${raw.length} actifs…`;
    const chunk=chunkRequests;
@@ -261,7 +276,7 @@ function scenarioCandidates(){
 }
 function modeLabel(){return marketMode==='spot'?'💰 SPOT':marketMode==='long'?'📈 LONG':marketMode==='short'?'📉 SHORT':'🌐 TOUT'}
 function marketModeHint(){return 'Spot et X-Perps identifiés dans ton OKX (ALLO, FIL, SOL). Les USDT-SWAP publics restent exclus. Vérifie le nom complet et la date du contrat dans OKX avant toute opération.'}
-function configCard(c,i,compact=false){const {x,direction,market,score}=c,tr=terrain(score),isShort=direction==='short';return `<div tabindex="0" role="button" class="rankcard compactRank ${compact?'topRankCard':''}" onclick="openDetail('${x.id}','${market}','${direction}')"><div class="rankTop"><span class="ranknum">${String(i+1).padStart(2,'0')}</span><b class="rankSym">${esc(x.sym)}</b><span class="tag ${market==='spot'?'b':'r'}">${market==='spot'?'💰 SPOT':'⚡ X-PERP'}</span><span class="tag ${isShort?'r':'g'}">${isShort?'🔴 SHORT':'🟢 LONG'}</span><span class="scoreBadge">${score}/100</span></div>${x.market==='xperp'?`<div class="sub" style="overflow-wrap:anywhere">${esc(x.id)}</div>`:''}<div class="rankMetrics"><div class="metric"><small>Prix</small><b>${price(isShort?x.perpPrice:x.price)}</b></div><div class="metric"><small>24h</small><b class="${x.chg>=0?'good':'bad'}">${chg(x.chg)}</b></div><div class="metric"><small>Volume</small><b>${money(x.volUsd)}</b></div></div><div class="meter"><i style="width:${score}%"></i></div><div class="rankFoot"><span class="tag ${tr[1]}">${tr[0]}</span><span class="sub">${c.ready===false?'⏳ Attendre le déclencheur':'🎯 Étudier les conditions'}</span></div></div>`}
+function configCard(c,i,compact=false){const {x,direction,market,score}=c,tr=terrain(score),isShort=direction==='short';return `<div tabindex="0" role="button" class="rankcard compactRank ${compact?'topRankCard':''}" onclick="openDetail('${x.id}','${market}','${direction}')"><div class="rankTop"><span class="ranknum">${String(i+1).padStart(2,'0')}</span><b class="rankSym">${esc(x.sym)}</b><span class="tag ${market==='spot'?'b':'r'}">${market==='spot'?'💰 SPOT':'⚡ X-PERP'}</span><span class="tag ${isShort?'r':'g'}">${isShort?'🔴 SHORT':'🟢 LONG'}</span><span class="scoreBadge">${score}/100</span></div>${x.minutePulse?.recentUsd>=200&&x.minutePulse.ratio>=3?`<div class="sub">⚡ Volume 1 min ×${x.minutePulse.ratio===Infinity?'∞':x.minutePulse.ratio.toFixed(1)} • ${money(x.minutePulse.recentUsd)} récemment${x.volUsd<100000?' • faible liquidité 24 h':''}</div>`:''}${x.market==='xperp'?`<div class="sub" style="overflow-wrap:anywhere">${esc(x.id)}</div>`:''}<div class="rankMetrics"><div class="metric"><small>Prix</small><b>${price(isShort?x.perpPrice:x.price)}</b></div><div class="metric"><small>24h</small><b class="${x.chg>=0?'good':'bad'}">${chg(x.chg)}</b></div><div class="metric"><small>Volume</small><b>${money(x.volUsd)}</b></div></div><div class="meter"><i style="width:${score}%"></i></div><div class="rankFoot"><span class="tag ${tr[1]}">${tr[0]}</span><span class="sub">${c.ready===false?'⏳ Attendre le déclencheur':'🎯 Étudier les conditions'}</span></div></div>`}
 function renderRank(){
  const candidates=scenarioCandidates();
  const top=[...candidates].filter(c=>c.ready!==false).sort((a,b)=>b.score-a.score).slice(0,5);
@@ -271,7 +286,7 @@ function renderRank(){
  $('modeHint').textContent=marketModeHint();
  $('rank').innerHTML=filtered.length?`<div class="rank">${filtered.map((c,i)=>configCard(c,i)).join('')}</div>`:`<div class="empty">Aucune configuration ${marketMode==='short'?'SHORT / PERP ':marketMode==='spot'?'SPOT ':marketMode==='long'?'LONG ':''}dans ${bucketName(filter)} actuellement.<br><span class="sub">Vérifie aussi les autres catégories : le classement LONG et SHORT dépend du score propre à chaque sens.</span></div>`;
 }
-function drawTable(){let q=$('search').value.toUpperCase().trim(),s=$('sort').value,t=$('tier').value,a=all.filter(x=>(!q||x.sym.includes(q))&&(t==='all'||x.tier[0]===t));a.sort((x,y)=>s==='score'?y.score-x.score:s==='volume'?y.vol-x.vol:s==='momentum'?y.chg-x.chg:s==='oi'?y.oi-x.oi:s==='ratio'?y.oiRatio-x.oiRatio:Math.abs(y.funding)-Math.abs(x.funding));$('market').innerHTML=a.map((x,i)=>{let tr=terrain(x.score);return `<tr class="row" onclick="openDetail('${x.id}')"><td>${i+1}</td><td><b>${esc(x.sym)}</b><br><span class="tag">${x.market==='xperp'?'⚡ X-PERP':'💰 SPOT'}</span><br><span class="tiny">${esc(x.id)}</span><br><span class="tag">${x.tier[1]}</span></td><td>${price(x.price)}</td><td class="${x.chg>=0?'good':'bad'}">${chg(x.chg)}</td><td>${money(x.volUsd)}</td><td>${money(x.oi)}<br><span class="tiny ${x.oiDelta>=0?'good':'bad'}">${x.oiDelta==null?'1er scan':(x.oiDelta>=0?'+':'')+x.oiDelta.toFixed(1)+'% scan'}</span><br><span class="tiny">${x.oiTs?'consulté '+timeLabel(x.oiTs):'N/D'}</span></td><td>${pct(x.funding)}<br><span class="tiny">${x.fundingTs?'consulté '+timeLabel(x.fundingTs):'N/D'}</span></td><td><b>${x.score}</b><div class="meter"><i style="width:${x.score}%"></i></div></td><td><span class="tag ${tr[1]}">${tr[0]}</span></td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Aucun résultat.</td></tr>'}
+function drawTable(){let q=$('search').value.toUpperCase().trim(),s=$('sort').value,t=$('tier').value,a=all.filter(x=>(!q||x.sym.includes(q))&&(t==='all'||x.tier[0]===t));a.sort((x,y)=>s==='score'?y.score-x.score:s==='volume'?y.vol-x.vol:s==='momentum'?y.chg-x.chg:s==='oi'?y.oi-x.oi:s==='ratio'?y.oiRatio-x.oiRatio:Math.abs(y.funding)-Math.abs(x.funding));$('market').innerHTML=a.map((x,i)=>{let tr=terrain(x.score);return `<tr class="row" onclick="openDetail('${x.id}')"><td>${i+1}</td><td><b>${esc(x.sym)}</b><br><span class="tag">${x.market==='xperp'?'⚡ X-PERP':'💰 SPOT'}</span><br><span class="tiny">${esc(x.id)}</span><br>${x.minutePulse?.recentUsd>=200&&x.minutePulse.ratio>=3?`<span class="tag y">⚡ Volume 1 min ×${x.minutePulse.ratio===Infinity?'∞':x.minutePulse.ratio.toFixed(1)}</span><br>`:''}<span class="tag">${x.tier[1]}</span></td><td>${price(x.price)}</td><td class="${x.chg>=0?'good':'bad'}">${chg(x.chg)}</td><td>${money(x.volUsd)}</td><td>${money(x.oi)}<br><span class="tiny ${x.oiDelta>=0?'good':'bad'}">${x.oiDelta==null?'1er scan':(x.oiDelta>=0?'+':'')+x.oiDelta.toFixed(1)+'% scan'}</span><br><span class="tiny">${x.oiTs?'consulté '+timeLabel(x.oiTs):'N/D'}</span></td><td>${pct(x.funding)}<br><span class="tiny">${x.fundingTs?'consulté '+timeLabel(x.fundingTs):'N/D'}</span></td><td><b>${x.score}</b><div class="meter"><i style="width:${x.score}%"></i></div></td><td><span class="tag ${tr[1]}">${tr[0]}</span></td></tr>`}).join('')||'<tr><td colspan="9" class="empty">Aucun résultat.</td></tr>'}
 async function candles(id,bar='1H',limit=90){
  let need=Math.max(2,Math.min(3000,Number(limit)||90)),out=[],before=null,guard=0;
  while(out.length<need && guard++<14){
