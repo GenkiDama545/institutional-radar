@@ -50,23 +50,18 @@ assert.equal(run('executionCheck(testMarket).ok'),false,'expensive immediate exe
 context.testMarket.bookDepth=run('bookDepthUsd(testBook,100)');
 context.testMarket.bookDepth.bidUsd=10;
 assert.equal(run('executionCheck(testMarket).ok'),false,'thin book blocks a Spot scenario');
+context.testMarket.bookDepth=run('bookDepthUsd(testBook,100)');context.testMarket.volUsd=900;
+assert.equal(run('executionCheck(testMarket).ok'),true,'a small Spot with sufficient depth can pass without minute volume');
+context.testMarket={market:'xperp',marketFresh:true,marketTs:Date.now(),spreadPct:.2,volUsd:900};
+assert.equal(run('executionCheck(testMarket).ok'),false,'low-volume X-Perp without checked depth stays excluded');
 run("all=[{id:'ALLO-USD_UM_XPERP-310101',sym:'ALLO',market:'xperp',perpId:'ALLO-USD_UM_XPERP-310101',perpPrice:.30,price:.30,analysisCoverage:'complete',perpAnalysisCoverage:'complete',hasShortScenario:false,hasLongScenario:false,perpScenarioModel:{shortSetup:true,shortPattern:'rejection'},shortScore:85}]");
 assert.equal(run('scenarioCandidates().length'),0,'forming shorts do not appear among realizable scenarios');
-context.testMovingBars=Array.from({length:21},(_,i)=>[String(1000+i*60000),'1','1','1',String(i===20?1.02:1),'0','0',String(i===20?900:40),'1']);
-assert.ok(run('minuteVolumePulse(testMovingBars).priceMovePct')>1,'price and minute volume are measured over the same candle');
 context.testSpotPool=Array.from({length:170},(_,i)=>({id:`BIG${i}-USDT`,market:'spot',price:1,volUsd:10000000-i*1000,chg:0,high:1.01,low:.99}));
-context.testSpotPool.push({id:'SMALL-USDT',market:'spot',price:1,volUsd:160000,chg:24,high:1.3,low:.95});
-assert.equal(run('selectSpotForAnalysis(testSpotPool).some(x=>x.id==="SMALL-USDT")'),true,'liquid small asset with movement is analyzed beyond the volume top 150');
-assert.equal(run('selectSpotForAnalysis(testSpotPool).length'),150,'preliminary screen bounds the expensive candle scan');
-context.testBurstPool=Array.from({length:260},(_,i)=>({id:`BURST${i}-USDT`,market:'spot',price:1,volUsd:1000000-i*100,vol:1000000-i*100,chg:i>=160?20:0,high:1.1,low:.9,minutePulse:i<160?{ratio:30-i/100,recentUsd:10000}:null}));
-const balanced=run('selectSpotForAnalysis(testBurstPool)');
-assert.equal(balanced.length,150,'deep scan retains its bounded budget');
-assert.ok(balanced.filter(x=>!x.minutePulse).length>=80,'minute bursts cannot occupy most deep-analysis places');
-
-context.testMinuteBars=Array.from({length:21},(_,i)=>[String(1000+i*60000),'1','1','1','1','0','0',String(i===20?900:40),'1']);
-assert.ok(run('minuteVolumePulse(testMinuteBars).ratio')>=20,'minute spike is measured against the same market baseline');
-context.testSpotPool.push({id:'TINY-USDT',market:'spot',price:1,volUsd:1000,chg:0,high:1.01,low:.99,minutePulse:{ratio:22.5,recentUsd:900}});
-assert.equal(run('selectSpotForAnalysis(testSpotPool).some(x=>x.id==="TINY-USDT")'),true,'even a tiny asset is inspected when minute volume surges');
+context.testSpotPool.push({id:'SMALL-USDT',market:'spot',price:1,volUsd:900,chg:0,high:1.01,low:.99});
+const fullSpotQueue=run('RadarMarket.spotAnalysisQueue(testSpotPool)');
+assert.equal(fullSpotQueue.length,171,'every Spot with usable data reaches the multi-horizon queue');
+assert.equal(new Set(fullSpotQueue.map(x=>x.id)).size,171,'each Spot is analyzed exactly once');
+assert.ok(fullSpotQueue.some(x=>x.id==='SMALL-USDT'),'a tiny Spot without a one-minute event is included');
 run("all=[{id:'FIL-USDT',sym:'FIL',perpId:'FIL-USDT-SWAP',analysisCoverage:'complete',perpAnalysisCoverage:'complete',perpScenarioModel:{shortSetup:true,shortPattern:'rejection'},shortScore:90,hasShortScenario:true,hasLongScenario:false}]");
 assert.equal(run('scenarioCandidates().length'),0,'unverified swaps cannot become trade candidates');
 const now=Date.now(),barMs=300000;
@@ -123,11 +118,11 @@ assert.equal(run('money(null)'),'N/D');
 assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.equal((html.match(/<script /g)||[]).length,6);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.13"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.13"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.13"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.13'/);
+assert.equal((html.match(/<script /g)||[]).length,4);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.14"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.14"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.14"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.14'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
@@ -150,8 +145,7 @@ const elements=new Map();
 context.document={getElementById:id=>{if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',value:id==='tier'?'all':id==='sort'?'score':'',disabled:false});return elements.get(id)},querySelectorAll:()=>[]};
 const ticker=(name)=>({instId:name+'-USDT',last:'100',open24h:'98',volCcy24h:'1000000',high24h:'102',low24h:'95',bidPx:'99.9',askPx:'100.1',ts:String(Date.now())});
 put('spotRows',[ticker('BTC'),ticker('ETH')]);
-put('mockMinuteRows',Array.from({length:22},(_,i)=>[String(Date.now()-i*60000),'100','101','99',i===0?'102':'100','0','0',i===0?'900':'40',i===0?'0':'1']));
-run('get=async path=>path.includes("instType=SPOT")?spotRows:path.includes("bar=1m")?mockMinuteRows:[]');
+put('marketRequests',[]);run('get=async path=>{marketRequests.push(path);return path.includes("instType=SPOT")?spotRows:[]}');
 put('mockBars',Array.from({length:120},(_,i)=>({t:i*60000,o:80+i*.1,h:81+i*.1,l:79+i*.1,c:80.5+i*.1,v:10000,confirm:1})));
 run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars}');
 run('scan()').then(()=>{
@@ -159,6 +153,7 @@ run('scan()').then(()=>{
   assert.equal(run('all.find(x=>x.sym==="ETH").analysisCoverage'),'partial');
   assert.equal(run('all.find(x=>x.sym==="BTC").analysisCoverage'),'complete');
   assert.equal(run('all.find(x=>x.sym==="BTC").marketFresh'),true,'ticker refreshed at scan end');
+  assert.equal(run('marketRequests.filter(path=>path.includes("bar=1m")).length'),0,'scan never fetches minute candles');
   assert.match(elements.get('status').textContent,/incomplètes/);
   console.log('scan check: complete, partial and fresh prices');
   put('spotRows',Array.from({length:101},(_,i)=>ticker('ASSET'+i)));
@@ -169,12 +164,10 @@ run('scan()').then(()=>{
     console.log('universe check: asset 101 receives full analysis');
     put('spotRows',Array.from({length:170},(_,i)=>ticker('COIN'+i)));
     return run('scan()').then(()=>{
-      assert.equal(run('discoveries.length'),170,'all synchronized price/volume bursts are retained');
-      assert.equal(run('all.length'),170,'discoveries outside the deep scan remain visible');
-      assert.match(elements.get('discovery').innerHTML,/Voir les 170 cryptos détectées/,'full discovery list is accessible');
-      run('discoveryExpanded=true;renderRank()');
-      assert.match(elements.get('discovery').innerHTML,/COIN169/,'last asset can appear in expanded discovery section');
-      console.log('discovery check: all 170 bursts visible beyond 150 deep analyses');
+      assert.equal(run('all.length'),170,'every Spot remains visible');
+      assert.equal(run('all.find(x=>x.sym==="COIN169").analysisCoverage'),'complete','market after the old top-150 cutoff receives full analysis');
+      assert.match(elements.get('discovery').innerHTML,/multi-horizons/,'watchlist is based on the same multi-horizon engine');
+      console.log('coverage check: all 170 Spot receive full multi-horizon analysis');
     context.document.querySelectorAll=()=>[];
     run('current={...all[0],perpId:"ALLO-USD_UM_XPERP-310101"};get=async path=>{lastFundingPath=path;return [{fundingTime:String(Date.now()-3600000),fundingRate:"0.0001"},{fundingTime:String(Date.now()),fundingRate:"0.0002"}]}');
     return run('metricPage("Funding")').then(()=>{
