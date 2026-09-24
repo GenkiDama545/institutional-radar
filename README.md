@@ -1,37 +1,26 @@
-# Institutional Radar V8.8.0
+# Institutional Radar V8.9.0
 
-Radar de marché Spot OKX avec Perp associé, classements LONG/SHORT, scénarios conditionnels et mémoire locale. Le score classe les configurations ; il ne mesure pas une probabilité de gain.
+Radar d'observation crypto sur les marchés publics OKX, publié par GitHub Pages. Aucun ordre n'est envoyé. Le score classe des configurations observées, sans représenter une probabilité de gain.
 
-## Installation GitHub Pages
+## Parcours du scan
 
-Publier les fichiers de ce dossier à la racine du dépôt. `index.html` charge `app.js` : ce dernier est la seule copie du moteur. `sw.js`, `manifest.json` et les deux icônes servent à l'installation PWA. Les fichiers historiques `_script.js` et `check.js` ne sont pas utilisés. Ne pas effacer les données du navigateur : l'historique et le journal restent dans le stockage local de l'origine actuelle.
+1. Récupérer les tickers Spot USDT et les contrats FUTURES X-Perp actifs correspondant aux bases observées dans le compte (ALLO, FIL, SOL). Les swaps USDT publics ne sont pas traités comme disponibles sur ce compte.
+2. Comparer les bougies 1 minute de chaque marché accessible au volume habituel du même marché. Une hausse simultanée du volume et du prix peut aussi être une chute du prix : elle reste une découverte, pas un trade.
+3. Conserver **toutes** ces découvertes dans l'explorateur, y compris celles hors de la présélection des 150 Spot pour l'analyse approfondie. Les favoris restent analysés. L'ouverture d'une découverte non encore analysée lance son analyse technique à la demande.
+4. Pour les marchés présélectionnés, analyser les unités de temps, l'OI et le funding uniquement pour les X-Perps reconnus. Rafraîchir les tickers à la fin du scan : une cotation absente, vieille de plus de deux minutes ou décalée de plus de 1 % par rapport au prix analysé bloque le classement d'un scénario.
+5. Un scénario chiffré requiert des niveaux cohérents, un prix récent, un écart achat/vente disponible et inférieur ou égal à 1 %, ainsi qu'un volume 24 h d'au moins 100 000 $ **ou** 5 000 $ sur la minute observée. Pour les Spot, les vingt premiers niveaux du carnet doivent en outre montrer au moins 500 $ de chaque côté à moins de 1 % du prix. Ces seuils sont des filtres exploratoires, non une garantie de liquidité. Les autres mouvements restent visibles dans « Cryptos qui sortent du lot ».
 
-## Ce qui change
+Les scénarios indiquent un déclencheur futur et une invalidation. Ils ne sont ni des ordres exécutés, ni une preuve que la profondeur du carnet suffit pour obtenir un prix donné. Avant tout ordre, il faut vérifier dans OKX le contrat, la profondeur, les frais, le glissement et le financement.
 
-- Le journal distingue `FORMING`, `ACTIVATED`, `CLOSED`, `CANCELLED` et `UNVERIFIED`. Une entrée doit être confirmée par une bougie clôturée ; une bougie ultérieure doit toucher TP1 ou SL. Si TP et SL sont touchés dans la même bougie, le SL est retenu. Une lacune de bougies rend le suivi non vérifiable.
-- Les anciens résultats `IR_LEARNING_V2` sont préservés et exportables, mais exclus des statistiques. Les nouvelles observations sont `IR_LEARNING_V3`. Elles décrivent des niveaux de marché observés, **pas des ordres réellement exécutés**. Le suivi fonctionne quand la projection est ouverte ; à la réouverture, le verrou est conservé et les bougies disponibles sont examinées.
-- Le laboratoire historique utilise les dernières bougies disponibles à chaque date, construit les données historiques sans réutiliser les métriques du scan actuel, attend que l'entrée soit touchée et traite rejet/cassure SHORT dans le bon sens. Sans entrée, `NO_ENTRY` est distinct de TP, SL et timeout. Un objectif touché sur la bougie d'entrée ne compte pas comme victoire faute d'ordre intrabougie connu.
-- OI et funding indisponibles s'affichent `N/D` ; l'heure de consultation apparaît lorsqu'une valeur est disponible. Les échecs de séries de bougies sont isolés. Une analyse partielle est visible dans le marché mais ne certifie pas un scénario.
-- Les niveaux et bougies d'un SHORT sont vérifiés sur le Perp associé. Un signal baissier repéré sur Spot n'est pas suffisant pour créer une carte SHORT.
-- Le scan affiche sa progression et évite les scans simultanés. Les erreurs API transitoires sont réessayées dans une limite de trois tentatives.
+## Structure
 
-## Vérification
+- `market-screen.js` : calculs purs de volume minute, présélection, découvertes et premiers contrôles d'exécution ; chargés avant `app.js`.
+- `app.js` : récupération de données, moteur de scénarios, affichage et suivi. Il reste encore volumineux : son découpage en modules plus petits et un service de collecte continu seront des chantiers distincts.
+- `index.html`, `sw.js`, `manifest.json`, icônes : interface et installation mobile. Le numéro de cache et les URLs des scripts changent à chaque version.
+- `engine.test.cjs` : tests de règles, scénarios, couverture, exclusion des swaps non vérifiés et conservation des découvertes au-delà de 150 analyses approfondies. Lancer `node engine.test.cjs` et `node --check app.js`.
 
-`node tests/engine.test.cjs` vérifie les transitions du journal, les issues LONG/SHORT du laboratoire, le traitement des données absentes, la résistance d'un scan partiel, la confirmation des SHORT sur Perp et le chargement d'un seul script. `node --check app.js` vérifie sa syntaxe.
+Le journal conserve des scénarios `FORMING`, `ACTIVATED`, `CLOSED`, `CANCELLED` et `UNVERIFIED` dans le stockage local du navigateur. Ses résultats sont des observations de bougies, pas un relevé d'ordres. Le laboratoire historique sépare DEV, VALIDATION et HOLDOUT ; il n'intègre pas encore les frais, le glissement, le funding historique ni l'OI historique. Une bonne performance historique ne suffit donc pas à prouver la rentabilité. Ne pas effacer les données du navigateur sans avoir exporté les scénarios conservés.
 
-## Limites
+## Limites à résoudre ensuite
 
-Les taux historiques ne représentent pas la performance d'un compte de trading. Le laboratoire ne dispose pas de séries historiques d'OI, de funding, de frais, de slippage ou d'ordres exécutés. Une analyse dont les bougies manquent ne reçoit pas de scénario certifié. Les observations du journal ne peuvent pas remplacer un relevé d'ordres OKX.
-
-## V8.8.0 — couverture et lisibilité
-Tous les 150 actifs Spot retenus par volume sont analysés, et tous leurs Perps associés peuvent entrer dans la sélection SHORT. Le scan peut durer plus longtemps. Une carte « scénario conditionnel » indique que les niveaux existent, sans déclarer que l’entrée s’est produite.
-
-Le classement affiche l'heure de fin de scan et son âge ; il ne se recalcule qu'à la demande ou au chargement. Les graphiques indiquent l'heure de consultation et la dernière bougie. Le graphique approfondi et celui de la fiche ouverte interrogent les bougies toutes les 10 secondes tant qu'ils sont ouverts ; les autres pages graphiques disposent d'un bouton d'actualisation. L'historique du funding demande l'identifiant Perp, et indique clairement l'absence de Perp le cas échéant. Les petites étiquettes mobiles, les commandes au clavier et la lecture de la fiche ont été améliorées.
-
-## V8.8.0 — mise à jour et mobile
-L’HTML indique la version du moteur JavaScript réellement chargé. Le fichier du moteur reçoit un identifiant de version dans son URL pour éviter de garder une ancienne copie après une mise à jour. Le menu flottant et les filtres fixes se masquent dans les vues détaillées, afin de libérer le graphique et le scénario sur téléphone.
-
-## V8.8.0 — parcours et graphique direct
-Accueil : classement et choix de sens visibles, marché complet et glossaire repliables. La fiche présente quatre étapes : résumé, graphique, lecture trader, scénario. Price Action, signaux et contexte sont regroupés sous Analyses supplémentaires. Les pastilles EMA, RSI et autres dans le graphique indiquent des éléments affichés, ce ne sont pas des boutons.
-
-Le graphique approfondi s’abonne aux bougies OKX du seul instrument et intervalle ouverts via WebSocket public ; la bougie en cours se redessine à réception des messages, avec limite de rafraîchissement visuel. Si le flux ne fonctionne pas, les bougies se rechargent toutes les dix secondes. Le classement, le score, OI et funding se recalculent lors d’un scan et ne bougent pas avec chaque bougie. Les scénarios verrouillés ne deviennent pas des ordres automatiques. La connexion de flux dépend du navigateur et de la disponibilité du service OKX ; elle n’a pas été testée sur le téléphone du destinataire.
+La profondeur du carnet Spot est un instantané limité à vingt niveaux et ne garantit pas le prix d'exécution. La profondeur des X-Perps n'est pas encore convertie en dollars faute de validation de la taille des contrats ; seul l'écart et l'activité sont contrôlés pour eux. Les marchés hors périmètre OKX Spot USDT et les autres X-Perps du compte ne sont pas encore couverts. Le scan large demande une requête de bougies minute par marché et peut durer longtemps ; il faut tester le parcours sur le téléphone réel et les données live OKX. Une future collecte persistante et des mesures d'exécution issues du carnet permettraient une meilleure surveillance continue.
