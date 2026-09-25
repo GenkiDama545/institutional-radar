@@ -3,7 +3,6 @@
    One shared vocabulary for ranking, analysis and scenarios.
    The ranking layer can work with fast market data; deeper layers enrich the same families with candles.
 */
-function clamp01(v){return Math.max(0,Math.min(1,Number.isFinite(v)?v:0))}
 function classifyRegime(x,deep){
   const d=deep||{};
   const pa=d.priceAction||'neutral', ema=d.emaBias||'neutral', st=d.supertrendBias||'neutral';

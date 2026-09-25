@@ -1,0 +1,48 @@
+{
+  "results": [
+    {
+      "test": "visual identity",
+      "width": 360,
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "font": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial, sans-serif"
+      }
+    },
+    {
+      "test": "visual identity",
+      "width": 390,
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "font": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial, sans-serif"
+      }
+    },
+    {
+      "test": "visual identity",
+      "width": 768,
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "font": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial, sans-serif"
+      }
+    },
+    {
+      "test": "visual identity",
+      "width": 1440,
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "font": "Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial, sans-serif"
+      }
+    },
+    {
+      "test": "real graph REST refresh",
+      "before": 100,
+      "after": 101
+    },
+    {
+      "test": "graph simulator survives refresh"
+    },
+    {
+      "test": "settings and history removal"
+    }
+  ],
+  "errors": []
+}

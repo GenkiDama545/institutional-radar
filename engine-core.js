@@ -1,9 +1,5 @@
 // Technical features, market regimes and directional scenario engine.
-function trValue(c,p){return p==null?c.h-c.l:Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c))}
 function avgVol(cs,len=20){let a=cs.slice(-len).map(x=>x.v).filter(Number.isFinite);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null}
-function nearestLevels(cs,priceNow){let p=pivots(cs,2,2),highs=p.highs.map(x=>x.v).filter(v=>v>priceNow).sort((a,b)=>a-b),lows=p.lows.map(x=>x.v).filter(v=>v<priceNow).sort((a,b)=>b-a);let recent=cs.slice(-48);let fallbackR=Math.max(...recent.map(x=>x.h)),fallbackS=Math.min(...recent.map(x=>x.l));return{resistance:highs[0]??fallbackR,support:lows[0]??fallbackS,nextResistance:highs[1]??null,nextSupport:lows[1]??null}}
-function pctMove(a,b){return b?((a/b)-1)*100:0}
-function clampPrice(x){return Math.max(0,n(x))}
 function smaVals(cs,len,field='c'){
  let out=Array(cs.length).fill(null),q=[];
  for(let i=0;i<cs.length;i++){let v=n(cs[i]?.[field]);if(!Number.isFinite(v))continue;q.push(v);if(q.length>len)q.shift();if(q.length===len)out[i]=q.reduce((a,b)=>a+b,0)/len}
@@ -12,7 +8,7 @@ function smaVals(cs,len,field='c'){
 function trSeries(cs){let out=[];for(let i=0;i<cs.length;i++){let p=cs[i-1],c=cs[i];out.push(i===0?Math.max(0,c.h-c.l):Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c)))}return out}
 function atrSeries(cs,len=14){let tr=trSeries(cs),out=Array(cs.length).fill(null);if(!tr.length)return out;let a=tr.slice(0,Math.min(len,tr.length)).reduce((x,y)=>x+y,0)/Math.min(len,tr.length);for(let i=0;i<tr.length;i++){if(i>=len)a=(a*(len-1)+tr[i])/len;out[i]=a}return out}
 function atrValue(cs,len=14){let a=atrSeries(cs,len).filter(Number.isFinite);return a.at(-1)||null}
-function adxValue(cs,len=14){if(cs.length<len*2+2)return null;let trs=trSeries(cs),plus=[],minus=[];for(let i=0;i<cs.length;i++){if(i===0){plus.push(0);minus.push(0);continue}let up=cs[i].h-cs[i-1].h,down=cs[i-1].l-cs[i].l;plus.push(up>down&&up>0?up:0);minus.push(down>up&&down>0?down:0)}let atr=atrSeries(cs,len),dx=[];for(let i=len;i<cs.length;i++){let tr=atr[i];if(!tr)continue;let ap=smaVals(cs.slice(0,i+1),len).at(-1);let p=plus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr),m=minus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr);let den=p+m;dx.push(den?100*Math.abs(p-m)/den:0)}return dx.length?dx.slice(-len).reduce((a,b)=>a+b,0)/Math.min(len,dx.length):null}
+function adxValue(cs,len=14){if(cs.length<len*2+2)return null;let plus=[],minus=[];for(let i=0;i<cs.length;i++){if(i===0){plus.push(0);minus.push(0);continue}let up=cs[i].h-cs[i-1].h,down=cs[i-1].l-cs[i].l;plus.push(up>down&&up>0?up:0);minus.push(down>up&&down>0?down:0)}let atr=atrSeries(cs,len),dx=[];for(let i=len;i<cs.length;i++){let tr=atr[i];if(!tr)continue;let p=plus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr),m=minus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr);let den=p+m;dx.push(den?100*Math.abs(p-m)/den:0)}return dx.length?dx.slice(-len).reduce((a,b)=>a+b,0)/Math.min(len,dx.length):null}
 function bollinger(cs,len=20,mult=2){let vals=cs.map(x=>x.c),a=vals.slice(-len);if(a.length<len)return null;let mean=a.reduce((x,y)=>x+y,0)/len,sd=Math.sqrt(a.reduce((x,y)=>x+(y-mean)**2,0)/len);return {mid:mean,upper:mean+mult*sd,lower:mean-mult*sd,width:mean?((mult*2*sd)/mean):null,z:sd?(vals.at(-1)-mean)/sd:0}}
 function rocValue(cs,len=10){if(cs.length<=len)return null;let a=cs.at(-1).c,b=cs.at(-1-len).c;return b?((a-b)/b)*100:null}
 function volumeStats(cs,len=20){let vs=cs.slice(-len).map(x=>x.v).filter(Number.isFinite);if(!vs.length)return null;let mean=vs.reduce((a,b)=>a+b,0)/vs.length,sd=Math.sqrt(vs.reduce((a,b)=>a+(b-mean)**2,0)/vs.length);let last=cs.at(-1)?.v;return {mean,last,ratio:mean?last/mean:null,z:sd?(last-mean)/sd:0}}
@@ -71,6 +67,7 @@ function regimeContextFromMTF(F,currentData){
   const profile=REGIME_PROFILES[key]||REGIME_PROFILES.continuation;
   return {...mtf,key,label:profile.label,reason,profile,majorBull,majorBear,counter};
 }
+// Only labels are consumed today. tf/priority/avoid are documentary metadata, not active weights.
 const REGIME_PROFILES={
   breakout:{label:'Cassure / continuation',priority:['structure','priceAction','volume','trend','derivatives','adx'],avoid:['fundingExtreme'],tf:{'1D':1.8,'4H':1.6,'1H':1.35,'30m':1.15,'15m':1.3,'5m':.85,'1m':.35}},
   reversal:{label:'Retournement',priority:['priceAction','structure','momentum','rsi','range','volatility'],avoid:['chasing'],tf:{'1D':1.4,'4H':1.5,'1H':1.35,'30m':1.1,'15m':1.3,'5m':.95,'1m':.4}},

@@ -60,3 +60,11 @@ Le stockage conserve ses clés et son format. Les imports legacy valides restent
 ### Lot P3 / UI A — preuve avant/après
 
 Cinq tests passent d’échec à succès : bornes indicatives des jauges, absence de réglages sans effet, comparateur sans doublons et avec contrat, libellé BAISSIER des familles directionnelles, limites du suivi/Learning visibles. Aucun poids ni signal n’est supprimé pour corriger les libellés. Le tri `oiRatio` est retiré ; sa famille neutre reste en place en attente du Signal Audit. Les accès Contexte restent deux raccourcis intentionnels vers le même contenu, pas deux moteurs.
+
+### Lot dette — références et protection
+
+Recherche intégrale des identifiants dans JS, HTML (handlers inline compris), tests et serveur, puis suppression des définitions exactes : `shortDiagnostics`, `obv`, `lineChart`, `backtestFmt`, `trValue`, `nearestLevels`, `pctMove`, `clampPrice`, `clamp01`. Aucun dispatch `eval`, `new Function` ou accès global dynamique n’est trouvé. `csForHover` n’a que des écritures ; la sélection utilise les données du SVG. La branche `simScenario` n’a aucune entrée UI. Le calcul local `ap` et `trs` de ADX n’a pas de consommateur et est retiré ; la formule retournée est inchangée, snapshots et tests inchangés.
+
+Le nettoyage ne supprime pas les fichiers `hosted-*` : ils ont des tests et un rôle historique autonome. Documentation du serveur corrigée : une URL ne reconnecte pas un script que l’index ne charge pas. Métadonnées de régime, Wilson, statistiques auxiliaires, unités et diagnostics conservés avec justification. Pas de suppression CSS sans inventaire complet ; pas de fusion des moteurs.
+
+Le gate complet a détecté pendant le travail un élargissement involontaire du libellé « bornes indicatives » aux graphiques : corrigé dans un commit dédié avant publication, avec test de rendu. Aucun défaut connu introduit par les correctifs ne reste ouvert à ce stade des tests contrôlés.
