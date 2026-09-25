@@ -12,3 +12,12 @@ test('D06: actual ranking → scenario cards → locked projection preserve iden
  e.run("currentScenarioSelection={id:current.id,market:'perp',direction:'long',kind:'breakout'}");const html=await e.run('scenarioHtml()');assert.match(html,/Ouvrir la projection/);assert.doesNotMatch(html,/Rejet conditionnel de résistance/);
  await e.run("openScenarioMonitor(current.id,'breakout')");const lock=plain(e.run("scenarioLocks[scenarioLockKey(current.id,'breakout')]"));for(const k of ['entry','stop','tp1','tp2','tp3'])assert.equal(lock[k],expected[k]);assert.equal(lock.instrumentId,id);assert.equal(lock.direction,'long');e.run('stopScenarioUpdates()');
 });
+test('D06: existing Spot lock cannot activate with missing depth or excessive spread',async()=>{
+ for(const missingBook of [true,false]){
+  const e=env(),f=frames(.1),now=Date.now();for(const [tf,bars] of Object.entries(f)){const ms=e.run(`timeframeMs('${tf}')`),end=Math.floor(now/ms)*ms;bars.forEach((b,i)=>b.t=end-(bars.length-1-i)*ms);bars.at(-2).v=1e6}
+  e.ctx.f=f;e.ctx.candles=async(id,tf,n)=>f[tf].slice(-n);const price=f['5m'].at(-2).c;
+  e.ctx.get=async path=>{if(path.includes('/books')){if(missingBook)throw Error('no depth');return [{ts:String(Date.now()),bids:[[String(price-.01),'10000']],asks:[[String(price+.01),'10000']]}]}return [{last:String(price),bidPx:String(price*(missingBook?.9995:.9)),askPx:String(price*(missingBook?1.0005:1.1)),ts:String(Date.now())}]};
+  e.ctx.price=price;e.run("current={id:'T-USDT',sym:'T',market:'spot',price,volUsd:1e6};scenarioMonitorFrames=f;scenarioMonitorAnalysisAt=Date.now();scenarioMonitorKind='breakout';scenarioMonitorBar='5m';scenarioLocks['T-USDT::breakout']={id:'existing',kind:'breakout',direction:'long',instrumentId:'T-USDT',triggerKey:'5m',entry:price-.1,stop:price-5,tp1:price+5,tp2:price+10,tp3:price+15};scenarioBiasCompatible=()=>true;bindScenarioSim=()=>{};journalAdvance=(lock,side,bars,activated,ms,now,available)=>{activationAttempt={activated,available};return {status:'FORMING'}}");
+  const before=e.run('JSON.stringify(scenarioLocks)');await e.run("renderScenarioMonitor('breakout',false)");assert.equal(e.run('activationAttempt.activated'),false);assert.equal(e.run('activationAttempt.available'),false);assert.match(e.node('deepBody').innerHTML,/DÉCISION SUSPENDUE/);assert.equal(e.run('JSON.stringify(scenarioLocks)'),before);
+ }
+});

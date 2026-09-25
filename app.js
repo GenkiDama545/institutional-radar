@@ -195,7 +195,7 @@ async function refreshScenarioMarket(force=false){
 function prepareInteractive(){document.querySelectorAll('.rankcard,.radar,.click,.row').forEach(el=>{el.tabIndex=0;el.setAttribute('role','button')});bindAcc()}
 function decisionFreshness(e,source,now=Date.now(),triggerKey=e?.triggerKey){
  const policy=RadarMarket.policy,ttl=policy.analysisIntervals*timeframeMs(triggerKey);
- if(!source?.marketFresh||!RadarMarket.freshTimestamp(source.marketTs,now))return {ok:false,reason:'Ticker absent, futur ou âgé de plus de 120 s'};
+ if(!source?.marketFresh||!RadarMarket.freshTimestamp(source.marketTs,now))return {ok:false,reason:'Ticker absent, futur ou âgé de plus de '+(policy.tickerMaxAgeMs/1000)+' s'};
  if(!RadarMarket.freshTimestamp(e?.analysisAt,now,ttl))return {ok:false,reason:'Analyse expirée : recalcul des six horizons requis',ttl};
  for(const [tf] of DECISION_SPECS){const f=e?.F?.[tf],close=f?.c?.t+timeframeMs(tf);
   if(!f||f.cs?.length<40||!RadarMarket.freshTimestamp(close,now,policy.horizonIntervals*timeframeMs(tf)))return {ok:false,reason:'Horizon '+tf+' incomplet, futur ou trop ancien',ttl};
@@ -223,11 +223,12 @@ function admitScenario(e,source,kind){
 }
 async function refreshDecisionSource(asset,id=asset.id){
  if(id!==asset.id)throw Error('Contrat sélectionné différent : ouvre sa fiche exacte');
- const source={...asset,marketFresh:false,bookDepth:null};
+ const source={...asset,marketFresh:false,tickerFresh:false,bookDepth:null};
  try{
   if(source.market==='xperp'){const listing=await get('/public/instruments?instType=FUTURES');if(!listing.some(i=>i.instId===id&&i.ruleType==='xperp'&&i.state==='live'))return source}
   const t=(await get('/market/ticker?instId='+encodeURIComponent(id)))[0],last=nullableNumber(t?.last),bid=nullableNumber(t?.bidPx),ask=nullableNumber(t?.askPx),ts=nullableNumber(t?.ts);
-  source.marketFresh=!!(last>0&&bid>0&&ask>=bid&&RadarMarket.freshTimestamp(ts));
+  source.tickerFresh=!!(last>0&&RadarMarket.freshTimestamp(ts));
+  source.marketFresh=!!(source.tickerFresh&&bid>0&&ask>=bid);
   if(last>0)source.price=last;source.marketTs=ts;source.spreadPct=bid>0&&ask>=bid?(ask-bid)/((ask+bid)/2)*100:null;
   if(source.market==='xperp')source.perpPrice=source.price;
   if(source.market==='spot'&&source.marketFresh)source.bookDepth=bookDepthUsd((await get('/market/books?instId='+encodeURIComponent(id)+'&sz=20'))[0],(bid+ask)/2);
@@ -722,15 +723,15 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
   if(usable<2)throw Error('Données OKX insuffisantes pour construire la projection');
  }
  const marketInstId=isShortScenarioKind(kind)?current.perpId:(currentScenarioInstrument==='perp'&&isListedXperp(current.perpId)?current.perpId:current.id);
- let tickerFresh=false,tickerTs=null,live=marketInstId===current.perpId?(current.perpPrice||current.price):current.price;try{const t=(await get('/market/ticker?instId='+encodeURIComponent(marketInstId)))[0],p=nullableNumber(t?.last);if(p>0){live=p;tickerTs=nullableNumber(t.ts);tickerFresh=tickerTs!=null&&RadarMarket.freshTimestamp(tickerTs)}}catch(_){ }
+ const marketSource=await refreshDecisionSource(current,marketInstId),tickerFresh=marketSource.tickerFresh,tickerTs=marketSource.marketTs,live=marketSource.price;
  if(abandoned())return;
  // Refresh the trigger and the visible timeframe so the monitor is genuinely live.
  const refreshBars=new Set([scenarioMonitorBar]);if(scenarioLocks[scenarioLockKey(current.id,kind)]?.triggerKey)refreshBars.add(scenarioLocks[scenarioLockKey(current.id,kind)].triggerKey);
  for(const b of refreshBars){const limit=DECISION_SPECS.find(([tf])=>tf===b)?.[1]||300;const loaded=await candles(marketInstId,b,limit);if(abandoned())return;scenarioMonitorFrames[b]=loaded;}
- const e=candidateModel(scenarioMonitorFrames,{...current,id:marketInstId,price:live,analysisAt:scenarioMonitorAnalysisAt??0});if(abandoned()||!e)return;
+ const e=candidateModel(scenarioMonitorFrames,{...marketSource,analysisAt:scenarioMonitorAnalysisAt??0});if(abandoned()||!e)return;
  let actualKind=kind;const lockKey=scenarioLockKey(current.id,actualKind);let lock=scenarioLocks[lockKey];
  if(lock&&(lock.instrumentId&&lock.instrumentId!==marketInstId||lock.kind&&lock.kind!==kind||lock.direction&&lock.direction!==scenarioDirection(kind)))throw Error('Le verrou ne correspond pas au contrat/sens/type sélectionné');
- if(!lock){const source=await refreshDecisionSource(current,marketInstId);if(abandoned())return;const admission=admitScenario(e,source,kind);if(!admission.ok)throw Error(admission.reason);actualKind=kind;const nk=scenarioLockKey(current.id,actualKind);lock=scenarioLockFromEngine(e,actualKind);if(!lock)return;lock.instrumentId=marketInstId;if(!journalCreate(e,actualKind,lock))throw Error('Verrou et journal non enregistrés : stockage indisponible');scenarioMonitorKind=actualKind}
+ if(!lock){const admission=admitScenario(e,marketSource,kind);if(!admission.ok)throw Error(admission.reason);actualKind=kind;const nk=scenarioLockKey(current.id,actualKind);lock=scenarioLockFromEngine(e,actualKind);if(!lock)return;lock.instrumentId=marketInstId;if(!journalCreate(e,actualKind,lock))throw Error('Verrou et journal non enregistrés : stockage indisponible');scenarioMonitorKind=actualKind}
  const triggerKey=lock.triggerKey||e.triggerKey,anchorKey=lock.anchorKey||e.anchorKey;
  if(!scenarioMonitorFrames[triggerKey]){const loaded=await candles(marketInstId,triggerKey,180);if(abandoned())return;scenarioMonitorFrames[triggerKey]=loaded;}
  if(scenarioMonitorBar!==triggerKey&&!scenarioMonitorFrames[scenarioMonitorBar]){const loaded=await candles(marketInstId,scenarioMonitorBar,300);if(abandoned())return;scenarioMonitorFrames[scenarioMonitorBar]=loaded;}
@@ -740,7 +741,7 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
  const chartCs=chartAll.slice(-Math.min(scenarioMonitorZoom,chartAll.length));
  const sc=lock,displayKind=lock.kind||actualKind,side=lock.direction||scenarioDirection(displayKind);
  const closeC=(triggerCs||[]).filter(c=>Number(c.confirm)===1).at(-1);const volAvg=avgVol(RadarCandles.decision(triggerCs||[],triggerKey),20);const volRatio=volAvg&&closeC?closeC.v/volAvg:null;
- const crossed=side==='long'?live>=sc.entry:live<=sc.entry;const triggerClose=side==='long'?closeC?.c>=sc.entry:closeC?.c<=sc.entry;const volOk=volRatio==null?false:volRatio>=1.15;const trendOk=scenarioBiasCompatible(e,displayKind);const invalid=side==='long'?live<=sc.stop:live>=sc.stop;const near=Math.abs(live-sc.entry)<=Math.max((tf?.atr||0)*.55,live*.0015);const freshness=decisionFreshness(e,{marketFresh:tickerFresh,marketTs:tickerTs},Date.now(),triggerKey);const activated=freshness.ok&&crossed&&triggerClose&&volOk&&trendOk&&!invalid;
+ const crossed=side==='long'?live>=sc.entry:live<=sc.entry;const triggerClose=side==='long'?closeC?.c>=sc.entry:closeC?.c<=sc.entry;const volOk=volRatio==null?false:volRatio>=1.15;const trendOk=scenarioBiasCompatible(e,displayKind);const invalid=side==='long'?live<=sc.stop:live>=sc.stop;const near=Math.abs(live-sc.entry)<=Math.max((tf?.atr||0)*.55,live*.0015);const freshness=decisionFreshness(e,marketSource,Date.now(),triggerKey);if(freshness.ok)Object.assign(freshness,executionCheck(marketSource));const activated=freshness.ok&&crossed&&triggerClose&&volOk&&trendOk&&!invalid;
  const monitor=monitorTriggerStatus({crossed,triggerClose,volOk,trendOk,invalid,near,entry:sc.entry,stop:sc.stop,live,triggerKey,volRatio});
  let {state,label,reason}=monitor;
  const jrec=journalAdvance(sc,side,triggerCs,activated,timeframeMs(triggerKey),Date.now(),freshness.ok);
