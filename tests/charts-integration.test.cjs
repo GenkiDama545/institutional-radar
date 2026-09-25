@@ -32,3 +32,9 @@ test('L6: returning from deep chart restores an interactive fiche and its refres
  const restored=e.run("sharedChartViews.get('detailChartPlot').controller");assert.ok(restored);assert.notEqual(restored,original);restored.panel.action('previous');restored.panel.redraw();assert.ok(restored.panel.state.selectedTs);assert.equal(e.timers.size,1);
  e.run('leavePage()');e.dom.window.close();
 });
+test('L7: journal markers use observed activation/closure times, never the opening time of that candle',async()=>{
+ const e=ready();e.ctx.record={status:'CLOSED',activatedBarTs:1000,activatedAt:2000,outcome:{ts:3000,status:'TP1'}};const before=JSON.stringify(e.ctx.record);
+ assert.deepEqual(plain(e.run('chartJournalEvents(record)')).map(x=>x.t),[2000,3000]);assert.equal(JSON.stringify(e.ctx.record),before);
+ assert.deepEqual(plain(e.run('chartJournalEvents({activatedBarTs:1000})')),[]);
+ e.ctx.journalAdvance=()=>e.ctx.record;await e.run("openScenarioMonitor(current.id,'breakout')");assert.deepEqual(plain(e.run('scenarioChartSnapshot.events')).map(x=>x.t),[2000,3000]);e.run('leavePage()');e.dom.window.close();
+});

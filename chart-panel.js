@@ -9,6 +9,7 @@
  const axisNumber=(v,step)=>Math.abs(v)>0&&Math.abs(v)<1e-6?v.toExponential(3):v.toLocaleString('fr-FR',{maximumFractionDigits:Math.max(0,Math.min(8,1-Math.floor(Math.log10(Math.max(step,1e-12)))))});
  const short=v=>!Number.isFinite(v)?'N/D':Math.abs(v)>=1e6?number(v/1e6)+' M':Math.abs(v)>=1e3?number(Math.round(v)/1000)+' k':number(v);
  const stamp=t=>Number.isFinite(t)?new Date(t).toLocaleString('fr-FR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):'N/D';
+ const tickerFresh=vm=>!!vm.ticker?.fresh&&C.valid(vm.ticker.ts)&&vm.ticker.ts<=Date.now()&&(!C.valid(vm.ticker.expiresAt)||Date.now()<=vm.ticker.expiresAt);
  const timezone=()=>Intl.DateTimeFormat().resolvedOptions().timeZone||'locale';
  function geometry(vm,s,width){
   C.viewport(vm,s,width);const priceH=width<500?310:360,plotW=Math.max(40,width-84),top=24,volTop=top+priceH+32,volH=64;
@@ -41,7 +42,7 @@
   for(const key of ['ema20','ema50','supertrend'])if(s.visibility[key])svg.push(`<path d="${path(vm,s,key,g,{top:g.top,height:g.priceH},g.range.min,g.range.max)}" fill="none" stroke="${palette[key]}" stroke-width="1.7"${key==='supertrend'?' stroke-dasharray="5 3"':''}/>`);
   for(const level of levels)if(level.value>=g.range.min&&level.value<=g.range.max)svg.push(`<line class="ir-level" data-value="${level.value}" x1="8" x2="${8+g.plotW}" y1="${g.y(level.value)}" y2="${g.y(level.value)}" stroke="${level.color||'#65b8ff'}" stroke-dasharray="6 4"/>`);
   const forming=vm.bars.findLast(c=>c.confirm===0),closed=vm.bars.findLast(c=>c.confirm===1),prices=[];
-  if(vm.ticker?.fresh&&C.valid(vm.ticker.value))prices.push({value:vm.ticker.value,color:palette.up,label:'Ticker'});
+  if(tickerFresh(vm)&&C.valid(vm.ticker.value))prices.push({value:vm.ticker.value,color:palette.up,label:'Ticker'});
   if(s.visibility.formingPrice&&forming)prices.push({value:forming.c,color:'#ffd166',label:'Provisoire'});
   if(s.visibility.closedPrice&&closed)prices.push({value:closed.c,color:'#b6c4cd',label:'Clôture'});
   for(const p of prices)if(p.value>=g.range.min&&p.value<=g.range.max)svg.push(`<line x1="8" x2="${8+g.plotW}" y1="${g.y(p.value)}" y2="${g.y(p.value)}" stroke="${p.color}" stroke-dasharray="2 4"/>`);
@@ -63,14 +64,14 @@
   const clipId='ir-price-clip-'+(mount.nextId=(mount.nextId||0)+1);
   const document=host.ownerDocument,win=document.defaultView,raf=win.requestAnimationFrame?.bind(win)||((fn)=>win.setTimeout(fn,16)),cancel=win.cancelAnimationFrame?.bind(win)||win.clearTimeout.bind(win);
   host.innerHTML=`<section class="ir-chart"><div class="ir-chart-meta"></div><div class="ir-price-readings"></div><div class="ir-controls"><button type="button" data-action="previous" aria-label="Bougie précédente">←</button><button type="button" data-action="next" aria-label="Bougie suivante">→</button><button type="button" data-action="zoomIn" aria-label="Zoomer">＋</button><button type="button" data-action="zoomOut" aria-label="Dézoomer">−</button><button type="button" data-action="latest">Dernier cours</button><button type="button" data-action="reset">Réinitialiser la vue</button><button type="button" data-action="levels" aria-pressed="false">Voir tous les niveaux</button><button type="button" data-action="inspect" aria-pressed="false">Inspection</button></div><details class="ir-options"><summary>Indicateurs et affichage</summary><div class="ir-toggles">${Object.entries(names).map(([k,label])=>`<label><input type="checkbox" data-toggle="${k}"${s.visibility[k]?' checked':''}><span style="color:${palette[k]||'#c4cad3'}">${label}</span></label>`).join('')}</div><label>Référence <select class="ir-reference"><option value="historical">Consultation historique</option><option value="engine">Référence moteur</option></select></label><button type="button" data-action="rebase">Renouveler la référence historique</button></details><div class="ir-readout" role="status" aria-live="polite"></div><svg class="ir-plot" tabindex="0" role="img" aria-label="Graphique de bougies. Flèches : sélection. Plus et moins : zoom. Fin : dernier cours. Échap : quitter la sélection."></svg><div class="ir-levels"></div><div class="ir-events"></div><div class="ir-coverage"></div><div class="ir-status" role="status"></div><button class="ir-more" type="button" data-action="more">Charger l’historique antérieur</button></section>`;
-  const query=x=>host.querySelector(x),svg=query('.ir-plot'),read=query('.ir-readout'),points=new Map();let gesture=null,longPress=null,inspection=false,loading=false;
+  const query=x=>host.querySelector(x),svg=query('.ir-plot'),read=query('.ir-readout'),points=new Map();let gesture=null,longPress=null,inspection=false,loading=false,expiryTimer=null;
   const button=a=>query(`[data-action="${a}"]`);
   function draw(){
    if(disposed)return;const start=win.performance?.now()||0;frame=null;
    const output=render(vm,s,width),g=output.geometry;svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);svg.setAttribute('height',g.height);svg.innerHTML=output.svg.replaceAll('price-clip',clipId);
    const content=output.readout;if(read.innerHTML!==content)read.innerHTML=content;
    query('.ir-chart-meta').textContent=`${vm.instrument} · ${vm.timeframe} · ${vm.reference==='engine'?'Référence moteur · analyse actuelle':'Consultation historique'} · ${timezone()}`;
-   query('.ir-price-readings').innerHTML=`<span><b>${vm.ticker?.fresh?'Ticker live':'Ticker non actualisé'}</b> ${number(vm.ticker?.value)} ${esc(vm.quote)}${vm.ticker?.ts?' · '+stamp(vm.ticker.ts):''}</span><span><b>Bougie en formation</b> ${output.forming?number(output.forming.c)+' '+esc(vm.quote):'aucune'}</span><span><b>Dernière clôture confirmée</b> ${output.closed?number(output.closed.c)+' '+esc(vm.quote)+' · '+stamp(output.closed.t):'N/D'}</span>`;
+   query('.ir-price-readings').innerHTML=`<span><b>${tickerFresh(vm)?'Ticker live':'Ticker non actualisé'}</b> ${number(vm.ticker?.value)} ${esc(vm.quote)}${vm.ticker?.ts?' · '+stamp(vm.ticker.ts):''}</span><span><b>Bougie en formation</b> ${output.forming?number(output.forming.c)+' '+esc(vm.quote):'aucune'}</span><span><b>Dernière clôture confirmée</b> ${output.closed?number(output.closed.c)+' '+esc(vm.quote)+' · '+stamp(output.closed.t):'N/D'}</span>`;
    query('.ir-levels').innerHTML=output.levels;query('.ir-events').textContent=vm.events.map(e=>`${e.label} · ${stamp(e.t)}`).join(' · ');
    query('.ir-coverage').textContent=vm.bars.length?`${output.visible.length} bougies visibles / ${vm.bars.length} chargées · du ${stamp(vm.bars[0].t)} au ${stamp(vm.bars.at(-1).t+C.intervals[vm.timeframe])} · données ${stamp(vm.asOf)}${s.selectedTs!=null&&!output.visible.some(c=>c.t===s.selectedTs)?' · sélection conservée hors champ':''}`:'Aucune bougie disponible.';
    query('.ir-status').textContent=vm.error||vm.coverage?.notice||'';
@@ -118,9 +119,10 @@
   svg.addEventListener('wheel',wheel,{passive:false});
   svg.onkeydown=ev=>{const key=ev.key,map={ArrowLeft:'previous',ArrowRight:'next','+':'zoomIn','=':'zoomIn','-':'zoomOut',End:'latest'};if(map[key]){ev.preventDefault();action(map[key]);}if(key==='Escape'){s.pinned=false;s.selectedTs=s.hoverTs=null;inspection=false;gesture=null;points.clear();schedule();}if(key==='Home'&&vm.bars.length){ev.preventDefault();pick(vm.bars[0].t);s.follow=false;s.to=vm.bars[0].t+(s.to-s.from);schedule();}};
   const observer=typeof win.ResizeObserver==='function'?new win.ResizeObserver(entries=>{const w=entries[0]?.contentRect.width;if(w>0&&Math.abs(w-width)>.5){width=w;schedule();}}):null;observer?.observe(host);
-  function update(next){vm=next;if(lastDataEnd!==vm.bars.at(-1)?.t&&s.follow)C.viewport(vm,s,width);lastDataEnd=vm.bars.at(-1)?.t;schedule();}
-  function dispose(){disposed=true;if(frame!=null)cancel(frame);if(longPress)win.clearTimeout(longPress);observer?.disconnect();svg.removeEventListener('wheel',wheel);for(const [name,fn] of Object.entries(pointerHandlers))svg.removeEventListener(name,fn);svg.onkeydown=null;host.onclick=host.onchange=null;points.clear();}
-  draw();return {update,dispose,state:s,action,redraw:draw,get model(){return vm;},setOptions:next=>Object.assign(options,next)};
+  function armFreshness(){if(expiryTimer!=null)win.clearTimeout(expiryTimer);const delay=vm.ticker?.expiresAt-Date.now();if(delay>=0)expiryTimer=win.setTimeout(schedule,Math.min(delay+1,2147483647));}
+  function update(next){vm=next;armFreshness();if(lastDataEnd!==vm.bars.at(-1)?.t&&s.follow)C.viewport(vm,s,width);lastDataEnd=vm.bars.at(-1)?.t;schedule();}
+  function dispose(){disposed=true;if(expiryTimer!=null)win.clearTimeout(expiryTimer);if(frame!=null)cancel(frame);if(longPress)win.clearTimeout(longPress);observer?.disconnect();svg.removeEventListener('wheel',wheel);for(const [name,fn] of Object.entries(pointerHandlers))svg.removeEventListener(name,fn);svg.onkeydown=null;host.onclick=host.onchange=null;points.clear();}
+  armFreshness();draw();return {update,dispose,state:s,action,redraw:draw,get model(){return vm;},setOptions:next=>Object.assign(options,next)};
  }
  const api={render,mount,geometry,readout,number,stamp,palette};if(typeof module!=='undefined'&&module.exports)module.exports=api;root.RadarChartPanel=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

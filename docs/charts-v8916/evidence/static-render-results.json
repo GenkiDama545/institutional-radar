@@ -1,0 +1,42 @@
+[
+  {
+    "containerWidth": 288,
+    "loaded": 3000,
+    "visible": 22,
+    "candleBodyPx": 6.3054545454545465,
+    "svgHeight": 474,
+    "medianNodeMs": 1.4954339999999888,
+    "p95NodeMs": 2.699246999999957,
+    "note": "SVG string generation only; no layout, paint, browser or native touch measurement"
+  },
+  {
+    "containerWidth": 318,
+    "loaded": 3000,
+    "visible": 26,
+    "candleBodyPx": 6.12,
+    "svgHeight": 474,
+    "medianNodeMs": 1.3919570000000476,
+    "p95NodeMs": 1.81536600000004,
+    "note": "SVG string generation only; no layout, paint, browser or native touch measurement"
+  },
+  {
+    "containerWidth": 696,
+    "loaded": 3000,
+    "visible": 68,
+    "candleBodyPx": 6.12,
+    "svgHeight": 524,
+    "medianNodeMs": 1.528312000000028,
+    "p95NodeMs": 1.9698079999999436,
+    "note": "SVG string generation only; no layout, paint, browser or native touch measurement"
+  },
+  {
+    "containerWidth": 1368,
+    "loaded": 3000,
+    "visible": 142,
+    "candleBodyPx": 6.148732394366197,
+    "svgHeight": 524,
+    "medianNodeMs": 1.8866820000000644,
+    "p95NodeMs": 3.0841760000000704,
+    "note": "SVG string generation only; no layout, paint, browser or native touch measurement"
+  }
+]

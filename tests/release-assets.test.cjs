@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 test('release: all versioned entry assets exist and share the application/service-worker version',()=>{
  const root=path.resolve(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
  const app=read('app.js'),html=read('index.html'),sw=read('sw.js'),version=app.match(/const APP_VERSION='V([^']+)'/)[1];
- assert.equal(version,'8.9.16','approved final release version');assert.match(html,new RegExp('<title>Institutional Radar V'+version.replace(/[.]/g,'\\.')+'</title>'));
+ assert.equal(version,'8.9.17-rc.1','isolated charts release candidate');assert.match(html,new RegExp('<title>Institutional Radar V'+version.replace(/[.]/g,'\\.')+'</title>'));
  const c=vm.createContext({self:{addEventListener(){}}});vm.runInContext(sw+';result={CACHE,ASSETS}',c);
  assert.equal(c.result.CACHE,'institutional-radar-v'+version);
  const assets=[...html.matchAll(/(?:src|href)="(\.\/[^"?]+)\?v=([^"]+)"/g)];assert.ok(assets.length>=7);

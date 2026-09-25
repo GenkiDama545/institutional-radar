@@ -103,3 +103,18 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - Retour vers la fiche : son propriétaire recharge et réattache les contrôles après disposition du graphique.
   Un même host changeant d'instrument ne réutilise pas le provider de l'ancien contrat.
 - Validation : 104 tests Node passent ; cinq nouvelles vérifications métriques/navigation.
+
+## L7 — Candidate et recette
+
+- Candidate séparée `V8.9.17-rc.1`, assets/cache cohérents. Aucune migration des clés de stockage métier.
+- 44 fonctions et cinq modules métier comparés par hash avec le commit V8.9.16, non avec une nouvelle sortie.
+- Correctif de recette : ticker affiché comme live après deadline (test en échec avant, passant après) ;
+  expiration de présentation seulement, durée injectée depuis `RadarMarket.policy.tickerMaxAgeMs`.
+- Correctif des marqueurs : utiliser l'heure d'activation observée `activatedAt` du journal, et non l'ouverture
+  de sa bougie `activatedBarTs` ; test de l'adaptateur ET du snapshot réellement transmis à la projection.
+  Ni les dates stockées ni l'état du journal ne sont modifiés.
+- Gate historique adapté aux nouveaux scripts/numéro RC et mocks DOM ; attentes métier inchangées.
+  Nettoyage des fenêtres jsdom en fin de test, notamment de leur timer d'expiration de ticker.
+- Preuves SVG statiques 288/318/696/1368 px et comparaison des styles non graphiques conservées sous `evidence/`.
+- Recette navigateur/tactile bloquée par la politique de navigation Work, documentée sans contournement.
+  Le statut d'adoption reste bloqué ; voir le rapport de candidate et la matrice de recette native.

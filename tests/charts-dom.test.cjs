@@ -33,3 +33,6 @@ test('L4 DOM: keyboard selection, three price meanings and legitimate reference 
   assert.equal(x.host.querySelector('option[value="engine"]').disabled,true);
  }finally{x.close()}
 });
+test('L7: a ticker whose supplied freshness deadline has elapsed cannot remain labelled live',()=>{
+ const x=setup();try{const vm=C.model({...x.vm,ticker:{value:118,ts:Date.now()-130000,fresh:true,expiresAt:Date.now()-10000}});x.panel.update(vm);x.panel.redraw();assert.match(x.host.querySelector('.ir-price-readings').textContent,/Ticker non actualisé/);assert.doesNotMatch(x.host.querySelector('.ir-price-readings').textContent,/Ticker live/);}finally{x.close()}
+});
