@@ -38,3 +38,9 @@ test('L7: journal markers use observed activation/closure times, never the openi
  assert.deepEqual(plain(e.run('chartJournalEvents({activatedBarTs:1000})')),[]);
  e.ctx.journalAdvance=()=>e.ctx.record;await e.run("openScenarioMonitor(current.id,'breakout')");assert.deepEqual(plain(e.run('scenarioChartSnapshot.events')).map(x=>x.t),[2000,3000]);e.run('leavePage()');e.dom.window.close();
 });
+test('L7: an engine reference is unavailable when its model belongs to another exact contract',()=>{
+ const e=ready(),original=e.run('JSON.stringify(current.scenarioModel)');
+ assert.ok(e.run("chartSource(f['1H'],'1H').engineBars.length")>0);
+ const other=plain(e.run("chartSource(f['1H'],'1H',{instrument:'OTHER-USD_UM_XPERP-310101'})"));assert.equal(other.engineBars.length,0);assert.deepEqual(other.structure,[]);
+ e.run('delete current.scenarioModel.instrumentId');assert.equal(e.run("chartSource(f['1H'],'1H').engineBars.length"),0);assert.ok(original);e.dom.window.close();
+});

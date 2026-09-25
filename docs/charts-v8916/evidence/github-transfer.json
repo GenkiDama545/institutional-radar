@@ -1,0 +1,46 @@
+{
+  "reason": "Git HTTPS push unavailable: no local credentials. Imported through the authenticated GitHub connector. Every lot tree SHA verified identical; original local commits retained.",
+  "baseline": "bd5c19f46eebad03ff8bd1f0d0ca7ef2797fb7c8",
+  "lots": [
+    {
+      "local": "d59634e1b06ab3d97e744278e6138c8818827f9e",
+      "remote": "2817f683eb5aeaa513351d7bee6d51cc7dd94f03",
+      "tree": "635202eeb03cc8c31f78d752a5b8dc85fe989a4f"
+    },
+    {
+      "local": "4bc6fda4f1418a70007aa5be0aeff8c41fe31e9c",
+      "remote": "acd0f959ea7bcebceed3d219088b3502ddb97c2e",
+      "tree": "03ceebdb679dca97f3d3c1f5cccdc84a2a63aed6"
+    },
+    {
+      "local": "fe1ac0cb46b22e8b460633013f2eac180db08590",
+      "remote": "632e1655a9a4984cc920ca414340395f085dcd27",
+      "tree": "04610bc8970cf7c4acc63445c0c0c488843e9d39"
+    },
+    {
+      "local": "8f191beefb201c4edc8edf8b401b53452f69d308",
+      "remote": "95c6b36c1aa1b5f4f2cb4625f0d04ed6834a2e61",
+      "tree": "c4d8953885a1e3247198a2b99cd9e1e1ac662cc4"
+    },
+    {
+      "local": "0bd647ba16be6358df87e4b91ce3f62a30eefe1a",
+      "remote": "c4614b4de1e560af8f890b8e18967f3227d28427",
+      "tree": "2b17b5f74cb3353ad3773af00c6837b1d19a8691"
+    },
+    {
+      "local": "8064cf02e753ef038635f49d8d0bffa8573ec695",
+      "remote": "80f20fbc945e0701e97063eae992eba363bcfd78",
+      "tree": "7df4f754e14054dcdf3ec3ad6334f03e164c2149"
+    },
+    {
+      "local": "97ed6a9df14666816e974c8af7eeb51e55d17ee0",
+      "remote": "65f321a20937fd7b1d8a3f9b9e5cb7d7d0795256",
+      "tree": "c5bdf481c4b7629a76355d4e66d995ee0d06ce0c"
+    },
+    {
+      "local": "f598dc7e6d31ad3b59b264021734b47439d8dace",
+      "remote": "b1d9bb79f20080cda17a5af65c238240bb95b312",
+      "tree": "78f3a80ec08654c7ed3a8220dc31387d6c8acf22"
+    }
+  ]
+}

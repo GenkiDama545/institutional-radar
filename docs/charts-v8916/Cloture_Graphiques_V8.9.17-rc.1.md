@@ -115,10 +115,20 @@ bibliothèque graphique ne s'ajoute au cache de production. Voir `L3-renderer-de
 ## Validation automatisée et limites
 
 Gate local vert : `npm ci --ignore-scripts`, `npm test` (syntaxe app, engine, hosted-feed, experience, serveur et
-109 tests Node réussis). Les modules graphiques ont aussi été contrôlés syntaxiquement.
+110 tests Node réussis). Les modules graphiques ont aussi été contrôlés syntaxiquement.
 La CI GitHub utilise Node 22 et le même gate. Les logs locaux sont conservés dans `evidence/L7-gate.log`.
 L'étiquette de version, les assets et le cache sont tous `8.9.17-rc.1` ; le prototype n'est pas pré-caché.
 La réussite CI doit correspondre au SHA exact de la branche candidate ; le rapport de livraison l'indique.
+
+Complément de recette : une référence moteur n'est proposée que si son `instrumentId` correspond au contrat
+exact consulté. Le test reproduit l'ancien mélange de références puis vérifie l'indisponibilité des séries
+moteur/structures dans ce cas ; le modèle métier n'est pas corrigé ni réécrit par le graphique.
+
+Le push Git local étant indisponible faute d'authentification, les lots ont été transférés par le connecteur
+GitHub. Leurs arbres de fichiers ont été comparés et sont identiques ; les métadonnées de commit donnent de
+nouveaux SHA distants. `evidence/github-transfer.json` conserve la correspondance des huit lots initiaux.
+Les commits locaux ne sont pas annulés. Un complément L7 répare une image statique vide et ajoute la garde de
+contrat ci-dessus ; cette révision repasse le gate complet et doit recevoir sa propre CI.
 
 Limites restantes, à ne pas masquer :
 

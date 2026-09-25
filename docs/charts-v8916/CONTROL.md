@@ -118,3 +118,11 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - Preuves SVG statiques 288/318/696/1368 px et comparaison des styles non graphiques conservées sous `evidence/`.
 - Recette navigateur/tactile bloquée par la politique de navigation Work, documentée sans contournement.
   Le statut d'adoption reste bloqué ; voir le rapport de candidate et la matrice de recette native.
+
+### Complément L7
+
+- Reproduction avant/après : modèle d'un autre contrat (ou identité absente) ne doit pas être proposé comme
+  référence moteur. `chartSource` refuse uniquement cette référence d'affichage ; aucune règle moteur changée.
+- Image PNG 696 px initialement vide régénérée depuis le même SVG puis contrôlée comme PNG 696 × 524.
+- Transfert GitHub via connecteur : huit arbres vérifiés identiques, SHA de commits distincts car métadonnées
+  distantes. Correspondance conservée sous `evidence/github-transfer.json`. Aucun force-push ni annulation.

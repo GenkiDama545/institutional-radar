@@ -321,7 +321,8 @@ let activeMetricPlot=null;
 function clearChartViews(){activeMetricPlot?.dispose();activeMetricPlot=null;for(const v of sharedChartViews.values())v.controller.dispose();sharedChartViews.clear()}
 function chartQuote(id){return id?.endsWith('-USDT')?'USDT':'USD'}
 function chartSource(bars,tf,{model=current?.scenarioModel,...extra}={}){
- const frame=model?.F?.[tf];return {instrument:activeInstrumentId(),timeframe:tf,quote:chartQuote(activeInstrumentId()),bars,engineBars:frame?.cs||[],structure:RadarChartHost.structure(frame,tf),asOf:Date.now(),...extra};
+ const instrument=extra.instrument||activeInstrumentId(),frame=model?.instrumentId===instrument?model.F?.[tf]:null;
+ return {instrument,timeframe:tf,quote:chartQuote(instrument),bars,engineBars:frame?.cs||[],structure:RadarChartHost.structure(frame,tf),asOf:Date.now(),...extra};
 }
 function paintSharedChart(id,input){
  const host=$(id);if(!host)return;let v=sharedChartViews.get(id);
