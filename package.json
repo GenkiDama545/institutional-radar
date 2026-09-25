@@ -1,0 +1,6 @@
+{
+  "name": "institutional-radar-validation",
+  "private": true,
+  "scripts": {"test": "node --check app.js && node engine.test.cjs && node hosted-feed.test.cjs && node --test experience.test.cjs server/*.test.mjs tests/*.test.cjs"},
+  "devDependencies": {"jsdom": "26.1.0"}
+}

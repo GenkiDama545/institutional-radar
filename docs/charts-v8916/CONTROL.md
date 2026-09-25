@@ -55,3 +55,16 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - Critères de fluidité/pinch/accessibilité non démontrables dans le navigateur Work qui refuse la recette locale.
 - Décision appliquée : SVG conservé pour l'application. Voir `L3-renderer-decision.md`.
 - Aucun script ni cache de production ne charge le prototype ou sa bibliothèque.
+
+## L4 — Interactions et lisibilité
+
+- Nouveau renderer SVG `chart-panel.js` derrière le ViewModel ; aucune dépendance au moteur.
+- Densité : pas préféré 9 px, pas minimal 4 px, corps 68 % du pas (plafond 14 px).
+  Tests sur 3 000 bougies et conteneurs 240/288/318/360/390/768/1440 px : ouverture avec corps >5,5 px.
+- Auto-fit des seuls High/Low visibles ; niveaux distants signalés hors champ ; fit de niveaux explicite.
+- Pan, zoom ancré, suivi du dernier cours, inspection par timestamp, repères H/L, clavier, boutons 44 px,
+  gestion de deux pointeurs, scroll vertical laissé au navigateur, panneaux optionnels et trois prix distincts.
+- Préférences exclusivement graphiques ; styles dans `chart.css`, sans changement des styles globaux.
+- 7 tests de géométrie/DOM passent. Ils simulent les événements et ne prouvent pas les gestes natifs physiques.
+- Dépendance de test uniquement : jsdom 26.1.0, lockfile ; `npm ci --ignore-scripts` ajouté au gate CI.
+- Intégration aux quatre usages réservée au lot suivant ; aucun remplacement global prématuré.
