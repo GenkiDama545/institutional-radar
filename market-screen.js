@@ -1,5 +1,8 @@
 // Pure market screening rules. No network calls, DOM access, or stored state.
 (function(root){
+ // D05 approved defaults: configuration is centralized, not learned or adapted.
+ const policy=Object.freeze({analysisIntervals:2,tickerMaxAgeMs:120000,horizonIntervals:2});
+ const freshTimestamp=(ts,now=Date.now(),maxAge=policy.tickerMaxAgeMs)=>Number.isFinite(ts)&&ts<=now&&now-ts<=maxAge;
  function spotAnalysisQueue(assets,favorites={}){
   const eligible=assets.filter(x=>x.market==='spot'&&x.price>0&&x.volUsd>0);
   // This score orders the queue; it never excludes an asset or contributes to
@@ -10,7 +13,7 @@
  function bookDepthUsd(book,mid){
   if(!book||!(mid>0))return null;
   const ts=Number(book.ts);
-  if(!Number.isFinite(ts)||Date.now()-ts>120000)return null;
+  if(!freshTimestamp(ts))return null;
   const sum=(levels,side)=>Array.isArray(levels)?levels.reduce((total,row)=>{const px=Number(row[0]),qty=Number(row[1]);return px>0&&qty>0&&Math.abs(px/mid-1)<=.01&&(side==='bid'?px<=mid:px>=mid)?total+px*qty:total},0):0;
   const levels=side=>Array.isArray(side)?side.map(row=>({price:Number(row[0]),base:Number(row[1])})).filter(row=>row.price>0&&row.base>0):[];
   return {bidUsd:sum(book.bids,'bid'),askUsd:sum(book.asks,'ask'),bids:levels(book.bids),asks:levels(book.asks),ts};
@@ -37,11 +40,11 @@
  }
  // A narrow spread is necessary, but this alone cannot establish order-book depth.
  function executionCheck(x){
-  if(!x?.marketFresh||!Number.isFinite(x.marketTs)||Date.now()-x.marketTs>120000)return {ok:false,reason:'Prix non actualisé après le scan'};
+  if(!x?.marketFresh||!freshTimestamp(x.marketTs))return {ok:false,reason:'Prix non actualisé après le scan'};
   if(!Number.isFinite(x.spreadPct))return {ok:false,reason:'Écart achat/vente indisponible'};
   if(x.spreadPct>1)return {ok:false,reason:'Écart achat/vente trop large'};
   if(x.market==='spot'){
-   if(!x.bookDepth||Date.now()-x.bookDepth.ts>120000)return {ok:false,reason:'Profondeur Spot non vérifiée'};
+   if(!x.bookDepth||!freshTimestamp(x.bookDepth.ts))return {ok:false,reason:'Profondeur Spot non vérifiée'};
    if(Math.min(x.bookDepth.bidUsd,x.bookDepth.askUsd)<500)return {ok:false,reason:'Carnet Spot trop mince près du prix'};
    const impact=spotImpact(x.bookDepth);
    if(!impact)return {ok:false,reason:'Carnet insuffisant pour simuler un aller-retour Spot de 100 USDT'};
@@ -51,5 +54,5 @@
   if(x.volUsd<100000)return {ok:false,reason:'Volume X-Perp 24 h insuffisant sans profondeur de carnet vérifiée'};
   return {ok:true,reason:'Écart et activité X-Perp vérifiés • profondeur à confirmer'};
  }
- root.RadarMarket={spotAnalysisQueue,bookDepthUsd,spotImpact,executionCheck};
+ root.RadarMarket={policy,freshTimestamp,spotAnalysisQueue,bookDepthUsd,spotImpact,executionCheck};
 })(globalThis);

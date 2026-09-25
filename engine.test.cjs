@@ -31,6 +31,7 @@ context.testXperpInstruments.push({instId:'ZAMA-USD_UM_XPERP-310101',ruleType:'x
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers).length'),2,'public X-Perps beyond ALLO FIL SOL are scanned');
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers)[0].id'),'ALLO-USD_UM_XPERP-310101');
 run("all=[{...xperpUniverse(testXperpInstruments,testXperpTickers)[0],analysisCoverage:'complete',marketFresh:true,marketTs:Date.now(),spreadPct:.2,hasLongScenario:true,longScore:80,signalModel:{qualityScore:80,extensionRisk:10},directional:{longScore:80,shortScore:60},scenarioModel:{breakout:{entry:.31,stop:.29,tp1:.33},pullback:{entry:.29,stop:.27,tp1:.32}}}];current=all[0]");
+run("Object.assign(all[0].scenarioModel,{analysisAt:Date.now(),triggerKey:'5m',F:Object.fromEntries(DECISION_SPECS.map(([tf])=>[tf,{cs:Array(40).fill({}),c:{t:Date.now()-timeframeMs(tf)}}]))})");
 assert.equal(run('scenarioCandidates()[0].market'),'perp','ALLO X-Perp is not mislabeled as Spot');
 assert.equal(run('scenarioMarket("breakout")'),'perp','a long X-Perp retains its contract market');
 context.testMarket={marketFresh:true,marketTs:Date.now(),spreadPct:.2,volUsd:150000};

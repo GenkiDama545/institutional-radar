@@ -143,7 +143,7 @@ async function scan(){
    const [spotRefresh,futureRefresh]=await Promise.allSettled([get('/market/tickers?instType=SPOT'),get('/market/tickers?instType=FUTURES')]);
    const refreshed=new Map([...(spotRefresh.status==='fulfilled'?spotRefresh.value:[]),...(futureRefresh.status==='fulfilled'?futureRefresh.value:[])].map(t=>[t.instId,t]));
    for(const x of raw){const t=refreshed.get(x.id),last=nullableNumber(t?.last),ts=nullableNumber(t?.ts),bid=nullableNumber(t?.bidPx),ask=nullableNumber(t?.askPx),old=x.price;
-    x.marketFresh=!!(last>0&&ts&&Date.now()-ts<120000&&bid>0&&ask>=bid&&Math.abs(last/old-1)<=.01);
+    x.marketFresh=!!(last>0&&ts&&RadarMarket.freshTimestamp(ts)&&bid>0&&ask>=bid&&Math.abs(last/old-1)<=.01);
     if(x.marketFresh){x.price=last;x.marketTs=ts;x.bidPx=bid;x.askPx=ask;x.spreadPct=(ask-bid)/((ask+bid)/2)*100;if(x.market==='xperp')x.perpPrice=last}
    }
    const spotSetups=raw.filter(x=>x.market==='spot'&&x.analysisCoverage==='complete'&&x.hasLongScenario&&x.marketFresh);
@@ -166,7 +166,7 @@ async function refreshScenarioMarket(force=false){
   const tickers=new Map([...(spots.status==='fulfilled'?spots.value:[]),...(perps.status==='fulfilled'?perps.value:[])].map(t=>[t.instId,t]));
   for(const x of assets){
    const t=tickers.get(x.id),last=nullableNumber(t?.last),bid=nullableNumber(t?.bidPx),ask=nullableNumber(t?.askPx),ts=nullableNumber(t?.ts),origin=x.scenarioScanPrice||x.price;
-   x.marketFresh=!!(last>0&&bid>0&&ask>=bid&&ts&&Date.now()-ts<120000&&Math.abs(last/origin-1)<=.01);
+   x.marketFresh=!!(last>0&&bid>0&&ask>=bid&&ts&&RadarMarket.freshTimestamp(ts)&&Math.abs(last/origin-1)<=.01);
    if(!x.marketFresh)continue;
    x.price=last;x.marketTs=ts;x.bidPx=bid;x.askPx=ask;x.spreadPct=(ask-bid)/((ask+bid)/2)*100;
    if(x.market==='xperp')x.perpPrice=last;
@@ -177,10 +177,19 @@ async function refreshScenarioMarket(force=false){
  }catch(e){console.warn('Actualisation des scénarios',e)}finally{marketRefreshRunning=false;renderRank()}
 }
 function prepareInteractive(){document.querySelectorAll('.rankcard,.radar,.click,.row').forEach(el=>{el.tabIndex=0;el.setAttribute('role','button')});bindAcc()}
+function decisionFreshness(e,source,now=Date.now(),triggerKey=e?.triggerKey){
+ const policy=RadarMarket.policy,ttl=policy.analysisIntervals*timeframeMs(triggerKey);
+ if(!source?.marketFresh||!RadarMarket.freshTimestamp(source.marketTs,now))return {ok:false,reason:'Ticker absent, futur ou âgé de plus de 120 s'};
+ if(!RadarMarket.freshTimestamp(e?.analysisAt,now,ttl))return {ok:false,reason:'Analyse expirée : recalcul des six horizons requis',ttl};
+ for(const [tf] of DECISION_SPECS){const f=e?.F?.[tf],close=f?.c?.t+timeframeMs(tf);
+  if(!f||f.cs?.length<40||!RadarMarket.freshTimestamp(close,now,policy.horizonIntervals*timeframeMs(tf)))return {ok:false,reason:'Horizon '+tf+' incomplet, futur ou trop ancien',ttl};
+ }
+ return {ok:true,reason:'Analyse et six horizons à jour',ttl};
+}
 function scenarioCandidates(){
  const out=[];
  all.forEach(x=>{
-  if(!executionCheck(x).ok)return;
+  if(!executionCheck(x).ok||!decisionFreshness(x.scenarioModel,x).ok)return;
   if(x.analysisCoverage==='complete'&&x.hasLongScenario&&x.longScore>=66){
    const longKind=(scenarioValid('breakout',x.scenarioModel?.breakout,x.price)?'breakout':'pullback');
    if(scenarioValid(longKind,x.scenarioModel?.[longKind],x.price))out.push({x,direction:'long',market:x.market==='xperp'?'perp':'spot',score:calibratedScore(x,'long'),ready:true,kind:longKind,instruments:[x.market==='xperp'?'perp':'spot']});
@@ -371,7 +380,7 @@ async function scenarioHtml(){
  // Ne pas bloquer la page sur les 7 timeframes : le moteur peut démarrer avec 3 TF structurantes.
  const frames={};
  for(const [k,n] of [['1D',120],['4H',100],['1H',140],['30m',140],['15m',180],['5m',180]]){frames[k]=await safeLoad(k,n);if(page!==pageRevision||current?.id!==sourceId)throw Error('Analyse interrompue : actif changé');}
- const source={...current,id:targetId,price:targetId===current.perpId?(current.perpPrice||current.price):current.price,marketFresh:false};try{const ticker=(await get('/market/ticker?instId='+encodeURIComponent(targetId)))[0];const bid=nullableNumber(ticker?.bidPx),ask=nullableNumber(ticker?.askPx),ts=nullableNumber(ticker?.ts),last=nullableNumber(ticker?.last);source.marketFresh=!!(last>0&&bid>0&&ask>=bid&&ts&&Date.now()-ts<120000);if(source.marketFresh){source.price=last;source.marketTs=ts;source.spreadPct=(ask-bid)/((ask+bid)/2)*100;if(source.market==='spot'){const book=(await get('/market/books?instId='+encodeURIComponent(targetId)+'&sz=20'))[0];source.bookDepth=bookDepthUsd(book,(bid+ask)/2)}}}catch(_){source.bookDepth=null}if(page!==pageRevision)return '';let e=adaptiveEngine(frames,source); if(e)e.directional=directionalAssessment(e,source);
+ const source={...current,id:targetId,price:targetId===current.perpId?(current.perpPrice||current.price):current.price,marketFresh:false};try{const ticker=(await get('/market/ticker?instId='+encodeURIComponent(targetId)))[0];const bid=nullableNumber(ticker?.bidPx),ask=nullableNumber(ticker?.askPx),ts=nullableNumber(ticker?.ts),last=nullableNumber(ticker?.last);source.marketFresh=!!(last>0&&bid>0&&ask>=bid&&ts&&RadarMarket.freshTimestamp(ts));if(source.marketFresh){source.price=last;source.marketTs=ts;source.spreadPct=(ask-bid)/((ask+bid)/2)*100;if(source.market==='spot'){const book=(await get('/market/books?instId='+encodeURIComponent(targetId)+'&sz=20'))[0];source.bookDepth=bookDepthUsd(book,(bid+ask)/2)}}}catch(_){source.bookDepth=null}if(page!==pageRevision)return '';let e=adaptiveEngine(frames,source); if(e)e.directional=directionalAssessment(e,source);
  
  if(!e){if(scenarioCandidates().some(candidate=>candidate.x.id===current.id)){current.marketFresh=false;renderRank()}return `<div class="panel"><div class="empty">Le scénario du classement n’est plus confirmé : bougies insuffisantes après actualisation. Cette crypto a été retirée du Top. Relance le scan pour recalculer.<br><span class="sub"><br><span class="sub">Les données disponibles n'ont pas permis de constituer au moins deux timeframes exploitables.</span></div></div>`}
  const c=e.signalCounts;
@@ -388,7 +397,7 @@ async function scenarioHtml(){
  const readinessClass=readiness==='CONFIGURATION À APPROFONDIR'?'good':readiness==='EN FORMATION'?'warn':'bad';
  const proposedKind=chooseFreshScenario(e,null);
  const execution=executionCheck(source);
- const primaryKind=execution.ok&&proposedKind&&(!isShortScenarioKind(proposedKind)||isListedXperp(current.perpId))?proposedKind:null;
+ const primaryKind=execution.ok&&decisionFreshness(e,source).ok&&proposedKind&&(!isShortScenarioKind(proposedKind)||isListedXperp(current.perpId))?proposedKind:null;
  // Rechecking the market can invalidate a candidate from the completed scan.
  const changedSinceScan=!primaryKind&&scenarioCandidates().some(candidate=>candidate.x.id===current.id);
  if(changedSinceScan){current.marketFresh=false;renderRank()}
@@ -416,6 +425,7 @@ async function scenarioHtml(){
  <div class="panel"><h2>🧮 Risque avant gain</h2><div class="callout">Quand un scénario est activé, passe d’abord par la simulation : capital, risque maximal, distance entrée→stop et taille de position. Les niveaux ne tiennent pas compte des frais, du slippage ou du funding futur.</div></div>`;
 }
 
+let scenarioMonitorAnalysisAt=null;
 let scenarioMonitorTimer=null,scenarioMonitorSeq=0,scenarioMonitorFrames={},scenarioMonitorBar='15m',scenarioMonitorZoom=90,scenarioMonitorKind=null,scenarioMonitorReturn='detail',graphLiveTimer=null,detailLiveTimer=null;
 const scenarioLocks=recordMap(STORAGE.locks);
 let favorites=recordMap(STORAGE.favorites);
@@ -453,7 +463,7 @@ function timeframeMs(bar){return {'1m':60000,'5m':300000,'15m':900000,'30m':1800
 function verifiedObservation(r){return r?.status==='CLOSED'&&r?.schema==='IR_LEARNING_V3'&&r?.activatedAt!=null&&r?.outcome?.source==='CONFIRMED_CANDLE'&&Number.isFinite(r.outcome.r)}
 // Record only completed bars following a confirmed conditional entry. This is a
 // model observation, not proof that the user placed or filled an exchange order.
-function journalAdvance(lock,side,bars,activated,barMs,now=Date.now()){
+function journalAdvance(lock,side,bars,activated,barMs,now=Date.now(),decisionAvailable=true){
  const j=loadScenarioJournal(),rec=j.find(x=>x.id===lock.id);
  if(!rec||rec.status==='CLOSED'||rec.status==='CANCELLED')return rec||null;
  const complete=(bars||[]).filter(b=>Number.isFinite(b.t)&&Number(b.confirm)===1&&b.t+barMs<=now).sort((a,b)=>a.t-b.t);
@@ -470,6 +480,7 @@ function journalAdvance(lock,side,bars,activated,barMs,now=Date.now()){
      if(stop&&(entryPossible||bar.t<rec.createdAt)){uncertain('Ordre entrée/invalidation ou instant avant création indéterminable');break}
      if(stop){rec.status='CANCELLED';rec.cancelledAt=close;rec.cancelReason='INVALIDATED_BEFORE_ENTRY';break}
      if(closeBeyond&&bar!==latest){uncertain('Activation antérieure possible : biais historique non conservé');break}
+     if(bar===latest&&closeBeyond&&!decisionAvailable)break;
      rec.lastEvaluatedClose=close;cursor=close;
      if(bar===latest&&activated){rec.status='ACTIVATED';rec.activatedAt=close;rec.activatedBarTs=bar.t;rec.entryObservedAt=close;rec.entryPrice=lock.entry;rec.entrySource='CONFIRMED_TRIGGER';rec.lastProcessedBarTs=bar.t;break}
    }
@@ -611,18 +622,19 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
    ['1D',90],['4H',90],['1H',120],['30m',120],['15m',180],['5m',180]
   ].map(async x=>[x[0],await safeLoad(x[0],x[1])]));
   if(page!==pageRevision||current?.id!==sourceId)throw Error('Projection interrompue : actif changé');
-  if(abandoned())return;scenarioMonitorFrames=Object.fromEntries(entries);
+  if(abandoned())return;scenarioMonitorFrames=Object.fromEntries(entries);scenarioMonitorAnalysisAt=Date.now();
   const usable=Object.values(scenarioMonitorFrames).filter(x=>x?.length>=40).length;
   if(usable<2)throw Error('Données OKX insuffisantes pour construire la projection');
  }
  const marketInstId=isShortScenarioKind(kind)?current.perpId:(currentScenarioInstrument==='perp'&&isListedXperp(current.perpId)?current.perpId:current.id);
- let tickerFresh=false,tickerTs=null,live=marketInstId===current.perpId?(current.perpPrice||current.price):current.price;try{const t=(await get('/market/ticker?instId='+encodeURIComponent(marketInstId)))[0],p=nullableNumber(t?.last);if(p>0){live=p;tickerTs=nullableNumber(t.ts);tickerFresh=tickerTs!=null&&Date.now()-tickerTs>=0&&Date.now()-tickerTs<120000}}catch(_){ }
+ let tickerFresh=false,tickerTs=null,live=marketInstId===current.perpId?(current.perpPrice||current.price):current.price;try{const t=(await get('/market/ticker?instId='+encodeURIComponent(marketInstId)))[0],p=nullableNumber(t?.last);if(p>0){live=p;tickerTs=nullableNumber(t.ts);tickerFresh=tickerTs!=null&&RadarMarket.freshTimestamp(tickerTs)}}catch(_){ }
  if(abandoned())return;
  // Refresh the trigger and the visible timeframe so the monitor is genuinely live.
  const refreshBars=new Set([scenarioMonitorBar]);if(scenarioLocks[scenarioLockKey(current.id,kind)]?.triggerKey)refreshBars.add(scenarioLocks[scenarioLockKey(current.id,kind)].triggerKey);
  for(const b of refreshBars){const loaded=await candles(marketInstId,b,b==='1m'?300:180);if(abandoned())return;scenarioMonitorFrames[b]=loaded;}
- const e=adaptiveEngine(scenarioMonitorFrames,{...current,id:marketInstId,price:live});if(abandoned()||!e)return;
+ const e=adaptiveEngine(scenarioMonitorFrames,{...current,id:marketInstId,price:live,analysisAt:scenarioMonitorAnalysisAt??0});if(abandoned()||!e)return;
  let actualKind=kind;const lockKey=scenarioLockKey(current.id,actualKind);let lock=scenarioLocks[lockKey];
+ if(!lock&&!decisionFreshness(e,{marketFresh:tickerFresh,marketTs:tickerTs}).ok)throw Error(decisionFreshness(e,{marketFresh:tickerFresh,marketTs:tickerTs}).reason);
  if(!lock){const candidate=scenarioLevelsFromEngine(e,kind);actualKind=candidate&&(isShortScenarioKind(kind)?e.shortSetup:e.longSetup)&&scenarioValid(kind,candidate,e.live)?kind:null;if(!actualKind){$('deepBody').innerHTML=`<button class="btn secondary" onclick="closeScenarioMonitor()">← Scénarios</button><div class="panel"><div class="monitorAction bad"><div class="actionTitle">🔴 AUCUNE CONFIGURATION VALIDE</div><div class="monitorSub">Le moteur refuse de verrouiller un scénario dont l'invalidation est déjà franchie.</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${kind}')">🔎 Rechercher à nouveau</button></div></div>`;return}const nk=scenarioLockKey(current.id,actualKind);lock=scenarioLockFromEngine(e,actualKind);if(!lock)return;lock.instrumentId=marketInstId;scenarioLocks[nk]=lock;if(!saveScenarioLocks()){delete scenarioLocks[nk];throw Error('Verrou non enregistré : stockage indisponible')}scenarioMonitorKind=actualKind;if(!journalCreate(e,actualKind,lock))throw Error('Journal non enregistré : stockage indisponible')}
  const triggerKey=lock.triggerKey||e.triggerKey,anchorKey=lock.anchorKey||e.anchorKey;
  if(!scenarioMonitorFrames[triggerKey]){const loaded=await candles(marketInstId,triggerKey,180);if(abandoned())return;scenarioMonitorFrames[triggerKey]=loaded;}
@@ -633,17 +645,18 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
  const chartCs=chartAll.slice(-Math.min(scenarioMonitorZoom,chartAll.length));
  const sc=lock,displayKind=lock.kind||actualKind,side=lock.direction||scenarioDirection(displayKind);
  const closeC=(triggerCs||[]).filter(c=>Number(c.confirm)===1).at(-1);const volAvg=avgVol(RadarCandles.decision(triggerCs||[],triggerKey),20);const volRatio=volAvg&&closeC?closeC.v/volAvg:null;
- const crossed=side==='long'?live>=sc.entry:live<=sc.entry;const triggerClose=side==='long'?closeC?.c>=sc.entry:closeC?.c<=sc.entry;const volOk=volRatio==null?false:volRatio>=1.15;const trendOk=scenarioBiasCompatible(e,displayKind);const invalid=side==='long'?live<=sc.stop:live>=sc.stop;const near=Math.abs(live-sc.entry)<=Math.max((tf?.atr||0)*.55,live*.0015);const activated=crossed&&triggerClose&&volOk&&trendOk&&!invalid;
+ const crossed=side==='long'?live>=sc.entry:live<=sc.entry;const triggerClose=side==='long'?closeC?.c>=sc.entry:closeC?.c<=sc.entry;const volOk=volRatio==null?false:volRatio>=1.15;const trendOk=scenarioBiasCompatible(e,displayKind);const invalid=side==='long'?live<=sc.stop:live>=sc.stop;const near=Math.abs(live-sc.entry)<=Math.max((tf?.atr||0)*.55,live*.0015);const freshness=decisionFreshness(e,{marketFresh:tickerFresh,marketTs:tickerTs},Date.now(),triggerKey);const activated=freshness.ok&&crossed&&triggerClose&&volOk&&trendOk&&!invalid;
  const monitor=monitorTriggerStatus({crossed,triggerClose,volOk,trendOk,invalid,near,entry:sc.entry,stop:sc.stop,live,triggerKey,volRatio});
  let {state,label,reason}=monitor;
- const jrec=journalAdvance(sc,side,triggerCs,activated,timeframeMs(triggerKey));
+ const jrec=journalAdvance(sc,side,triggerCs,activated,timeframeMs(triggerKey),Date.now(),freshness.ok);
  if(jrec?.status==='CLOSED'){state=jrec.outcome?.status==='SL'?'red':'green';label=jrec.outcome?.status==='SL'?'OBSERVATION : STOP ATTEINT':'OBSERVATION : TP1 ATTEINT';reason='Résultat observé sur bougie clôturée après le déclenchement. Aucun ordre réel n’est confirmé.'}
  else if(jrec?.status==='CANCELLED'||jrec?.status==='UNVERIFIED'){state='red';label=jrec.status==='CANCELLED'?'SCÉNARIO ANNULÉ AVANT ENTRÉE':'SUIVI NON VÉRIFIABLE';reason=jrec.status==='CANCELLED'?'Invalidation observée avant un déclenchement confirmé.':'Des bougies manquent dans le suivi ; aucun résultat n’est compté.'}
  else if(jrec?.status==='FORMING'&&state==='green'){state='yellow';label='CONDITIONS RÉUNIES · ENTRÉE NON ENCORE OBSERVÉE';reason='Attendre une clôture postérieure à la création du verrou.'}
  else if(jrec?.status==='ACTIVATED'&&!invalid){state='green';label='ENTRÉE OBSERVÉE';reason='Déclencheur confirmé sur bougie clôturée. Le Radar suit maintenant les niveaux de sortie, sans connaître les ordres réellement passés.'}
+ if(!freshness.ok&&(!jrec||['FORMING','ACTIVATED'].includes(jrec.status))){state='yellow';label='DÉCISION SUSPENDUE · DONNÉES À ACTUALISER';reason=freshness.reason+(jrec?.status==='ACTIVATED'?' ; entrée déjà observée, suivi des niveaux conservé.':' ; niveaux verrouillés conservés.')}
  const overlays=[{value:sc.entry,color:'#65b8ff',label:'🎯 Déclencheur'},{value:sc.stop,color:'#ff6974',label:'🛑 Invalidation'},{value:sc.tp1,color:'#45dc7a',label:'TP1'},{value:sc.tp2,color:'#45dc7a',label:'TP2'},{value:sc.tp3,color:'#45dc7a',label:'TP3'}];
  const chart=projectionChart(chartCs,sc,live,state,overlays,tickerFresh);
- const action=jrec?.status==='CLOSED'||jrec?.status==='CANCELLED'||jrec?.status==='UNVERIFIED'?`<div class="monitorAction ${jrec.status==='CLOSED'&&jrec.outcome?.status==='TP1'?'ready':'bad'}"><div class="actionTitle">${esc(label)}</div><div class="monitorSub">${esc(reason)}</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${displayKind}')">🔎 Rechercher une nouvelle configuration</button></div>`:state==='green'?`<div class="monitorAction ready"><div class="actionTitle">🎯 ÉTUDIER LE SCÉNARIO</div><div class="monitorSub">Le scénario verrouillé vient de satisfaire ses conditions. Les niveaux ci-dessous sont les paramètres hypothétiques calculés avant l'événement.</div><button class="monitorBtn" onclick="openScenarioSim('${current.id}',${sc.entry},${sc.stop},${sc.tp1},${sc.tp2},${sc.tp3},'${side}')">🧮 Préparer l'entrée dans le simulateur</button></div>`:state==='red'?`<div class="monitorAction bad"><div class="actionTitle">🔴 SCÉNARIO TERMINÉ</div><div class="monitorSub">Ne poursuis pas cette hypothèse. Le Radar peut rechercher une nouvelle configuration.</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${displayKind}')">🔎 Rechercher une nouvelle configuration</button></div>`:`<div class="monitorAction ${state==='yellow'?'warn':''}"><div class="actionTitle">${crossed?'🟡 ATTENDRE LES CONFIRMATIONS':state==='yellow'?'🟡 SURVEILLER LE DÉCLENCHEUR':'🟠 ATTENDRE LA CONFIRMATION'}</div><div class="monitorSub">${esc(reason)}</div></div>`;
+ const action=jrec?.status==='CLOSED'||jrec?.status==='CANCELLED'||jrec?.status==='UNVERIFIED'?`<div class="monitorAction ${jrec.status==='CLOSED'&&jrec.outcome?.status==='TP1'?'ready':'bad'}"><div class="actionTitle">${esc(label)}</div><div class="monitorSub">${esc(reason)}</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${displayKind}')">🔎 Rechercher une nouvelle configuration</button></div>`:!freshness.ok?`<div class="monitorAction warn"><div class="actionTitle">${esc(label)}</div><div class="monitorSub">${esc(reason)}</div><button class="monitorBtn secondary" onclick="renderScenarioMonitor('${displayKind}',true)">Actualiser les six horizons</button></div>`:state==='green'?`<div class="monitorAction ready"><div class="actionTitle">🎯 ÉTUDIER LE SCÉNARIO</div><div class="monitorSub">Le scénario verrouillé vient de satisfaire ses conditions. Les niveaux ci-dessous sont les paramètres hypothétiques calculés avant l'événement.</div><button class="monitorBtn" onclick="openScenarioSim('${current.id}',${sc.entry},${sc.stop},${sc.tp1},${sc.tp2},${sc.tp3},'${side}')">🧮 Préparer l'entrée dans le simulateur</button></div>`:state==='red'?`<div class="monitorAction bad"><div class="actionTitle">🔴 SCÉNARIO TERMINÉ</div><div class="monitorSub">Ne poursuis pas cette hypothèse. Le Radar peut rechercher une nouvelle configuration.</div><button class="monitorBtn secondary" onclick="resetScenarioMonitor('${displayKind}')">🔎 Rechercher une nouvelle configuration</button></div>`:`<div class="monitorAction ${state==='yellow'?'warn':''}"><div class="actionTitle">${crossed?'🟡 ATTENDRE LES CONFIRMATIONS':state==='yellow'?'🟡 SURVEILLER LE DÉCLENCHEUR':'🟠 ATTENDRE LA CONFIRMATION'}</div><div class="monitorSub">${esc(reason)}</div></div>`;
  const favoriteActions=`<div class="favoriteActions"><button class="btn secondary" data-favorite-scenario="${esc(current.id)}::${displayKind}" onclick="toggleFavoriteScenario('${esc(current.id)}','${displayKind}')">${favorites[current.id]?.scenarios?.[displayKind]===sc.id?'★ Scénario enregistré':'☆ Garder ce scénario'}</button><button class="smallbtn" onclick="toolPage('favorites')">★ Mes favoris</button></div>`;
  const levels=`<div class="monitorMini"><div><small>Déclencheur verrouillé</small><b>${axisPrice(sc.entry)}</b></div><div><small>Invalidation verrouillée</small><b class="bad">${axisPrice(sc.stop)}</b></div><div><small>TP1</small><b class="good">${axisPrice(sc.tp1)}</b></div></div>`;
  const tfBtns=['1m','5m','15m','30m','1H','4H','1D'].map(b=>`<button class="smallbtn ${scenarioMonitorBar===b?'active':''}" onclick="setScenarioMonitorBar('${displayKind}','${b}')">${b}</button>`).join('');

@@ -78,3 +78,7 @@ Ces changements B sont désormais autorisés, sans changement des coefficients n
 ### Lot D03–D04
 
 Avant : 5 des 6 nouveaux tests échouent (biais rejet, live stop, reprise FORMING, bougie ambiguë). Après : 6/6. Confirmation commune et seuil 1,15 inchangés, noms sans promesse d'automate retest. Biais SHORT aligné sur le motif admis. Journal canonique sur high/low clôturé ; live provisoire. Reprise FORMING vérifie chaque barre et classe UNVERIFIED si une activation antérieure ou l'ordre entrée/SL n'est pas reconstructible. Les cas synthétiques historiques qui affirmaient CANCELLED sur une même barre entrée/SL deviennent explicitement UNVERIFIED. TP1 terminal et priorité SL sur une barre post-activation touchant les deux restent inchangés.
+
+### Lot D05
+
+Trois nouveaux tests échouent avant, puis passent : frontières TTL/ticker, six horizons/dates futures, invariance du verrou en suspension. Paramètres centralisés dans RadarMarket.policy. Freshness affichée et vérifiée ; activation suspendue sans réécriture des niveaux. Le test de candidat synthétique préexistant reçoit maintenant les timestamps/six horizons qu'il prétendait avoir. Le suivi d'une observation déjà activée reste possible par bougies clôturées. L'unification de tous les gates d'entrée/cartes est le lot D06 suivant.

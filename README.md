@@ -59,3 +59,9 @@ Tests complets : `node engine.test.cjs`, `node hosted-feed.test.cjs`, `node --te
 - `hosted-config.js` et `hosted-feed.js` sont des modules historiques testés mais non chargés par l’index. Le service `server/` reste autonome. Sa suppression ou reconnexion n’est pas impliquée par le nettoyage du frontend.
 
 Le monolithe `app.js`, les dépendances globales et la cascade CSS sont conservés pour éviter un refactor massif. Le nettoyage supprime uniquement les définitions dont toutes les références ont été vérifiées ; la preuve est enregistrée dans `orphan-reference-proof.json`. Les fusions de moteurs et de graphiques restent des décisions B et des chantiers ultérieurs.
+
+### Décision de fraîcheur (D05 validée)
+
+La configuration est centralisée dans `RadarMarket.policy` (`market-screen.js`) : âge technique maximal = `analysisIntervals` (2) × intervalle du déclencheur ; ticker <= `tickerMaxAgeMs` (120 000 ms) ; dernière clôture de chacun des six horizons âgée d'au plus `horizonIntervals` (2) × son propre intervalle. Les bornes sont inclusives ; timestamps futurs et absents sont refusés. Ces paramètres sont réévaluables à cet endroit, pas appris automatiquement. Le seuil par horizon évite de considérer un 1D périmé comme frais parce que le ticker l'est.
+
+Une analyse périmée suspend l'admission/l'activation. Le bouton d'actualisation recharge les six horizons et conserve les niveaux du verrou. Une entrée déjà observée reste une observation activée : l'issue TP1/SL peut encore être établie par les bougies clôturées disponibles. La péremption n'est ni une invalidation, ni une expiration du scénario. Le graphique et son warmup restent ceux de la baseline, en attente de l'étape 2.
