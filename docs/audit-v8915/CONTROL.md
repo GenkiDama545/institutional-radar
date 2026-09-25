@@ -94,3 +94,9 @@ Quatre tests de départ échouent avant et passent après. Six tests couvrent ma
 ### Lot D08 — restauration et provenance
 
 Cinq tests échouaient avant ; cinq passent après, plus les six tests D07. Import complet reconnecté sans déplacement de niveaux ; conflits signalés/archivés ; contenu identique idempotent ; provenance JSON locale ignorée ; anciens résultats sans provenance conservés mais non vérifiés (impossibilité de prouver rétroactivement leur origine). Les tests de statistiques qui simulent des observations générées localement le déclarent explicitement ; les imports usurpant ce marqueur restent exclus. La restauration est une transaction sur les cinq sous-systèmes. Les imports disposent d'une synthèse séparée. Aucune donnée ne modifie de pondération.
+
+### Lot D09–D10 — conservations validées
+
+D09 option 1 : diagnostic exploratoire, couverture incomplète quantifiée, zéro résultat ne prouve pas absence de configuration. Aucun replay fidèle complet ni dérivés historiques inventés ; aucun poids appris/promu. Deux nouveaux tests échouent avant puis passent après, dont exécution complète avec horizons manquants et poids/journal inchangés.
+
+D10 option 1 : conservation explicitement validée des modèles 1H/MTF, familles corrélées, positioning neutre, métadonnées de régime, diagnostics synthétiques, statistiques de dispersion, contexte pédagogique, CSS et emplacements graphiques, warmup variable des graphiques, connecteur minute débranché et ancien service Railway. Les fusions restent rattachées aux étapes 2/3/4 pertinentes. Aucun point de dette correspondant n'est traité comme supprimé ou comme moteur déjà unifié.
