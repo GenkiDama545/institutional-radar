@@ -1,0 +1,848 @@
+[
+  {
+    "score": 89,
+    "long": 6,
+    "short": 100,
+    "longSetup": false,
+    "shortSetup": true,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "4H",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "1H",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "30m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "15m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "5m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        }
+      ],
+      "bias": "bear",
+      "score": 23,
+      "agreement": 100,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement multi-timeframe fort",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 0,
+      "majorBear": 3,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 91.17347124105952,
+      "stop": 89.67347124105952,
+      "tp1": 92.67347124105952,
+      "tp2": 94.17347124105952,
+      "tp3": 95.67347124105952,
+      "risk": 1.5,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 81.07020224334833,
+      "stop": 79.75020224334833,
+      "tp1": 90.97347124105951,
+      "tp2": 91.83147124105952,
+      "tp3": 92.68947124105952,
+      "risk": 1.3200000000000074,
+      "rr": [
+        7.502476513417519,
+        8.152476513417518,
+        8.802476513417517
+      ]
+    },
+    "breakdown": {
+      "entry": 80.75020224334833,
+      "stop": 82.25020224334833,
+      "tp1": 79.25020224334833,
+      "tp2": 77.90020224334833,
+      "tp3": 76.55020224334834,
+      "risk": 1.5,
+      "rr": [
+        1,
+        1.8999999999999961,
+        2.7999999999999923
+      ]
+    },
+    "rejection": {
+      "entry": 90.81347124105952,
+      "stop": 92.07347124105951,
+      "tp1": 89.55347124105953,
+      "tp2": 88.29347124105954,
+      "tp3": 87.03347124105954,
+      "risk": 1.259999999999991,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "score": 89,
+    "long": 6,
+    "short": 100,
+    "longSetup": false,
+    "shortSetup": true,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "4H",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "1H",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "30m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "15m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        },
+        {
+          "tf": "5m",
+          "bias": "bear",
+          "strength": 100,
+          "adx": 100,
+          "quality": 30
+        }
+      ],
+      "bias": "bear",
+      "score": 23,
+      "agreement": 100,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement multi-timeframe fort",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 0,
+      "majorBear": 3,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 0.000009117347124105951,
+      "stop": 0.000008967347124105951,
+      "tp1": 0.000009267347124105952,
+      "tp2": 0.000009417347124105952,
+      "tp3": 0.000009567347124105952,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 0.000008107020224334833,
+      "stop": 0.000007975020224334832,
+      "tp1": 0.000009097347124105952,
+      "tp2": 0.000009183147124105952,
+      "tp3": 0.000009268947124105953,
+      "risk": 1.3200000000000145e-7,
+      "rr": [
+        7.502476513417482,
+        8.152476513417476,
+        8.802476513417481
+      ]
+    },
+    "breakdown": {
+      "entry": 0.000008075020224334832,
+      "stop": 0.000008225020224334833,
+      "tp1": 0.000007925020224334832,
+      "tp2": 0.000007790020224334833,
+      "tp3": 0.000007655020224334833,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        1.8999999999999955,
+        2.799999999999991
+      ]
+    },
+    "rejection": {
+      "entry": 0.000009081347124105952,
+      "stop": 0.000009207347124105952,
+      "tp1": 0.000008955347124105952,
+      "tp2": 0.000008829347124105952,
+      "tp3": 0.000008703347124105952,
+      "risk": 1.2600000000000015e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "score": 69,
+    "long": 50,
+    "short": 60,
+    "longSetup": false,
+    "shortSetup": false,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        },
+        {
+          "tf": "4H",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        },
+        {
+          "tf": "1H",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        },
+        {
+          "tf": "30m",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        },
+        {
+          "tf": "15m",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        },
+        {
+          "tf": "5m",
+          "bias": "neutral",
+          "strength": 42.179919587560725,
+          "adx": 68.37202158362682,
+          "quality": 65
+        }
+      ],
+      "bias": "neutral",
+      "score": 50,
+      "agreement": 0,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement partiel",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 0,
+      "majorBear": 0,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 101.59972082095466,
+      "stop": 100.09972082095466,
+      "tp1": 103.09972082095466,
+      "tp2": 104.59972082095466,
+      "tp3": 106.09972082095466,
+      "risk": 1.5,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 98.72015073774863,
+      "stop": 97.40015073774862,
+      "tp1": 101.39972082095466,
+      "tp2": 102.25772082095466,
+      "tp3": 103.11572082095466,
+      "risk": 1.3200000000000074,
+      "rr": [
+        2.029977335762133,
+        2.6799773357621324,
+        3.329977335762132
+      ]
+    },
+    "breakdown": {
+      "entry": 98.40015073774862,
+      "stop": 99.90015073774862,
+      "tp1": 96.90015073774862,
+      "tp2": 95.55015073774862,
+      "tp3": 94.20015073774863,
+      "risk": 1.5,
+      "rr": [
+        1,
+        1.8999999999999961,
+        2.7999999999999923
+      ]
+    },
+    "rejection": {
+      "entry": 101.23972082095466,
+      "stop": 102.49972082095465,
+      "tp1": 99.97972082095467,
+      "tp2": 98.71972082095468,
+      "tp3": 97.45972082095469,
+      "risk": 1.259999999999991,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "score": 69,
+    "long": 50,
+    "short": 60,
+    "longSetup": false,
+    "shortSetup": false,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        },
+        {
+          "tf": "4H",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        },
+        {
+          "tf": "1H",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        },
+        {
+          "tf": "30m",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        },
+        {
+          "tf": "15m",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        },
+        {
+          "tf": "5m",
+          "bias": "neutral",
+          "strength": 42.1799195875624,
+          "adx": 68.37202158362672,
+          "quality": 65
+        }
+      ],
+      "bias": "neutral",
+      "score": 50,
+      "agreement": 0,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement partiel",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 0,
+      "majorBear": 0,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 0.000010159972082095466,
+      "stop": 0.000010009972082095466,
+      "tp1": 0.000010309972082095466,
+      "tp2": 0.000010459972082095467,
+      "tp3": 0.000010609972082095467,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 0.000009872015073774863,
+      "stop": 0.000009740015073774861,
+      "tp1": 0.000010139972082095466,
+      "tp2": 0.000010225772082095466,
+      "tp3": 0.000010311572082095468,
+      "risk": 1.3200000000000145e-7,
+      "rr": [
+        2.0299773357621245,
+        2.679977335762118,
+        3.3299773357621243
+      ]
+    },
+    "breakdown": {
+      "entry": 0.000009840015073774862,
+      "stop": 0.000009990015073774862,
+      "tp1": 0.000009690015073774862,
+      "tp2": 0.000009555015073774862,
+      "tp3": 0.000009420015073774863,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        1.8999999999999955,
+        2.799999999999991
+      ]
+    },
+    "rejection": {
+      "entry": 0.000010123972082095467,
+      "stop": 0.000010249972082095467,
+      "tp1": 0.000009997972082095467,
+      "tp2": 0.000009871972082095466,
+      "tp3": 0.000009745972082095466,
+      "risk": 1.2600000000000015e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "score": 89,
+    "long": 96,
+    "short": 16,
+    "longSetup": true,
+    "shortSetup": false,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "4H",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "1H",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "30m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "15m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "5m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        }
+      ],
+      "bias": "bull",
+      "score": 93,
+      "agreement": 100,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement multi-timeframe fort",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 3,
+      "majorBear": 0,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 118.95020224334834,
+      "stop": 117.45020224334834,
+      "tp1": 120.45020224334834,
+      "tp2": 121.95020224334834,
+      "tp3": 123.45020224334834,
+      "risk": 1.5,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 109.09347124105952,
+      "stop": 107.77347124105951,
+      "tp1": 118.75020224334834,
+      "tp2": 119.60820224334834,
+      "tp3": 120.46620224334835,
+      "risk": 1.3200000000000074,
+      "rr": [
+        7.315705304764219,
+        7.965705304764218,
+        8.615705304764218
+      ]
+    },
+    "breakdown": {
+      "entry": 108.77347124105951,
+      "stop": 110.27347124105951,
+      "tp1": 107.27347124105951,
+      "tp2": 105.92347124105952,
+      "tp3": 104.57347124105952,
+      "risk": 1.5,
+      "rr": [
+        1,
+        1.8999999999999961,
+        2.7999999999999923
+      ]
+    },
+    "rejection": {
+      "entry": 118.59020224334834,
+      "stop": 119.85020224334833,
+      "tp1": 117.33020224334835,
+      "tp2": 116.07020224334836,
+      "tp3": 114.81020224334837,
+      "risk": 1.259999999999991,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  {
+    "score": 89,
+    "long": 96,
+    "short": 16,
+    "longSetup": true,
+    "shortSetup": false,
+    "regime": {
+      "rows": [
+        {
+          "tf": "1D",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "4H",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "1H",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "30m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "15m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        },
+        {
+          "tf": "5m",
+          "bias": "bull",
+          "strength": 100,
+          "adx": 100,
+          "quality": 100
+        }
+      ],
+      "bias": "bull",
+      "score": 93,
+      "agreement": 100,
+      "contradiction": 0,
+      "majorConflict": false,
+      "detail": "Alignement multi-timeframe fort",
+      "key": "continuation",
+      "label": "Tendance / continuation",
+      "reason": "Contexte directionnel sans déclencheur spécifique",
+      "profile": {
+        "label": "Tendance / continuation",
+        "priority": [
+          "structure",
+          "trend",
+          "priceAction",
+          "volume",
+          "adx"
+        ],
+        "avoid": [
+          "counterTrend"
+        ],
+        "tf": {
+          "1D": 1.8,
+          "4H": 1.6,
+          "1H": 1.4,
+          "30m": 1.15,
+          "15m": 1.05,
+          "5m": 0.75,
+          "1m": 0.3
+        }
+      },
+      "majorBull": 3,
+      "majorBear": 0,
+      "counter": false
+    },
+    "anchor": "1D",
+    "trigger": "5m",
+    "breakout": {
+      "entry": 0.000011895020224334835,
+      "stop": 0.000011745020224334835,
+      "tp1": 0.000012045020224334835,
+      "tp2": 0.000012195020224334835,
+      "tp3": 0.000012345020224334836,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    },
+    "pullback": {
+      "entry": 0.00001090934712410595,
+      "stop": 0.000010777347124105949,
+      "tp1": 0.000011875020224334835,
+      "tp2": 0.000011960820224334837,
+      "tp3": 0.000012046620224334839,
+      "risk": 1.3200000000000145e-7,
+      "rr": [
+        7.3157053047641964,
+        7.965705304764203,
+        8.61570530476421
+      ]
+    },
+    "breakdown": {
+      "entry": 0.00001087734712410595,
+      "stop": 0.00001102734712410595,
+      "tp1": 0.00001072734712410595,
+      "tp2": 0.00001059234712410595,
+      "tp3": 0.00001045734712410595,
+      "risk": 1.5000000000000026e-7,
+      "rr": [
+        1,
+        1.8999999999999955,
+        2.799999999999991
+      ]
+    },
+    "rejection": {
+      "entry": 0.000011859020224334835,
+      "stop": 0.000011985020224334836,
+      "tp1": 0.000011733020224334835,
+      "tp2": 0.000011607020224334835,
+      "tp3": 0.000011481020224334835,
+      "risk": 1.2600000000000015e-7,
+      "rr": [
+        1,
+        2,
+        3
+      ]
+    }
+  }
+]
