@@ -56,3 +56,7 @@ Les paramètres du laboratoire (70/20/10, horizon 18) sont conservés. Les éval
 Neuf tests d’intégration ciblés échouent avant correction, puis passent : unité du volume, quatre courses de navigation/timers, historique effacé en mémoire, champs dérivés SHORT, listing d’un favori et niveaux d’un ancien favori. Un test supplémentaire couvre la fraîcheur du ticker affichée en projection. Quatre tests de stockage passent d’échec à succès : formes JSON invalides, import mal formé, quota avec rollback du favori, accès navigateur bloqué.
 
 Le stockage conserve ses clés et son format. Les imports legacy valides restent lisibles ; leur exclusion des statistiques reste celle de `verifiedObservation`. La transaction entre plusieurs clés, la confiance accordée aux imports, leur politique de conflit et la limite 1 500 sont des décisions B non modifiées. Un échec d’écriture est désormais signalé ; aucun message de réussite d’import n’est affiché après quota.
+
+### Lot P3 / UI A — preuve avant/après
+
+Cinq tests passent d’échec à succès : bornes indicatives des jauges, absence de réglages sans effet, comparateur sans doublons et avec contrat, libellé BAISSIER des familles directionnelles, limites du suivi/Learning visibles. Aucun poids ni signal n’est supprimé pour corriger les libellés. Le tri `oiRatio` est retiré ; sa famille neutre reste en place en attente du Signal Audit. Les accès Contexte restent deux raccourcis intentionnels vers le même contenu, pas deux moteurs.
