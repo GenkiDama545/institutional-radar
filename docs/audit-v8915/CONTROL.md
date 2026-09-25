@@ -104,3 +104,7 @@ D10 option 1 : conservation explicitement validée des modèles 1H/MTF, familles
 ## Recontrôle D05/D06 — verrou existant
 
 Le test d'orchestration `existing Spot lock cannot activate with missing depth or excessive spread` échouait avant correction (activation `true`). Le moniteur ne revérifiait que la fraîcheur du ticker après la création du verrou. Il utilise désormais `refreshDecisionSource` et le contrôle d'exécution commun avant toute nouvelle activation, y compris sur un verrou existant. Le ticker reste étiqueté selon sa propre fraîcheur ; une donnée d'exécution absente suspend la décision. Les niveaux et le suivi des sorties d'une observation déjà activée restent conservés. Aucun seuil stratégique ajouté. 37 tests ciblés verts après correction. Le texte de limite ticker utilise aussi le paramètre central, sans constante parallèle.
+
+## Candidate distincte et autorisation de transfert
+
+Le « oui » utilisateur suivant la demande d'envoi autorise le push de la branche vers `GenkiDama545/institutional-radar`. Il n'autorise ni merge ni déploiement. Les commits existants sont préservés. V8.9.16-rc.1 identifie la candidate ; titre, APP_VERSION, URLs d'assets et cache Service Worker sont alignés et protégés par un test. Les clés de données utilisateur ne sont pas renommées. La validation finale est décrite dans le rapport de clôture.

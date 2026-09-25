@@ -1,4 +1,6 @@
-# Institutional Radar V8.9.15
+# Institutional Radar V8.9.16-rc.1
+
+Candidate de clôture de l’étape 1, non fusionnée et non déployée. Baseline de comparaison : V8.9.15. Voir `docs/audit-v8915/Cloture_Etape1_V8.9.16-rc.1.md` pour les preuves et limites. Les notes ci-dessous décrivent d’abord la baseline historique.
 
 ## V8.9.15 — lecture, simulation et rapidité
 
@@ -42,23 +44,23 @@ La profondeur du carnet Spot est un instantané limité à vingt niveaux et ne g
 
 ## Branche de traitement contrôlé de l’audit V8.9.15
 
-Le registre d’origine est dans `docs/audit-v8915/Audit_Institutional_Radar_V8.9.15.md` ; le périmètre A/B et le rollback dans `docs/audit-v8915/CONTROL.md`. Cette branche n’est pas une nouvelle version de production. Les décisions B restent réservées à l’utilisateur et les étapes Graphiques / Signal Audit / nouveau Learning ne sont pas engagées.
+Le registre d’origine est dans `docs/audit-v8915/Audit_Institutional_Radar_V8.9.15.md` ; le périmètre A/B et le rollback dans `docs/audit-v8915/CONTROL.md`. Cette branche n’est pas une nouvelle version de production. Les arbitrages D01–D10 ont été validés et appliqués par lots. Les étapes Graphiques / Signal Audit / nouveau Learning ne sont pas engagées.
 
 Tests complets : `node engine.test.cjs`, `node hosted-feed.test.cjs`, `node --test experience.test.cjs server/*.test.mjs tests/*.test.cjs`, `node --check app.js`. Les tests Node n’utilisent pas le réseau. Le contrôle optionnel `tests/browser-audit.cjs` requiert Playwright/Chromium ; il reçoit le répertoire de baseline, le binaire Chromium et un répertoire de captures. Les endpoints OKX y sont simulés.
 
 ### Contrats et limites à conserver explicitement
 
-- Le score Radar, la confiance des familles, le biais directionnel et le score adaptatif ont des rôles distincts. Les coefficients sont inchangés ; les fixtures de la baseline protègent leurs résultats.
+- Le score Radar, la confiance des familles, le biais directionnel et le score adaptatif ont des rôles distincts. Les coefficients sont inchangés ; les fixtures de la baseline et leurs deltas D01/D02 revus protègent les résultats attendus. La correction de lecture ADX et l’exclusion des bougies ouvertes changent volontairement certains résultats, sans nouvelle pondération.
 - Les catégories « petites / grosses » désignent le rang de volume 24 h du marché, pas une capitalisation. `medVol` est une moyenne transversale, `marketMedianVol` une médiane transversale. Le volume `c.v` est déjà en cotation.
 - Le prix du tracé est celui de sa dernière bougie ; le ticker de la projection est une autre observation. Les instantanés n’ont pas encore une source temporelle unique.
-- Une configuration admissible dans le Radar n’est pas une entrée activée. L’état activé et l’issue du journal sont des observations théoriques, sans ordre d’exchange. Les règles de retest et d’invalidation restent sous arbitrage B.
+- Une configuration admissible dans le Radar n’est pas une entrée activée. L’état activé et l’issue du journal sont des observations théoriques, sans ordre d’exchange. La confirmation commune exige franchissement, clôture, volume >=1,15 et biais compatible ; aucun automate de retest n’est implémenté. Le high/low des bougies clôturées fait foi pour les issues du journal, le live reste provisoire.
 - Le suivi actuel s’exécute uniquement dans la projection ouverte ; TP1 ou SL termine une observation. Ni suivi complet des favoris, ni expiration automatique, ni répartition du simulateur ne sont exécutés en arrière-plan. Le simulateur reste une hypothèse indépendante.
 - Le journal enregistre la projection ouverte, pas tous les scans. Les statistiques descriptives n’entraînent pas les poids. Le laboratoire synthétique comporte 11 cas fixes ; le laboratoire historique n’est pas encore une validation statistique ou une reproduction fidèle du live.
-- La limite de 1 500 observations, les conflits d’import et la transaction multi-clés restent documentés pour décision ; l’export du journal n’exporte pas tous les favoris/verrous. Les écritures impossibles sont maintenant signalées, les imports mal formés refusés et les anciens résultats exclus uniformément des statistiques.
+- La rétention, la reprise multi-clés, les conflits et l’export complet ont été traités selon D07/D08 (contrats détaillés ci-dessous). Aucune observation ouverte n’est purgée pour respecter une limite ; les imports ne sont jamais des observations locales vérifiées.
 - `REGIME_PROFILES.tf/priority/avoid` est de la métadonnée non active. `baseVol/quoteVol` est conservé pour tracer les unités. Wilson, `sdR`, `proposal.configs` et `lastScanPerformance` restent disponibles pour diagnostic ; ils n’alimentent aucune adaptation automatique.
 - `hosted-config.js` et `hosted-feed.js` sont des modules historiques testés mais non chargés par l’index. Le service `server/` reste autonome. Sa suppression ou reconnexion n’est pas impliquée par le nettoyage du frontend.
 
-Le monolithe `app.js`, les dépendances globales et la cascade CSS sont conservés pour éviter un refactor massif. Le nettoyage supprime uniquement les définitions dont toutes les références ont été vérifiées ; la preuve est enregistrée dans `orphan-reference-proof.json`. Les fusions de moteurs et de graphiques restent des décisions B et des chantiers ultérieurs.
+Le monolithe `app.js`, les dépendances globales et la cascade CSS sont conservés pour éviter un refactor massif. Le nettoyage supprime uniquement les définitions dont toutes les références ont été vérifiées ; la preuve est enregistrée dans `orphan-reference-proof.json`. Les fusions de moteurs et de graphiques sont reportées aux étapes ultérieures selon D10.
 
 ### Décision de fraîcheur (D05 validée)
 
