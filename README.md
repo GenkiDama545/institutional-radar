@@ -1,4 +1,14 @@
-# Institutional Radar V8.9.14
+# Institutional Radar V8.9.15
+
+## V8.9.15 — lecture, simulation et rapidité
+
+- Simulateur libre sous le graphique approfondi ; gains par sortie pondérés par l'allocation (0 % = 0), frais et conversion EUR explicites, quantité et contrats distingués.
+- Sélection de bougie visible, repères High/Low et valeurs hors du tracé ; titre mobile agrandi.
+- Seuil franchi distingué d'une confirmation complète ; motifs de blocage SHORT affichés.
+- Historique en mémoire pendant la session, dernière bougie toujours rafraîchie, requêtes identiques mutualisées et file de travail sans attente de fin de lot. Le premier scan reste dépendant du réseau et des limites OKX.
+- Aucun changement des scores, des six horizons ou de l'univers analysé. Le cache est comparé au chargement complet dans les tests, y compris pour le résultat du moteur.
+
+Vérifications : `node engine.test.cjs`, `node hosted-feed.test.cjs`, `node --test experience.test.cjs server/*.test.mjs` et `node --check app.js`.
 
 ## Moteur de confluence multi-horizons
 
