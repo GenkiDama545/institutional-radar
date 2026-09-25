@@ -10,6 +10,7 @@ const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,set
 vm.runInContext(fs.readFileSync(path.join(root,'market-screen.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'signal-engine.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'engine-core.js'),'utf8'),context);
+for(const file of ['trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
 assert.match(run('simForm()'),/Saisie manuelle/,'simulator remains available when the market API fails');
@@ -118,11 +119,11 @@ assert.equal(run('money(null)'),'N/D');
 assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.equal((html.match(/<script /g)||[]).length,4);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.14"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.14"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.14"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.14'/);
+assert.equal((html.match(/<script /g)||[]).length,6);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.15"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.15"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.15"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.15'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
