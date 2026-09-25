@@ -1,0 +1,116 @@
+[
+  {
+    "local": "e31991658054a93bd3c592dc7811ac0d3a4710e1",
+    "remote": "81eca6fc12937ee3022ff692ea102084491a7a1d",
+    "tree": "0d5fe5d1cffa1e11b5f24b48420a014901ee6e54",
+    "message": "test: characterize V8.9.15 and record controlled audit scope"
+  },
+  {
+    "local": "f855b549f1a2dc5bb94fa9b4d5e399758396efaa",
+    "remote": "c75d205d2ae4e597ae86364cd64330a16a5b7f67",
+    "tree": "9b7383e22e01d608ce04a7ac81652248ec648405",
+    "message": "fix: repair audited P1 data integrity and historical adapters"
+  },
+  {
+    "local": "131350358a8c01ff5c344aff21256b4a1c41fba0",
+    "remote": "98867d418d11b4f1784f36cbe1dd3a8546593122",
+    "tree": "b319b89807e5d89c20951a8c18803631695ad3ab",
+    "message": "fix: guard audited navigation, storage and market readouts"
+  },
+  {
+    "local": "1472593c5b0ff56962175764036651108a08e660",
+    "remote": "6cbd8f095b2a9b41c360e3c56f85a3becfe928b5",
+    "tree": "af7e70712218bf555fe5ed67f30a45d94a648967",
+    "message": "fix: make audited UI labels and inactive controls truthful"
+  },
+  {
+    "local": "c6f64b6330ad6594ead38b39d04647bccdd85fb3",
+    "remote": "a8cce1bf7637df080990f6ac25d247c235acc696",
+    "tree": "5635ad39c0ea967c73d124b3110d04ae93a6b989",
+    "message": "fix: scope indicative labels to radar gauges and guard chart render"
+  },
+  {
+    "local": "0289b5e9aa182e3d1aefe91919094e069db22f77",
+    "remote": "e362ccc0b86bb92da68d4e3dacad9942cfd7784f",
+    "tree": "88cece535220833cd0461ba4ba21742585d99092",
+    "message": "refactor: remove proven orphan code and document retained audit debt"
+  },
+  {
+    "local": "45976e3bec25dc9b8f00cf26e297106cc8105808",
+    "remote": "803b281b86d1ebe4b9827b2220a3474215b2731d",
+    "tree": "2ad1536afaa81cadda9d29da3cb6ef9179a647ad",
+    "message": "fix: distinguish candle price and ticker freshness in projection labels"
+  },
+  {
+    "local": "c9bd474f90fe35ff59bef0ad7572f0e656d68a88",
+    "remote": "2f80a9fcc3009af6184b246bbda4e30b8ca6f4ab",
+    "tree": "c7e130f1683ceff3e425cd23de47a97c16f599e3",
+    "message": "docs: reconcile every audit finding and submit reserved business decisions"
+  },
+  {
+    "local": "aaefdcaa15048500d1d877d6728153357fca9c39",
+    "remote": "0039855738ee19ff2e6f5d0b02d82e9be82c1dbc",
+    "tree": "d5bbace3d1d2ab5e18f3a986f71858f56cf52dd1",
+    "message": "fix: consume computed ADX with reviewed baseline deltas (D01)"
+  },
+  {
+    "local": "5a680d883018dc76425994d548b00bb402b9a0c2",
+    "remote": "2ce75ebcb679c1db08483c741dde8696adc3a51a",
+    "tree": "062a13a2c5a9e6bbf7aff8bf79c5f1f9550544a2",
+    "message": "fix: decide on validated closed candles with reviewed deltas (D02)"
+  },
+  {
+    "local": "687f306292052867f738a51c6cd0d8ea60c17e7b",
+    "remote": "4ecca2abc49a73d420bfb20a2bcaad50f988a27d",
+    "tree": "024e78b9859262b1ff32ffa620c053c329174068",
+    "message": "fix: align confirmation and journal outcomes with approved rules (D03 D04)"
+  },
+  {
+    "local": "4b3432e55f4d7c61239c8b7a3bffde2c6db21a3e",
+    "remote": "019872d518dcf8fe9a845aad02ceb4ef87976865",
+    "tree": "5e43826e037b497a1def140a3dbcc5376cf5932a",
+    "message": "fix: centralize scenario freshness and suspend stale decisions (D05)"
+  },
+  {
+    "local": "447f3de67466c08b9089bae5523b587953e7d5dc",
+    "remote": "9c2aea045b6374b4ce696db74b807b3123c1f33b",
+    "tree": "388ab707cde002d02cd6303aaa6b2e14d81517a6",
+    "message": "fix: share admission gates and preserve selected contract side and kind (D06)"
+  },
+  {
+    "local": "546c55c94af7f98e92b8cdd28a550304d7459116",
+    "remote": "dd6ad402be9830f2cddf2ba7bb663dc107eacd6c",
+    "tree": "d739fbeb93f6256c2d29f6f2cff712ae08c9c7d0",
+    "message": "fix: preserve open observations and make state writes recoverable (D07)"
+  },
+  {
+    "local": "0d3b06a8b95a08acb88140310586c66f6e67322f",
+    "remote": "7e4137ed0411286d49056afe525ff3068230b89f",
+    "tree": "3faf5256bed91658ceecdcbae6ad52ffd9d66c51",
+    "message": "fix: restore full state without trusting imports or overwriting conflicts (D08)"
+  },
+  {
+    "local": "a9b95dc76978206fd3d406fd09e9bc23bbcdebc9",
+    "remote": "a2fda3fdac30269f0e440d5bd7e8fc36988b95d8",
+    "tree": "e632a198eba0730e56dbbd1f910efe6226a7a6a2",
+    "message": "docs: enforce exploratory lab limits and approved retained debt (D09 D10)"
+  },
+  {
+    "local": "023568af653177c00b14ae070467a1f72bed4167",
+    "remote": "1dd9bfd49288b2756ec5a9701b5b926150f178b4",
+    "tree": "d7b07f1170aa070316c5ca805781f2c87b9cc76b",
+    "message": "fix: recheck execution before activating an existing scenario lock"
+  },
+  {
+    "local": "49360422fe08475aed967fdbe3eeb4cfb5bdc64d",
+    "remote": "3ecb23ff91211a96d270626e8ddf04ada4b1b48a",
+    "tree": "c0b96d3ba23b7cafdf2a8dbd815d550edf90ccf9",
+    "message": "release: prepare V8.9.16-rc.1 and extend final browser regression gate"
+  },
+  {
+    "local": "c1aa2e73d4672a04ba7b34307026d8889d601605",
+    "remote": "ce95002c41e9cacaae48c15a0df6568eacbc1e21",
+    "tree": "747cc9e916d50f2455bd0e8539cbb1a2abf303d6",
+    "message": "test: align entry-point assertions with the distinct release candidate"
+  }
+]

@@ -1,0 +1,200 @@
+[
+  {
+    "id": "T01",
+    "initial": "app.js monolithique",
+    "action": "Conserver maintenant ; pas de refactor massif.",
+    "files": "README.md",
+    "tests": "Suites intégration et navigateur",
+    "result": "Lisibilité future reste une dette justifiée",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T02",
+    "initial": "Dépendances globales/circulaires",
+    "action": "Harnais de tests partagé ; modules runtime conservés.",
+    "files": "tests/harness.cjs; README.md",
+    "tests": "Tests du même code réel",
+    "result": "Pas de réécriture du chargement",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T03",
+    "initial": "État mutable/timers",
+    "action": "Gardes de navigation/timers et sélection exacte ; conserver globals sans refactor.",
+    "files": "app.js",
+    "tests": "audit-p2; decisions-d06; navigateur",
+    "result": "Courses connues corrigées ; architecture à état global conservée selon D10.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T04",
+    "initial": "Schémas partagés absents",
+    "action": "Bougies validées, admission commune, backup versionné et import contrôlé ; modèle canonique total différé.",
+    "files": "app.js; candle-store.js; engine-core.js",
+    "tests": "decisions-d02/d06/d07/d08",
+    "result": "Contrats de cette étape partagés ; fusion complète réservée aux étapes suivantes D10.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T05",
+    "initial": "Cascade CSS index + experience",
+    "action": "Conserver sans suppression spéculative.",
+    "files": "Aucun",
+    "tests": "Captures quatre largeurs",
+    "result": "Baseline visuelle protégée",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T06",
+    "initial": "Pas de workflow de tests",
+    "action": "Ajouter gate CI Node indépendant du déploiement.",
+    "files": ".github/workflows/test.yml",
+    "tests": "77 tests + engine/hosted ; workflow Node 22",
+    "result": "Gate local complet vert ; résultat distant consigné dans ci-results.json.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T07",
+    "initial": "Oracles synthétiques insuffisants",
+    "action": "Ajouter tests sur vrais chemins, événements retardés et erreurs.",
+    "files": "tests/*.test.cjs; browser-audit.cjs",
+    "tests": "77 tests + engine/hosted + parcours navigateur",
+    "result": "Vrais chemins et pannes couverts ; fixtures déterministes, pas preuve d’exhaustivité live.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T08",
+    "initial": "shortDiagnostics/obv/lineChart/backtestFmt",
+    "action": "Supprimer définitions sans appels après recherche intégrale.",
+    "files": "app.js",
+    "tests": "orphan-reference-proof.json + suites",
+    "result": "Aucun chemin applicatif supprimé",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T09",
+    "initial": "trValue/nearestLevels/pctMove/clampPrice + clamp01",
+    "action": "Supprimer helpers sans appels, dont nearestLevels cassé.",
+    "files": "engine-core.js; signal-engine.js",
+    "tests": "Références et snapshots identiques",
+    "result": "Pas de réactivation fictive OBV ou helper",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T10",
+    "initial": "csForHover",
+    "action": "Retirer écritures et global remplacé par données SVG.",
+    "files": "app.js",
+    "tests": "Rendu graphique + navigateur",
+    "result": "Sélection V8.9.15 conservée",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T11",
+    "initial": "REGIME_PROFILES.tf/priority/avoid",
+    "action": "Conserver comme métadonnées explicitement non actives.",
+    "files": "engine-core.js; README.md",
+    "tests": "Aucune consommation/pondération ajoutée ; baseline",
+    "result": "Pas d’activation silencieuse",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T12",
+    "initial": "ADX imbriqué",
+    "action": "Consommer ADX imbriqué ; conserver tous les coefficients.",
+    "files": "engine-core.js; D01_D02_Comparaison.md",
+    "tests": "decisions-d01/d02; baseline deltas revus",
+    "result": "Défaut corrigé selon D01 ; impacts individuels documentés.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T13",
+    "initial": "oiRatio",
+    "action": "Retirer faux tri ; conserver valeur neutre dans moteur.",
+    "files": "app.js; index.html; README.md",
+    "tests": "audit-ui + baseline",
+    "result": "Définition/unités à décider au Signal Audit",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T14",
+    "initial": "ap/smaVals et trs locaux dans ADX",
+    "action": "Supprimer calculs dont le résultat n’est jamais lu.",
+    "files": "engine-core.js",
+    "tests": "Snapshots scores/niveaux identiques",
+    "result": "Moins de calcul sans nouvelle formule",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T15",
+    "initial": "baseVol/quoteVol",
+    "action": "Conserver pour traçabilité des unités du décodeur.",
+    "files": "README.md",
+    "tests": "experience: normalisation/cache",
+    "result": "Faible coût ; pas de suppression de données utiles",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "T16",
+    "initial": "signalModel vs adaptive.shared/signals",
+    "action": "Unifier admission/profondeurs de décision sans fusionner les deux modèles stratégiques.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d06; baseline",
+    "result": "D06 réalisée ; fusion signalModel/adaptive reportée selon D10.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T17",
+    "initial": "sdR/Wilson/proposal.configs",
+    "action": "Conserver diagnostics purs de dispersion/incertitude.",
+    "files": "README.md",
+    "tests": "learningStats et labs inchangés hors filtre F03",
+    "result": "Aucun pilotage des poids ; futur usage à arbitrer",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T18",
+    "initial": "lastScanPerformance",
+    "action": "Conserver diagnostic coût réseau/durée.",
+    "files": "README.md",
+    "tests": "experience: lectures/cache",
+    "result": "Mesure utile, pas de nouvelle collecte persistante",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "T19",
+    "initial": "TP2/TP3 dans statistiques",
+    "action": "Conserver compatibilité historique ; dire que live finit TP1.",
+    "files": "app.js; README.md",
+    "tests": "baseline TP1 + audit-ui",
+    "result": "D07 validée : suivi live terminal TP1, champs TP2/TP3 conservés pour anciens formats.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T20",
+    "initial": "Branche openDeep simScenario",
+    "action": "Retirer entrée sans aucun appel UI ; simulateurs actifs preportés aux étapes approuvées.",
+    "files": "app.js",
+    "tests": "Recherche toutes références ; experience + navigateur",
+    "result": "Pas de simulateur utile supprimé",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "T21",
+    "initial": "hosted-config/hosted-feed",
+    "action": "Conserver modules testés, documenter déconnexion réelle.",
+    "files": "README.md; server/README.md",
+    "tests": "hosted-feed.test, index",
+    "result": "Le service n’est pas le stockage du Learning",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "T22",
+    "initial": "Sélecteurs CSS historiques (analysisTabs etc.)",
+    "action": "Ne pas supprimer sans inventaire CSS complet.",
+    "files": "Aucun",
+    "tests": "Cascade/captures",
+    "result": "Dette conservée pour refonte fonctionnelle autorisée",
+    "state": "DÉCISION VALIDÉE"
+  }
+]

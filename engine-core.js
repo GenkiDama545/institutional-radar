@@ -1,9 +1,5 @@
 // Technical features, market regimes and directional scenario engine.
-function trValue(c,p){return p==null?c.h-c.l:Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c))}
 function avgVol(cs,len=20){let a=cs.slice(-len).map(x=>x.v).filter(Number.isFinite);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null}
-function nearestLevels(cs,priceNow){let p=pivots(cs,2,2),highs=p.highs.map(x=>x.v).filter(v=>v>priceNow).sort((a,b)=>a-b),lows=p.lows.map(x=>x.v).filter(v=>v<priceNow).sort((a,b)=>b-a);let recent=cs.slice(-48);let fallbackR=Math.max(...recent.map(x=>x.h)),fallbackS=Math.min(...recent.map(x=>x.l));return{resistance:highs[0]??fallbackR,support:lows[0]??fallbackS,nextResistance:highs[1]??null,nextSupport:lows[1]??null}}
-function pctMove(a,b){return b?((a/b)-1)*100:0}
-function clampPrice(x){return Math.max(0,n(x))}
 function smaVals(cs,len,field='c'){
  let out=Array(cs.length).fill(null),q=[];
  for(let i=0;i<cs.length;i++){let v=n(cs[i]?.[field]);if(!Number.isFinite(v))continue;q.push(v);if(q.length>len)q.shift();if(q.length===len)out[i]=q.reduce((a,b)=>a+b,0)/len}
@@ -12,16 +8,16 @@ function smaVals(cs,len,field='c'){
 function trSeries(cs){let out=[];for(let i=0;i<cs.length;i++){let p=cs[i-1],c=cs[i];out.push(i===0?Math.max(0,c.h-c.l):Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c)))}return out}
 function atrSeries(cs,len=14){let tr=trSeries(cs),out=Array(cs.length).fill(null);if(!tr.length)return out;let a=tr.slice(0,Math.min(len,tr.length)).reduce((x,y)=>x+y,0)/Math.min(len,tr.length);for(let i=0;i<tr.length;i++){if(i>=len)a=(a*(len-1)+tr[i])/len;out[i]=a}return out}
 function atrValue(cs,len=14){let a=atrSeries(cs,len).filter(Number.isFinite);return a.at(-1)||null}
-function adxValue(cs,len=14){if(cs.length<len*2+2)return null;let trs=trSeries(cs),plus=[],minus=[];for(let i=0;i<cs.length;i++){if(i===0){plus.push(0);minus.push(0);continue}let up=cs[i].h-cs[i-1].h,down=cs[i-1].l-cs[i].l;plus.push(up>down&&up>0?up:0);minus.push(down>up&&down>0?down:0)}let atr=atrSeries(cs,len),dx=[];for(let i=len;i<cs.length;i++){let tr=atr[i];if(!tr)continue;let ap=smaVals(cs.slice(0,i+1),len).at(-1);let p=plus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr),m=minus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr);let den=p+m;dx.push(den?100*Math.abs(p-m)/den:0)}return dx.length?dx.slice(-len).reduce((a,b)=>a+b,0)/Math.min(len,dx.length):null}
+function adxValue(cs,len=14){if(cs.length<len*2+2)return null;let plus=[],minus=[];for(let i=0;i<cs.length;i++){if(i===0){plus.push(0);minus.push(0);continue}let up=cs[i].h-cs[i-1].h,down=cs[i-1].l-cs[i].l;plus.push(up>down&&up>0?up:0);minus.push(down>up&&down>0?down:0)}let atr=atrSeries(cs,len),dx=[];for(let i=len;i<cs.length;i++){let tr=atr[i];if(!tr)continue;let p=plus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr),m=minus.slice(i-len+1,i+1).reduce((a,b)=>a+b,0)/(len*tr);let den=p+m;dx.push(den?100*Math.abs(p-m)/den:0)}return dx.length?dx.slice(-len).reduce((a,b)=>a+b,0)/Math.min(len,dx.length):null}
 function bollinger(cs,len=20,mult=2){let vals=cs.map(x=>x.c),a=vals.slice(-len);if(a.length<len)return null;let mean=a.reduce((x,y)=>x+y,0)/len,sd=Math.sqrt(a.reduce((x,y)=>x+(y-mean)**2,0)/len);return {mid:mean,upper:mean+mult*sd,lower:mean-mult*sd,width:mean?((mult*2*sd)/mean):null,z:sd?(vals.at(-1)-mean)/sd:0}}
 function rocValue(cs,len=10){if(cs.length<=len)return null;let a=cs.at(-1).c,b=cs.at(-1-len).c;return b?((a-b)/b)*100:null}
 function volumeStats(cs,len=20){let vs=cs.slice(-len).map(x=>x.v).filter(Number.isFinite);if(!vs.length)return null;let mean=vs.reduce((a,b)=>a+b,0)/vs.length,sd=Math.sqrt(vs.reduce((a,b)=>a+(b-mean)**2,0)/vs.length);let last=cs.at(-1)?.v;return {mean,last,ratio:mean?last/mean:null,z:sd?(last-mean)/sd:0}}
 function efficiencyValue(cs,len=20){if(cs.length<=len)return null;let net=Math.abs(cs.at(-1).c-cs.at(-1-len).c),path=0;for(let i=cs.length-len;i<cs.length;i++)path+=Math.abs(cs[i].c-cs[i-1].c);return path?net/path:null}
-function lastCompleted(cs){let a=[...cs].reverse().find(x=>x.confirm===1||x.confirm==='1');return a||cs.at(-1)||null}
+function lastCompleted(cs){let a=[...cs].reverse().find(x=>x.confirm===1||x.confirm==='1');return a||null}
 function pivots(cs,left=2,right=2){let hi=[],lo=[];for(let i=left;i<cs.length-right;i++){let h=cs[i].h,l=cs[i].l,okH=true,okL=true;for(let j=1;j<=left;j++){if(cs[i-j].h>=h)okH=false;if(cs[i-j].l<=l)okL=false}for(let j=1;j<=right;j++){if(cs[i+j].h>h)okH=false;if(cs[i+j].l<l)okL=false}if(okH)hi.push({i,t:cs[i].t,v:h});if(okL)lo.push({i,t:cs[i].t,v:l})}return {hi,lo}}
 function clusterLevels(cs,priceNow){if(!cs?.length)return {support:priceNow*.99,resistance:priceNow*1.01,nextSupport:null,nextResistance:null};let p=pivots(cs,2,2),raw=[...p.hi.map(x=>({v:x.v,type:'r'})),...p.lo.map(x=>({v:x.v,type:'s'}))].sort((a,b)=>a.v-b.v);let atr=atrValue(cs,14)||priceNow*.01,tol=Math.max(atr*.28,priceNow*.0015),groups=[];for(const x of raw){let g=groups.find(z=>Math.abs(z.v-x.v)<=tol);if(g){g.v=(g.v*g.n+x.v)/(g.n+1);g.n++;g.types.add(x.type)}else groups.push({v:x.v,n:1,types:new Set([x.type])})}let below=groups.filter(x=>x.v<priceNow).sort((a,b)=>b.v-a.v),above=groups.filter(x=>x.v>priceNow).sort((a,b)=>a.v-b.v);let support=below[0]?.v, resistance=above[0]?.v;if(!support){let lows=cs.slice(-Math.min(80,cs.length)).map(x=>x.l);support=Math.min(...lows)}if(!resistance){let highs=cs.slice(-Math.min(80,cs.length)).map(x=>x.h);resistance=Math.max(...highs)}return {support,resistance,nextSupport:below[1]?.v||null,nextResistance:above[1]?.v||null,groups}}
 function trendState(cs){if(!cs?.length)return {bull:false,bear:false,label:'N/D',strength:0};let e20=ema(cs,20),e50=ema(cs,50),p=lastCompleted(cs)?.c??cs.at(-1).c,a=e20.at(-1),b=e50.at(-1),adx=adxValue(cs,14),roc=rocValue(cs,10);let trendSep=Math.abs((a-b)/Math.max(Math.abs(p),1e-12))*10000,trendAdx=adx||0,trendRoc=roc||0,trendEff=efficiencyValue(cs,20)||0,trendConfirmed=(trendAdx>=18||trendEff>=.35||trendSep>=2.0);let bull=a>b&&p>a&&trendRoc>=0.25&&trendConfirmed,bear=a<b&&p<a&&trendRoc<=-0.25&&trendConfirmed,strength=Math.min(100,trendSep+trendAdx*.4+Math.min(20,Math.abs(trendRoc)*1.5)+trendEff*15);return {bull,bear,label:bull?'haussier':bear?'baissier':'mixte',strength,adx,roc,e20:a,e50:b}}
-function timeframeFeatures(cs){let c=lastCompleted(cs);if(!c)return null;let priceNow=c.c,a=atrValue(cs,14),bb=bollinger(cs,20,2),vol=volumeStats(cs,20),t=trendState(cs),r=rsi(cs,14).filter(Number.isFinite).at(-1),sr=stochRsi(cs,14),levels=clusterLevels(cs,priceNow),roc=rocValue(cs,10),eff=efficiencyValue(cs,20);let range=(levels.resistance-levels.support)||a*4;let distR=Math.abs(levels.resistance-priceNow),distS=Math.abs(priceNow-levels.support);return {cs,c,priceNow,atr:a||priceNow*.01,bb,vol,t,rsi:r,stoch:sr?.k?.at(-1),stochK:sr?.k?.at(-1),stochD:sr?.d?.at(-1),levels,roc,eff,distR,distS,range,compression:bb?.width!=null&&bb.width<0.035,expansion:(vol?.ratio||0)>1.35&&Math.abs(roc||0)>(a/Math.max(priceNow,1e-12))*100*.35}}
+function timeframeFeatures(cs,bar,now=Date.now()){cs=RadarCandles.decision(cs,bar,now);let c=lastCompleted(cs);if(!c)return null;let priceNow=c.c,a=atrValue(cs,14),bb=bollinger(cs,20,2),vol=volumeStats(cs,20),t=trendState(cs),r=rsi(cs,14).filter(Number.isFinite).at(-1),sr=stochRsi(cs,14),levels=clusterLevels(cs,priceNow),roc=rocValue(cs,10),eff=efficiencyValue(cs,20);let range=(levels.resistance-levels.support)||a*4;let distR=Math.abs(levels.resistance-priceNow),distS=Math.abs(priceNow-levels.support);return {cs,c,priceNow,atr:a||priceNow*.01,bb,vol,t,rsi:r,stoch:sr?.k?.at(-1),stochK:sr?.k?.at(-1),stochD:sr?.d?.at(-1),levels,roc,eff,distR,distS,range,compression:bb?.width!=null&&bb.width<0.035,expansion:(vol?.ratio||0)>1.35&&Math.abs(roc||0)>(a/Math.max(priceNow,1e-12))*100*.35}}
 
 function multiTimeframeConsensus(mtf){
   const order=['1D','4H','1H','30m','15m','5m','1m'];
@@ -71,6 +67,7 @@ function regimeContextFromMTF(F,currentData){
   const profile=REGIME_PROFILES[key]||REGIME_PROFILES.continuation;
   return {...mtf,key,label:profile.label,reason,profile,majorBull,majorBear,counter};
 }
+// Only labels are consumed today. tf/priority/avoid are documentary metadata, not active weights.
 const REGIME_PROFILES={
   breakout:{label:'Cassure / continuation',priority:['structure','priceAction','volume','trend','derivatives','adx'],avoid:['fundingExtreme'],tf:{'1D':1.8,'4H':1.6,'1H':1.35,'30m':1.15,'15m':1.3,'5m':.85,'1m':.35}},
   reversal:{label:'Retournement',priority:['priceAction','structure','momentum','rsi','range','volatility'],avoid:['chasing'],tf:{'1D':1.4,'4H':1.5,'1H':1.35,'30m':1.1,'15m':1.3,'5m':.95,'1m':.4}},
@@ -79,8 +76,15 @@ const REGIME_PROFILES={
   continuation:{label:'Tendance / continuation',priority:['structure','trend','priceAction','volume','adx'],avoid:['counterTrend'],tf:{'1D':1.8,'4H':1.6,'1H':1.4,'30m':1.15,'15m':1.05,'5m':.75,'1m':.3}}
 };
 
+const DECISION_SPECS=[['1D',120],['4H',100],['1H',140],['30m',140],['15m',180],['5m',180]];
+function decisionFrames(input,now=Date.now()){
+ const frames={},issues=[];
+ for(const [tf] of DECISION_SPECS){try{frames[tf]=RadarCandles.decision(input[tf]||[],tf,now)}catch(e){frames[tf]=[];issues.push(tf+': '+e.message)}}
+ return {frames,issues};
+}
 function adaptiveEngine(frames,currentData){
- const order=['1m','5m','15m','30m','1H','4H','1D'],F={};for(const k of order)if(frames[k]?.length>=40)F[k]=timeframeFeatures(frames[k]);
+ const checked=decisionFrames(frames,currentData?.decisionAt??Date.now());frames=checked.frames;
+ const order=['1m','5m','15m','30m','1H','4H','1D'],F={};for(const k of order)if(frames[k]?.length>=40)F[k]=timeframeFeatures(frames[k],k,currentData?.decisionAt??Date.now());
  const keys=Object.keys(F);if(keys.length<2)return null;
  const live=currentData?.price||F[keys[0]].priceNow;
  const mtf=regimeContextFromMTF(F,currentData);
@@ -88,7 +92,7 @@ function adaptiveEngine(frames,currentData){
  let anchorKey=keys[keys.length-1];for(const k of ['1D','4H','1H','30m','15m'])if(F[k]&&F[k].t.label!=='mixte'&&F[k].levels.support&&F[k].levels.resistance){anchorKey=k;break}
  const anchor=F[anchorKey];
  // Trigger selection: choose the shortest timeframe whose volatility, volume and structure can define a precise trigger without being excessively noisy.
- let triggerKey=null,best=-Infinity;for(const k of keys.filter(k=>['5m','15m','30m','1H'].includes(k))){let f=F[k],score=0;score+=(f.vol?.ratio>1?1:0)+(f.t.label===anchor.t.label?2:0)+(f.adx&&f.adx>18?1:0)+(f.eff&&f.eff>.25?1:0);score-=k==='1m'&&keys.length>3?.25:0;if(score>best){best=score;triggerKey=k}}
+ let triggerKey=null,best=-Infinity;for(const k of keys.filter(k=>['5m','15m','30m','1H'].includes(k))){let f=F[k],score=0;score+=(f.vol?.ratio>1?1:0)+(f.t.label===anchor.t.label?2:0)+(f.t.adx&&f.t.adx>18?1:0)+(f.eff&&f.eff>.25?1:0);score-=k==='1m'&&keys.length>3?.25:0;if(score>best){best=score;triggerKey=k}}
  const trigger=F[triggerKey||keys[0]], nearR=trigger.distR<=Math.max(trigger.atr*1.2,live*.004),nearS=trigger.distS<=Math.max(trigger.atr*1.2,live*.004), shortNearR=trigger.distR<=Math.max(trigger.atr*1.5,live*.006), shortNearS=trigger.distS<=Math.max(trigger.atr*1.5,live*.006);
  const biasBull=anchor.t.bull && (F['1H']?.t.bull||F['15m']?.t.bull||trigger.t.bull),biasBear=anchor.t.bear && (F['1H']?.t.bear||F['15m']?.t.bear||trigger.t.bear);
  const r=trigger.levels.resistance,s=trigger.levels.support,buf=Math.max(trigger.atr*.10,live*.00035),micro=Math.max(trigger.atr*.18,live*.00025);
@@ -100,7 +104,7 @@ function adaptiveEngine(frames,currentData){
  const bdEntry=Math.max(0,s-buf),bdStop=s+Math.max(trigger.atr*.65,micro),bdRisk=Math.max(1e-12,bdStop-bdEntry);
  const bdT1=trigger.levels.nextSupport&&trigger.levels.nextSupport<bdEntry?Math.min(bdEntry-bdRisk,trigger.levels.nextSupport):bdEntry-bdRisk,bdT2=bdT1-bdRisk*.9,bdT3=bdT2-bdRisk*.9;
  const confluences=[];
- if(anchor.t.label!=='mixte')confluences.push(`tendance ${anchorKey} ${anchor.t.label}`);if(trigger.t.label===anchor.t.label)confluences.push(`alignement ${triggerKey}`);if(trigger.vol?.ratio>=1.15)confluences.push(`volume ${trigger.vol.ratio.toFixed(2)}x`);if(trigger.adx&&trigger.adx>=18)confluences.push(`ADX ${trigger.adx.toFixed(0)}`);if(trigger.bb?.z!=null&&Math.abs(trigger.bb.z)>=1)confluences.push(`position Bollinger ${trigger.bb.z.toFixed(1)}σ`);if(trigger.eff!=null&&trigger.eff>.3)confluences.push(`efficacité ${trigger.eff.toFixed(2)}`);if(trigger.rsi!=null&&trigger.rsi>52&&biasBull)confluences.push(`RSI ${trigger.rsi.toFixed(0)} haussier`);if(trigger.rsi!=null&&trigger.rsi<48&&biasBear)confluences.push(`RSI ${trigger.rsi.toFixed(0)} baissier`);
+ if(anchor.t.label!=='mixte')confluences.push(`tendance ${anchorKey} ${anchor.t.label}`);if(trigger.t.label===anchor.t.label)confluences.push(`alignement ${triggerKey}`);if(trigger.vol?.ratio>=1.15)confluences.push(`volume ${trigger.vol.ratio.toFixed(2)}x`);if(trigger.t.adx&&trigger.t.adx>=18)confluences.push(`ADX ${trigger.t.adx.toFixed(0)}`);if(trigger.bb?.z!=null&&Math.abs(trigger.bb.z)>=1)confluences.push(`position Bollinger ${trigger.bb.z.toFixed(1)}σ`);if(trigger.eff!=null&&trigger.eff>.3)confluences.push(`efficacité ${trigger.eff.toFixed(2)}`);if(trigger.rsi!=null&&trigger.rsi>52&&biasBull)confluences.push(`RSI ${trigger.rsi.toFixed(0)} haussier`);if(trigger.rsi!=null&&trigger.rsi<48&&biasBear)confluences.push(`RSI ${trigger.rsi.toFixed(0)} baissier`);
  const signals=[];
  const addSig=(name,status,detail,family)=>signals.push({name,status,detail,family});
  addSig(`Tendance ${anchorKey}`,anchor.t.label==='mixte'?'neutral':((biasBull&&anchor.t.bull)||(biasBear&&anchor.t.bear))?'positive':'negative',anchor.t.label,'structure');
@@ -108,13 +112,13 @@ function adaptiveEngine(frames,currentData){
  addSig('Volume déclencheur',trigger.vol?.ratio==null?'neutral':trigger.vol.ratio>=1.15?'positive':trigger.vol.ratio>=.85?'warning':'negative',trigger.vol?.ratio==null?'N/D':trigger.vol.ratio.toFixed(2)+'x moyenne','volume');
  addSig('RSI',!Number.isFinite(trigger.rsi)?'neutral':((biasBull&&trigger.rsi>=52)||(biasBear&&trigger.rsi<=48))?'positive':(trigger.rsi>=70||trigger.rsi<=30)?'warning':'negative',Number.isFinite(trigger.rsi)?trigger.rsi.toFixed(1):'N/D','momentum');
  addSig('Bollinger',trigger.bb?.z==null?'neutral':Math.abs(trigger.bb.z)>=2?'warning':Math.abs(trigger.bb.z)>=1?'positive':'neutral',trigger.bb?.z==null?'N/D':trigger.bb.z.toFixed(2)+'σ','volatilité');
- addSig('ADX',trigger.adx==null?'neutral':trigger.adx>=25?'positive':trigger.adx>=18?'warning':'negative',trigger.adx==null?'N/D':trigger.adx.toFixed(1),'tendance');
+ addSig('ADX',trigger.t.adx==null?'neutral':trigger.t.adx>=25?'positive':trigger.t.adx>=18?'warning':'negative',trigger.t.adx==null?'N/D':trigger.t.adx.toFixed(1),'tendance');
  addSig('Efficacité',trigger.eff==null?'neutral':trigger.eff>=.4?'positive':trigger.eff>=.25?'warning':'negative',trigger.eff==null?'N/D':trigger.eff.toFixed(2),'price action');
  addSig('Volatilité',trigger.compression?'warning':trigger.expansion?'positive':'neutral',trigger.compression?'compression':trigger.expansion?'expansion':'normale','volatilité');
  addSig('Distance au niveau',nearR||nearS?'positive':'neutral',nearR?'résistance proche':nearS?'support proche':'hors zone','structure');
  if(currentData?.oiDelta!=null)addSig('Open Interest',Math.abs(currentData.oiDelta)>=2?'warning':'neutral',(currentData.oiDelta>=0?'+':'')+currentData.oiDelta.toFixed(2)+'% • participation, pas direction','dérivés');else addSig('Open Interest','neutral','historique insuffisant','dérivés');
  if(currentData?.funding!=null){let f=currentData.funding;let adverse=(biasBull&&f>.0008)||(biasBear&&f<-.0008);addSig('Funding',adverse?'warning':(biasBull&&f<0)||(biasBear&&f>0)?'positive':'neutral',(f*100).toFixed(4)+'%','dérivés')}else addSig('Funding','neutral','N/D','dérivés');
- let score=38+confluences.length*6+(anchor.t.label===trigger.t.label?8:0)+(trigger.vol?.ratio>1.5?6:0)+(trigger.adx>25?6:0)+(trigger.eff>.4?5:0);
+ let score=38+confluences.length*6+(anchor.t.label===trigger.t.label?8:0)+(trigger.vol?.ratio>1.5?6:0)+(trigger.t.adx>25?6:0)+(trigger.eff>.4?5:0);
  const majorCount=(mtf.rows||[]).filter(r=>['1D','4H','1H'].includes(r.tf)).length;
  score+=mtf.majorBull===majorCount&&majorCount>=2&&biasBull?8:0;
   score+=mtf.majorBear===majorCount&&majorCount>=2&&biasBear?8:0;
@@ -139,6 +143,8 @@ function adaptiveEngine(frames,currentData){
  const shortPattern = shortRejectionPattern?'rejection':shortBreakdownPattern?'breakdown':shortReversalPattern?'reversal':shortExtensionReversal?'reversal':null;
  const shortBoost = shortPattern ? (shortPattern==='reversal'?12:shortPattern==='rejection'?10:8) : 0;
  directional.shortScore=Math.max(0,Math.min(100,Math.round(directional.shortScore+shortBoost)));
+ directional.spread=Math.abs(directional.longScore-directional.shortScore);
+ directional.strongest=directional.longScore>directional.shortScore?'long':directional.shortScore>directional.longScore?'short':'neutral';
  directional.shortPattern=shortPattern;
  directional.shortEligible=!!(currentData?.perpId && shortPattern && directional.shortScore>=62 && directional.shortScore>=directional.longScore-3);
  // V8.6.5 — LONG remains independent; its instrument is selected later by the scenario layer.
@@ -161,7 +167,7 @@ function adaptiveEngine(frames,currentData){
  const readiness=decision==='SETUP'?'CONFIGURATION À APPROFONDIR':decision==='WATCH'?'CONFIGURATION EN FORMATION':'ATTENTE';
  const shared={families:{},counts:{positive:0,warning:0,negative:0,neutral:0},score:score};
  signals.forEach(sig=>{const key=String(sig.family||'autre');if(!shared.families[key])shared.families[key]={positive:0,negative:0,warning:0,neutral:0};shared.families[key][sig.status]=(shared.families[key][sig.status]||0)+1;shared.counts[sig.status]=(shared.counts[sig.status]||0)+1;});
- return {F,anchorKey,triggerKey,anchor,trigger,live,mtf,regime:mtf,decision,shared,biasBull,biasBear,nearR,nearS,shortNearR,shortNearS,shortPattern,confluences,signals,directional,signalCounts:{positive:signals.filter(x=>x.status==='positive').length,negative:signals.filter(x=>x.status==='negative').length,warning:signals.filter(x=>x.status==='warning').length,neutral:signals.filter(x=>x.status==='neutral').length},score,readiness,levels:trigger.levels,breakout:{entry:brEntry,stop:brStop,tp1:brT1,tp2:brT2,tp3:brT3,risk:brRisk,rr:[(brT1-brEntry)/brRisk,(brT2-brEntry)/brRisk,(brT3-brEntry)/brRisk]},pullback:{entry:puEntry,stop:puStop,tp1:puT1,tp2:puT2,tp3:puT3,risk:puRisk,rr:[(puT1-puEntry)/puRisk,(puT2-puEntry)/puRisk,(puT3-puEntry)/puRisk]},breakdown:{entry:bdEntry,stop:bdStop,tp1:bdT1,tp2:bdT2,tp3:bdT3,risk:bdRisk,rr:[Math.max(0,(bdEntry-bdT1)/bdRisk),Math.max(0,(bdEntry-bdT2)/bdRisk),Math.max(0,(bdEntry-bdT3)/bdRisk)]},shortRejection,longSetup,shortSetup,longValid,rejectionValid,breakdownValid,buffer:buf};
+ return {F,dataIssues:checked.issues,analysisAt:currentData?.analysisAt??currentData?.decisionAt??Date.now(),anchorKey,triggerKey,anchor,trigger,live,mtf,regime:mtf,decision,shared,biasBull,biasBear,nearR,nearS,shortNearR,shortNearS,shortPattern,confluences,signals,directional,signalCounts:{positive:signals.filter(x=>x.status==='positive').length,negative:signals.filter(x=>x.status==='negative').length,warning:signals.filter(x=>x.status==='warning').length,neutral:signals.filter(x=>x.status==='neutral').length},score,readiness,levels:trigger.levels,breakout:{entry:brEntry,stop:brStop,tp1:brT1,tp2:brT2,tp3:brT3,risk:brRisk,rr:[(brT1-brEntry)/brRisk,(brT2-brEntry)/brRisk,(brT3-brEntry)/brRisk]},pullback:{entry:puEntry,stop:puStop,tp1:puT1,tp2:puT2,tp3:puT3,risk:puRisk,rr:[(puT1-puEntry)/puRisk,(puT2-puEntry)/puRisk,(puT3-puEntry)/puRisk]},breakdown:{entry:bdEntry,stop:bdStop,tp1:bdT1,tp2:bdT2,tp3:bdT3,risk:bdRisk,rr:[Math.max(0,(bdEntry-bdT1)/bdRisk),Math.max(0,(bdEntry-bdT2)/bdRisk),Math.max(0,(bdEntry-bdT3)/bdRisk)]},shortRejection,longSetup,shortSetup,longValid,rejectionValid,breakdownValid,buffer:buf};
 }
 function directionalAssessment(e,x={}){
   const F=e?.F||{}, order=['1D','4H','1H','30m','15m','5m'], weights={"1D":4,"4H":3.4,"1H":2.7,"30m":2.1,"15m":1.6,"5m":1.1};

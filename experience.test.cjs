@@ -43,11 +43,11 @@ test('incremental windows equal full refresh after mutable candle and closure up
  const ctx=vm.createContext({console,localStorage:{getItem:()=>null,setItem:()=>{}},setTimeout,clearTimeout,setInterval,clearInterval});
  for(const f of ['market-screen.js','signal-engine.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
  const app=fs.readFileSync('app.js','utf8');vm.runInContext(app.slice(0,app.indexOf("document.querySelectorAll('#marketMode")),ctx);
- ctx.framesA=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,warm]));ctx.framesB=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,fresh]));
- assert.equal(vm.runInContext('JSON.stringify(adaptiveEngine(framesA,{price:501}))',ctx),vm.runInContext('JSON.stringify(adaptiveEngine(framesB,{price:501}))',ctx),'same full scenario model, scores and levels');
+ ctx.framesA=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,warm.map((c,i)=>({...c,t:1700000000000+i*candles.intervals[tf]}))]));ctx.framesB=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,fresh.map((c,i)=>({...c,t:1700000000000+i*candles.intervals[tf]}))]));
+ assert.equal(vm.runInContext('JSON.stringify(adaptiveEngine(framesA,{price:501,decisionAt:1750000000000}))',ctx),vm.runInContext('JSON.stringify(adaptiveEngine(framesB,{price:501,decisionAt:1750000000000}))',ctx),'same full scenario model, scores and levels');
  ctx.state={crossed:true,triggerClose:false,volOk:true,trendOk:true,invalid:false,near:true,entry:100,stop:95,live:101,triggerKey:'15m',volRatio:2};
  assert.match(vm.runInContext('monitorTriggerStatus(state).label',ctx),/SEUIL FRANCHI/);
- ctx.state.triggerClose=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'green');ctx.state.invalid=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'red');
+ ctx.state.triggerClose=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'green');ctx.state.invalid=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'yellow');
 });
 test('concurrent reads share the same request; callers cannot mutate cached bars',async()=>{
  const log=[],store=candles.create(source(log),{now:()=>rows.at(-1)[0]+100});

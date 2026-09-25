@@ -1,0 +1,110 @@
+{
+  "scope": [
+    "app.js",
+    "candle-store.js",
+    "engine-core.js",
+    "engine.test.cjs",
+    "experience.test.cjs",
+    "hosted-config.js",
+    "hosted-feed.js",
+    "hosted-feed.test.cjs",
+    "index.html",
+    "market-screen.js",
+    "signal-engine.js",
+    "sw.js",
+    "trade-sim.js"
+  ],
+  "method": "Whole-word references in all root JS/HTML/tests; inline handlers included; no eval/global name dispatch found. All server and test references separately searched with rg.",
+  "removed": [
+    {
+      "name": "shortDiagnostics",
+      "hits": [
+        {
+          "file": "app.js",
+          "line": 156
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "obv",
+      "hits": [
+        {
+          "file": "app.js",
+          "line": 239
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "lineChart",
+      "hits": [
+        {
+          "file": "app.js",
+          "line": 324
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "backtestFmt",
+      "hits": [
+        {
+          "file": "app.js",
+          "line": 870
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "trValue",
+      "hits": [
+        {
+          "file": "engine-core.js",
+          "line": 2
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "nearestLevels",
+      "hits": [
+        {
+          "file": "engine-core.js",
+          "line": 4
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "pctMove",
+      "hits": [
+        {
+          "file": "engine-core.js",
+          "line": 5
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "clampPrice",
+      "hits": [
+        {
+          "file": "engine-core.js",
+          "line": 6
+        }
+      ],
+      "action": "REMOVE definition only"
+    },
+    {
+      "name": "clamp01",
+      "hits": [
+        {
+          "file": "signal-engine.js",
+          "line": 6
+        }
+      ],
+      "action": "REMOVE definition only"
+    }
+  ]
+}

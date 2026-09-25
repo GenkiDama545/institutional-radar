@@ -1,0 +1,624 @@
+[
+  {
+    "case": 0,
+    "slope": -0.1,
+    "scale": 1,
+    "changes": [
+      {
+        "path": "breakout.entry",
+        "before": 91.17347124105952,
+        "after": 91.22391813349323
+      },
+      {
+        "path": "breakout.stop",
+        "before": 89.67347124105952,
+        "after": 89.72391813349323
+      },
+      {
+        "path": "breakout.tp1",
+        "before": 92.67347124105952,
+        "after": 92.72391813349323
+      },
+      {
+        "path": "breakout.tp2",
+        "before": 94.17347124105952,
+        "after": 94.22391813349323
+      },
+      {
+        "path": "breakout.tp3",
+        "before": 95.67347124105952,
+        "after": 95.72391813349323
+      },
+      {
+        "path": "pullback.entry",
+        "before": 81.07020224334833,
+        "after": 81.21761183557227
+      },
+      {
+        "path": "pullback.stop",
+        "before": 79.75020224334833,
+        "after": 79.89761183557226
+      },
+      {
+        "path": "pullback.tp1",
+        "before": 90.97347124105951,
+        "after": 91.02391813349323
+      },
+      {
+        "path": "pullback.tp2",
+        "before": 91.83147124105952,
+        "after": 91.88191813349323
+      },
+      {
+        "path": "pullback.tp3",
+        "before": 92.68947124105952,
+        "after": 92.73991813349323
+      },
+      {
+        "path": "pullback.rr.0",
+        "before": 7.502476513417519,
+        "after": 7.429019922667348
+      },
+      {
+        "path": "pullback.rr.1",
+        "before": 8.152476513417518,
+        "after": 8.079019922667348
+      },
+      {
+        "path": "pullback.rr.2",
+        "before": 8.802476513417517,
+        "after": 8.729019922667348
+      },
+      {
+        "path": "breakdown.entry",
+        "before": 80.75020224334833,
+        "after": 80.89761183557226
+      },
+      {
+        "path": "breakdown.stop",
+        "before": 82.25020224334833,
+        "after": 82.39761183557226
+      },
+      {
+        "path": "breakdown.tp1",
+        "before": 79.25020224334833,
+        "after": 79.39761183557226
+      },
+      {
+        "path": "breakdown.tp2",
+        "before": 77.90020224334833,
+        "after": 78.04761183557227
+      },
+      {
+        "path": "breakdown.tp3",
+        "before": 76.55020224334834,
+        "after": 76.69761183557227
+      },
+      {
+        "path": "rejection.entry",
+        "before": 90.81347124105952,
+        "after": 90.86391813349323
+      },
+      {
+        "path": "rejection.stop",
+        "before": 92.07347124105951,
+        "after": 92.12391813349322
+      },
+      {
+        "path": "rejection.tp1",
+        "before": 89.55347124105953,
+        "after": 89.60391813349324
+      },
+      {
+        "path": "rejection.tp2",
+        "before": 88.29347124105954,
+        "after": 88.34391813349325
+      },
+      {
+        "path": "rejection.tp3",
+        "before": 87.03347124105954,
+        "after": 87.08391813349326
+      }
+    ]
+  },
+  {
+    "case": 1,
+    "slope": -0.1,
+    "scale": 1e-7,
+    "changes": [
+      {
+        "path": "breakout.entry",
+        "before": 0.000009117347124105951,
+        "after": 0.000009122391813349323
+      },
+      {
+        "path": "breakout.stop",
+        "before": 0.000008967347124105951,
+        "after": 0.000008972391813349323
+      },
+      {
+        "path": "breakout.tp1",
+        "before": 0.000009267347124105952,
+        "after": 0.000009272391813349323
+      },
+      {
+        "path": "breakout.tp2",
+        "before": 0.000009417347124105952,
+        "after": 0.000009422391813349324
+      },
+      {
+        "path": "breakout.tp3",
+        "before": 0.000009567347124105952,
+        "after": 0.000009572391813349324
+      },
+      {
+        "path": "pullback.entry",
+        "before": 0.000008107020224334833,
+        "after": 0.000008121761183557226
+      },
+      {
+        "path": "pullback.stop",
+        "before": 0.000007975020224334832,
+        "after": 0.000007989761183557224
+      },
+      {
+        "path": "pullback.tp1",
+        "before": 0.000009097347124105952,
+        "after": 0.000009102391813349323
+      },
+      {
+        "path": "pullback.tp2",
+        "before": 0.000009183147124105952,
+        "after": 0.000009188191813349323
+      },
+      {
+        "path": "pullback.tp3",
+        "before": 0.000009268947124105953,
+        "after": 0.000009273991813349325
+      },
+      {
+        "path": "pullback.rr.0",
+        "before": 7.502476513417482,
+        "after": 7.429019922667323
+      },
+      {
+        "path": "pullback.rr.1",
+        "before": 8.152476513417476,
+        "after": 8.079019922667317
+      },
+      {
+        "path": "pullback.rr.2",
+        "before": 8.802476513417481,
+        "after": 8.729019922667323
+      },
+      {
+        "path": "breakdown.entry",
+        "before": 0.000008075020224334832,
+        "after": 0.000008089761183557225
+      },
+      {
+        "path": "breakdown.stop",
+        "before": 0.000008225020224334833,
+        "after": 0.000008239761183557225
+      },
+      {
+        "path": "breakdown.tp1",
+        "before": 0.000007925020224334832,
+        "after": 0.000007939761183557225
+      },
+      {
+        "path": "breakdown.tp2",
+        "before": 0.000007790020224334833,
+        "after": 0.000007804761183557225
+      },
+      {
+        "path": "breakdown.tp3",
+        "before": 0.000007655020224334833,
+        "after": 0.000007669761183557226
+      },
+      {
+        "path": "rejection.entry",
+        "before": 0.000009081347124105952,
+        "after": 0.000009086391813349324
+      },
+      {
+        "path": "rejection.stop",
+        "before": 0.000009207347124105952,
+        "after": 0.000009212391813349324
+      },
+      {
+        "path": "rejection.tp1",
+        "before": 0.000008955347124105952,
+        "after": 0.000008960391813349324
+      },
+      {
+        "path": "rejection.tp2",
+        "before": 0.000008829347124105952,
+        "after": 0.000008834391813349323
+      },
+      {
+        "path": "rejection.tp3",
+        "before": 0.000008703347124105952,
+        "after": 0.000008708391813349323
+      }
+    ]
+  },
+  {
+    "case": 2,
+    "slope": 0,
+    "scale": 1,
+    "changes": [
+      {
+        "path": "regime.rows.0.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.0.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      },
+      {
+        "path": "regime.rows.1.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.1.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      },
+      {
+        "path": "regime.rows.2.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.2.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      },
+      {
+        "path": "regime.rows.3.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.3.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      },
+      {
+        "path": "regime.rows.4.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.4.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      },
+      {
+        "path": "regime.rows.5.strength",
+        "before": 42.179919587560725,
+        "after": 42.24047373941907
+      },
+      {
+        "path": "regime.rows.5.adx",
+        "before": 68.37202158362682,
+        "after": 68.08671368075989
+      }
+    ]
+  },
+  {
+    "case": 3,
+    "slope": 0,
+    "scale": 1e-7,
+    "changes": [
+      {
+        "path": "regime.rows.0.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.0.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      },
+      {
+        "path": "regime.rows.1.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.1.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      },
+      {
+        "path": "regime.rows.2.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.2.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      },
+      {
+        "path": "regime.rows.3.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.3.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      },
+      {
+        "path": "regime.rows.4.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.4.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      },
+      {
+        "path": "regime.rows.5.strength",
+        "before": 42.1799195875624,
+        "after": 42.240473739424374
+      },
+      {
+        "path": "regime.rows.5.adx",
+        "before": 68.37202158362672,
+        "after": 68.08671368075996
+      }
+    ]
+  },
+  {
+    "case": 4,
+    "slope": 0.1,
+    "scale": 1,
+    "changes": [
+      {
+        "path": "breakout.entry",
+        "before": 118.95020224334834,
+        "after": 118.89761183557226
+      },
+      {
+        "path": "breakout.stop",
+        "before": 117.45020224334834,
+        "after": 117.39761183557226
+      },
+      {
+        "path": "breakout.tp1",
+        "before": 120.45020224334834,
+        "after": 120.39761183557226
+      },
+      {
+        "path": "breakout.tp2",
+        "before": 121.95020224334834,
+        "after": 121.89761183557226
+      },
+      {
+        "path": "breakout.tp3",
+        "before": 123.45020224334834,
+        "after": 123.39761183557226
+      },
+      {
+        "path": "pullback.entry",
+        "before": 109.09347124105952,
+        "after": 108.94391813349324
+      },
+      {
+        "path": "pullback.stop",
+        "before": 107.77347124105951,
+        "after": 107.62391813349323
+      },
+      {
+        "path": "pullback.tp1",
+        "before": 118.75020224334834,
+        "after": 118.69761183557226
+      },
+      {
+        "path": "pullback.tp2",
+        "before": 119.60820224334834,
+        "after": 119.55561183557226
+      },
+      {
+        "path": "pullback.tp3",
+        "before": 120.46620224334835,
+        "after": 120.41361183557227
+      },
+      {
+        "path": "pullback.rr.0",
+        "before": 7.315705304764219,
+        "after": 7.389161895514367
+      },
+      {
+        "path": "pullback.rr.1",
+        "before": 7.965705304764218,
+        "after": 8.039161895514367
+      },
+      {
+        "path": "pullback.rr.2",
+        "before": 8.615705304764218,
+        "after": 8.689161895514365
+      },
+      {
+        "path": "breakdown.entry",
+        "before": 108.77347124105951,
+        "after": 108.62391813349323
+      },
+      {
+        "path": "breakdown.stop",
+        "before": 110.27347124105951,
+        "after": 110.12391813349323
+      },
+      {
+        "path": "breakdown.tp1",
+        "before": 107.27347124105951,
+        "after": 107.12391813349323
+      },
+      {
+        "path": "breakdown.tp2",
+        "before": 105.92347124105952,
+        "after": 105.77391813349324
+      },
+      {
+        "path": "breakdown.tp3",
+        "before": 104.57347124105952,
+        "after": 104.42391813349325
+      },
+      {
+        "path": "rejection.entry",
+        "before": 118.59020224334834,
+        "after": 118.53761183557226
+      },
+      {
+        "path": "rejection.stop",
+        "before": 119.85020224334833,
+        "after": 119.79761183557225
+      },
+      {
+        "path": "rejection.tp1",
+        "before": 117.33020224334835,
+        "after": 117.27761183557227
+      },
+      {
+        "path": "rejection.tp2",
+        "before": 116.07020224334836,
+        "after": 116.01761183557228
+      },
+      {
+        "path": "rejection.tp3",
+        "before": 114.81020224334837,
+        "after": 114.75761183557229
+      }
+    ]
+  },
+  {
+    "case": 5,
+    "slope": 0.1,
+    "scale": 1e-7,
+    "changes": [
+      {
+        "path": "breakout.entry",
+        "before": 0.000011895020224334835,
+        "after": 0.000011889761183557226
+      },
+      {
+        "path": "breakout.stop",
+        "before": 0.000011745020224334835,
+        "after": 0.000011739761183557226
+      },
+      {
+        "path": "breakout.tp1",
+        "before": 0.000012045020224334835,
+        "after": 0.000012039761183557226
+      },
+      {
+        "path": "breakout.tp2",
+        "before": 0.000012195020224334835,
+        "after": 0.000012189761183557227
+      },
+      {
+        "path": "breakout.tp3",
+        "before": 0.000012345020224334836,
+        "after": 0.000012339761183557227
+      },
+      {
+        "path": "pullback.entry",
+        "before": 0.00001090934712410595,
+        "after": 0.000010894391813349324
+      },
+      {
+        "path": "pullback.stop",
+        "before": 0.000010777347124105949,
+        "after": 0.000010762391813349323
+      },
+      {
+        "path": "pullback.tp1",
+        "before": 0.000011875020224334835,
+        "after": 0.000011869761183557226
+      },
+      {
+        "path": "pullback.tp2",
+        "before": 0.000011960820224334837,
+        "after": 0.000011955561183557228
+      },
+      {
+        "path": "pullback.tp3",
+        "before": 0.000012046620224334839,
+        "after": 0.00001204136118355723
+      },
+      {
+        "path": "pullback.rr.0",
+        "before": 7.3157053047641964,
+        "after": 7.38916189551433
+      },
+      {
+        "path": "pullback.rr.1",
+        "before": 7.965705304764203,
+        "after": 8.039161895514336
+      },
+      {
+        "path": "pullback.rr.2",
+        "before": 8.61570530476421,
+        "after": 8.689161895514342
+      },
+      {
+        "path": "breakdown.entry",
+        "before": 0.00001087734712410595,
+        "after": 0.000010862391813349323
+      },
+      {
+        "path": "breakdown.stop",
+        "before": 0.00001102734712410595,
+        "after": 0.000011012391813349324
+      },
+      {
+        "path": "breakdown.tp1",
+        "before": 0.00001072734712410595,
+        "after": 0.000010712391813349323
+      },
+      {
+        "path": "breakdown.tp2",
+        "before": 0.00001059234712410595,
+        "after": 0.000010577391813349324
+      },
+      {
+        "path": "breakdown.tp3",
+        "before": 0.00001045734712410595,
+        "after": 0.000010442391813349324
+      },
+      {
+        "path": "rejection.entry",
+        "before": 0.000011859020224334835,
+        "after": 0.000011853761183557227
+      },
+      {
+        "path": "rejection.stop",
+        "before": 0.000011985020224334836,
+        "after": 0.000011979761183557227
+      },
+      {
+        "path": "rejection.tp1",
+        "before": 0.000011733020224334835,
+        "after": 0.000011727761183557227
+      },
+      {
+        "path": "rejection.tp2",
+        "before": 0.000011607020224334835,
+        "after": 0.000011601761183557226
+      },
+      {
+        "path": "rejection.tp3",
+        "before": 0.000011481020224334835,
+        "after": 0.000011475761183557226
+      }
+    ]
+  }
+]

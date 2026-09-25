@@ -1,4 +1,6 @@
-# Institutional Radar V8.9.15
+# Institutional Radar V8.9.16
+
+Version finale issue de la candidate V8.9.16-rc.1 auditée et adoptée. Seuls le versionnage et les assertions correspondantes changent lors de la finalisation. Baseline de comparaison : V8.9.15. Voir `docs/audit-v8915/Cloture_Etape1_V8.9.16-rc.1.md` pour les preuves et limites. Les notes ci-dessous décrivent d’abord la baseline historique.
 
 ## V8.9.15 — lecture, simulation et rapidité
 
@@ -39,3 +41,45 @@ Le journal conserve des scénarios `FORMING`, `ACTIVATED`, `CLOSED`, `CANCELLED`
 ## Limites à résoudre ensuite
 
 La profondeur du carnet Spot est un instantané limité à vingt niveaux et ne garantit pas le prix d'exécution. La profondeur des X-Perps n'est pas encore convertie en dollars faute de validation de la taille des contrats ; seul l'écart et l'activité sont contrôlés pour eux. Les marchés hors du périmètre Spot USDT / X-Perp ne sont pas couverts. La disponibilité de chaque X-Perp dans le compte doit être vérifiée sur OKX. Le scan complet demande plusieurs séries de bougies pour chaque marché ; il peut durer plusieurs minutes sur mobile ou être interrompu si le navigateur se met en veille ; il faut tester le parcours sur le téléphone réel et les données live OKX. Une future collecte persistante et des mesures d'exécution issues du carnet permettraient une meilleure surveillance continue.
+
+## Branche de traitement contrôlé de l’audit V8.9.15
+
+Le registre d’origine est dans `docs/audit-v8915/Audit_Institutional_Radar_V8.9.15.md` ; le périmètre A/B et le rollback dans `docs/audit-v8915/CONTROL.md`. Cette branche n’est pas une nouvelle version de production. Les arbitrages D01–D10 ont été validés et appliqués par lots. Les étapes Graphiques / Signal Audit / nouveau Learning ne sont pas engagées.
+
+Tests complets : `node engine.test.cjs`, `node hosted-feed.test.cjs`, `node --test experience.test.cjs server/*.test.mjs tests/*.test.cjs`, `node --check app.js`. Les tests Node n’utilisent pas le réseau. Le contrôle optionnel `tests/browser-audit.cjs` requiert Playwright/Chromium ; il reçoit le répertoire de baseline, le binaire Chromium et un répertoire de captures. Les endpoints OKX y sont simulés.
+
+### Contrats et limites à conserver explicitement
+
+- Le score Radar, la confiance des familles, le biais directionnel et le score adaptatif ont des rôles distincts. Les coefficients sont inchangés ; les fixtures de la baseline et leurs deltas D01/D02 revus protègent les résultats attendus. La correction de lecture ADX et l’exclusion des bougies ouvertes changent volontairement certains résultats, sans nouvelle pondération.
+- Les catégories « petites / grosses » désignent le rang de volume 24 h du marché, pas une capitalisation. `medVol` est une moyenne transversale, `marketMedianVol` une médiane transversale. Le volume `c.v` est déjà en cotation.
+- Le prix du tracé est celui de sa dernière bougie ; le ticker de la projection est une autre observation. Les instantanés n’ont pas encore une source temporelle unique.
+- Une configuration admissible dans le Radar n’est pas une entrée activée. L’état activé et l’issue du journal sont des observations théoriques, sans ordre d’exchange. La confirmation commune exige franchissement, clôture, volume >=1,15 et biais compatible ; aucun automate de retest n’est implémenté. Le high/low des bougies clôturées fait foi pour les issues du journal, le live reste provisoire.
+- Le suivi actuel s’exécute uniquement dans la projection ouverte ; TP1 ou SL termine une observation. Ni suivi complet des favoris, ni expiration automatique, ni répartition du simulateur ne sont exécutés en arrière-plan. Le simulateur reste une hypothèse indépendante.
+- Le journal enregistre la projection ouverte, pas tous les scans. Les statistiques descriptives n’entraînent pas les poids. Le laboratoire synthétique comporte 11 cas fixes ; le laboratoire historique n’est pas encore une validation statistique ou une reproduction fidèle du live.
+- La rétention, la reprise multi-clés, les conflits et l’export complet ont été traités selon D07/D08 (contrats détaillés ci-dessous). Aucune observation ouverte n’est purgée pour respecter une limite ; les imports ne sont jamais des observations locales vérifiées.
+- `REGIME_PROFILES.tf/priority/avoid` est de la métadonnée non active. `baseVol/quoteVol` est conservé pour tracer les unités. Wilson, `sdR`, `proposal.configs` et `lastScanPerformance` restent disponibles pour diagnostic ; ils n’alimentent aucune adaptation automatique.
+- `hosted-config.js` et `hosted-feed.js` sont des modules historiques testés mais non chargés par l’index. Le service `server/` reste autonome. Sa suppression ou reconnexion n’est pas impliquée par le nettoyage du frontend.
+
+Le monolithe `app.js`, les dépendances globales et la cascade CSS sont conservés pour éviter un refactor massif. Le nettoyage supprime uniquement les définitions dont toutes les références ont été vérifiées ; la preuve est enregistrée dans `orphan-reference-proof.json`. Les fusions de moteurs et de graphiques sont reportées aux étapes ultérieures selon D10.
+
+### Décision de fraîcheur (D05 validée)
+
+La configuration est centralisée dans `RadarMarket.policy` (`market-screen.js`) : âge technique maximal = `analysisIntervals` (2) × intervalle du déclencheur ; ticker <= `tickerMaxAgeMs` (120 000 ms) ; dernière clôture de chacun des six horizons âgée d'au plus `horizonIntervals` (2) × son propre intervalle. Les bornes sont inclusives ; timestamps futurs et absents sont refusés. Ces paramètres sont réévaluables à cet endroit, pas appris automatiquement. Le seuil par horizon évite de considérer un 1D périmé comme frais parce que le ticker l'est.
+
+Une analyse périmée suspend l'admission/l'activation. Le bouton d'actualisation recharge les six horizons et conserve les niveaux du verrou. Une entrée déjà observée reste une observation activée : l'issue TP1/SL peut encore être établie par les bougies clôturées disponibles. La péremption n'est ni une invalidation, ni une expiration du scénario. Le graphique et son warmup restent ceux de la baseline, en attente de l'étape 2.
+
+### Admission cohérente (D06 validée)
+
+`candidateModel` applique les profondeurs DECISION_SPECS du scan. `admitScenario` est appelé par classement, cartes et première création de verrou : six horizons, fraîcheur, contrôles d'exécution, instrument exact, sens/kind admissible et niveaux valides. Les scores directionnels sont ceux renvoyés par le moteur, bonus SHORT inclus. `chooseFreshScenario` ne remplace jamais un kind explicitement demandé ; le clic de classement conserve ID/marché/sens/kind. La page annonce le recalcul avant de proposer les niveaux. Une configuration disparue produit un refus explicite.
+
+La projection d'un verrou existant conserve son instrument, son sens et ses niveaux. L'admission d'un nouveau verrou ne contourne pas le carnet Spot ou le listing X-Perp. Les six horizons de décision sont séparés du nombre de bougies visibles ; le warmup des indicateurs de graphique reste une dette approuvée pour l'étape 2.
+
+### Sauvegardes et confiance (D07/D08 validées)
+
+La sauvegarde `IR_BACKUP_V1` contient historique des scans, verrous, favoris et leurs références, journal et archives d'import. La restauration fusionne sans écraser les versions locales : les conflits sont comptés, signalés et les versions reçues conservées dans l'archive exportable. Sur un stockage vide, les liens verrou → observation → favori sont reconnectés à des IDs d'import distincts ; les niveaux restent identiques. Les exports historiques de journal restent importables.
+
+Tout import, y compris une sauvegarde provenant de ce même navigateur, reçoit la provenance `imported`. Un champ JSON déclarant `local` n'est jamais cru. Les imports ont une synthèse descriptive séparée et ne passent pas `verifiedObservation`. Les observations créées à partir de cette version portent `local`. **La provenance des anciennes V3 sans marqueur n'est pas reconstructible : elles restent conservées mais exclues des résultats locaux vérifiés.** Aucun marqueur client ne constitue une signature d'OKX ou une preuve de trade.
+
+La rétention conserve toutes les FORMING/ACTIVATED et les 1 500 dernières terminales. Une limite de stockage provoque un message et l'échec de l'opération, pas la suppression d'une ouverte. Un journal d'annulation restaure les anciennes valeurs après une écriture multi-clés interrompue ; tant que la reprise échoue, les lectures exposent l'état antérieur et les nouvelles écritures sont bloquées. Les clés historiques restent compatibles. Ce mécanisme n'est pas une synchronisation distribuée : utiliser un seul onglet pour les modifications de favoris/suivi/import ; l'arbitrage multi-onglets reste une limite documentée du localStorage.
+
+Suivi conservé : projection ouverte seulement, TP1 terminal, pas d'expiration métier, aucun suivi automatique en arrière-plan. Une fraîcheur expirée suspend une décision sans modifier le verrou. Le laboratoire historique reste exploratoire : aucune preuve de performance, aucun entraînement ou nouveau poids de production.

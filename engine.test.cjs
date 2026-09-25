@@ -20,7 +20,7 @@ assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.re
 run("toggleFavoriteScenario('FIL-USDT','rejection')");
 assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.rejection,undefined,'the same button removes the favorite');
 const rejectionLevels={entry:100,stop:105,tp1:95,tp2:90,tp3:85,risk:5,rr:[1,2,3]};
-context.testEngine={live:102,shortSetup:true,shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
+context.testEngine={live:102,shortSetup:true,shortPattern:'rejection',directional:{shortScore:80,longScore:20},shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
 assert.equal(run('chooseFreshScenario(testEngine,"rejection")'),'rejection');
 assert.equal(run('scenarioLockFromEngine(testEngine,"rejection")?.entry'),100);
 assert.equal(run("isListedXperp('FIL-USDT-SWAP')"),false,'a public swap is not assumed available in the account');
@@ -31,6 +31,7 @@ context.testXperpInstruments.push({instId:'ZAMA-USD_UM_XPERP-310101',ruleType:'x
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers).length'),2,'public X-Perps beyond ALLO FIL SOL are scanned');
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers)[0].id'),'ALLO-USD_UM_XPERP-310101');
 run("all=[{...xperpUniverse(testXperpInstruments,testXperpTickers)[0],analysisCoverage:'complete',marketFresh:true,marketTs:Date.now(),spreadPct:.2,hasLongScenario:true,longScore:80,signalModel:{qualityScore:80,extensionRisk:10},directional:{longScore:80,shortScore:60},scenarioModel:{breakout:{entry:.31,stop:.29,tp1:.33},pullback:{entry:.29,stop:.27,tp1:.32}}}];current=all[0]");
+run("Object.assign(all[0].scenarioModel,{instrumentId:all[0].id,live:all[0].price,longSetup:true,directional:{longScore:80,shortScore:60},analysisAt:Date.now(),triggerKey:'5m',F:Object.fromEntries(DECISION_SPECS.map(([tf])=>[tf,{cs:Array(40).fill({}),c:{t:Date.now()-timeframeMs(tf)}}]))})");
 assert.equal(run('scenarioCandidates()[0].market'),'perp','ALLO X-Perp is not mislabeled as Spot');
 assert.equal(run('scenarioMarket("breakout")'),'perp','a long X-Perp retains its contract market');
 context.testMarket={marketFresh:true,marketTs:Date.now(),spreadPct:.2,volUsd:150000};
@@ -68,7 +69,7 @@ assert.equal(run('scenarioCandidates().length'),0,'unverified swaps cannot becom
 const now=Date.now(),barMs=300000;
 const bar=(t,o,h,l,c,confirm=1)=>({t,o,h,l,c,v:100,confirm});
 const lock={id:'long-1',entry:100,stop:95,tp1:105};
-const forming={schema:'IR_LEARNING_V3',id:'long-1',status:'FORMING',createdAt:now-2*barMs,entry:100,stop:95,tp1:105,direction:'long'};
+const forming={schema:'IR_LEARNING_V3',provenance:{type:'local'},id:'long-1',status:'FORMING',createdAt:now-2*barMs,entry:100,stop:95,tp1:105,direction:'long'};
 storage.set('ir_learning_journal_v866',JSON.stringify([forming,{schema:'IR_LEARNING_V2',id:'legacy',status:'CLOSED',outcome:{r:3,status:'TP3'}}]));
 const put=(k,v)=>{context[k]=v};put('testLock',lock);put('testBar',bar(now-3*barMs,100,110,99,108));
 run('journalAdvance(testLock,"long",[testBar],false,300000)');
@@ -98,10 +99,10 @@ run('journalAdvance(cancelLock,"long",cancelBars,true,300000)');
 put('gapBars',[bar(now-barMs,101,105,98,104)]);
 run('journalAdvance(gapLock,"long",gapBars,false,300000)');
 records=JSON.parse(storage.get('ir_learning_journal_v866'));
-assert.equal(records[3].status,'CANCELLED','stop touched before entry cancels observation');
+assert.equal(records[3].status,'UNVERIFIED','same-bar entry and stop cannot establish order before activation (D04)');
 assert.equal(records[4].status,'UNVERIFIED','missing candles cannot create an outcome');
 const history=[0,1,2,3,4,5].map(i=>[i*1000,0,0,0,0,0,0,0,1]);put('testHistory',history);
-assert.equal(run('btSlice(testHistory,4000,2).map(x=>x[0]).join(",")'),'3000,4000','use latest available history');
+assert.equal(run('btSlice(testHistory,4000,2,1000).map(x=>x[0]).join(",")'),'2000,3000','use latest fully closed history, not the forming bar');
 const future=(bars)=>bars.map((b,i)=>[i,0,b[0],b[1],0,0,0,0,1]);
 put('future',future([[99,97],[101,99],[104,94],[105,92]]));
 put('setup',{entry:100,stop:104,tp1:95});
@@ -120,10 +121,10 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.equal((html.match(/<script /g)||[]).length,6);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.15"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.15"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.15"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.15'/);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.16"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.16"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.16"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.16'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
@@ -148,7 +149,7 @@ const ticker=(name)=>({instId:name+'-USDT',last:'100',open24h:'98',volCcy24h:'10
 put('spotRows',[ticker('BTC'),ticker('ETH')]);
 put('marketRequests',[]);run('get=async path=>{marketRequests.push(path);return path.includes("instType=SPOT")?spotRows:[]}');
 put('mockBars',Array.from({length:120},(_,i)=>({t:i*60000,o:80+i*.1,h:81+i*.1,l:79+i*.1,c:80.5+i*.1,v:10000,confirm:1})));
-run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars}');
+run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))}');
 run('scan()').then(()=>{
   assert.equal(run('all.length'),2,'market universe remains visible');
   assert.equal(run('all.find(x=>x.sym==="ETH").analysisCoverage'),'partial');
@@ -158,7 +159,7 @@ run('scan()').then(()=>{
   assert.match(elements.get('status').textContent,/incomplètes/);
   console.log('scan check: complete, partial and fresh prices');
   put('spotRows',Array.from({length:101},(_,i)=>ticker('ASSET'+i)));
-  run('candles=async ()=>mockBars');
+  run('candles=async (id,bar)=>mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))');
   return run('scan()').then(()=>{
     assert.equal(run('all.length'),101);
     assert.equal(run('all[100].analysisCoverage'),'complete','asset after previous top-100 limit is analyzed');
