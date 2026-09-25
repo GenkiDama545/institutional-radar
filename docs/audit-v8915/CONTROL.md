@@ -108,3 +108,5 @@ Le test d'orchestration `existing Spot lock cannot activate with missing depth o
 ## Candidate distincte et autorisation de transfert
 
 Le « oui » utilisateur suivant la demande d'envoi autorise le push de la branche vers `GenkiDama545/institutional-radar`. Il n'autorise ni merge ni déploiement. Les commits existants sont préservés. V8.9.16-rc.1 identifie la candidate ; titre, APP_VERSION, URLs d'assets et cache Service Worker sont alignés et protégés par un test. Les clés de données utilisateur ne sont pas renommées. La validation finale est décrite dans le rapport de clôture.
+
+Le premier gate de la RC a signalé quatre assertions d'URL encore fixées à V8.9.15 dans `engine.test.cjs`. Seules ces attentes de version sont mises à V8.9.16-rc.1 ; aucune fixture de score/niveaux n'est régénérée. Le test indépendant des assets vérifie aussi l'alignement index/application/cache.
