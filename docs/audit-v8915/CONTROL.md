@@ -82,3 +82,7 @@ Avant : 5 des 6 nouveaux tests échouent (biais rejet, live stop, reprise FORMIN
 ### Lot D05
 
 Trois nouveaux tests échouent avant, puis passent : frontières TTL/ticker, six horizons/dates futures, invariance du verrou en suspension. Paramètres centralisés dans RadarMarket.policy. Freshness affichée et vérifiée ; activation suspendue sans réécriture des niveaux. Le test de candidat synthétique préexistant reçoit maintenant les timestamps/six horizons qu'il prétendait avoir. Le suivi d'une observation déjà activée reste possible par bougies clôturées. L'unification de tous les gates d'entrée/cartes est le lot D06 suivant.
+
+### Lot D06
+
+Avant : 4 nouveaux tests échouent (gate partagé absent, substitution de kind, profondeurs divergentes, clic sans mémorisation du sens). Après : les 5 tests, dont un vrai parcours classement → cartes → projection avec moteur réel et API simulée, passent. Tous les niveaux verrouillés correspondent au candidat, instrument/kind/sens préservés. CandidateModel impose les profondeurs du scan (120/100/140/140/180/180) ; aucun nouveau coefficient. La fiche affiche les six horizons tout en conservant séparément le warmup graphique ancien. Le second calcul directionnel qui effaçait le bonus SHORT a été retiré. Les tests synthétiques ont reçu les propriétés requises par le contrat réel (shortPattern, directional, instrumentId), sans abaisser les gates. Le test effectif de parcours utilise les vraies fonctions.

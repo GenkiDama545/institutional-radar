@@ -20,7 +20,7 @@ assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.re
 run("toggleFavoriteScenario('FIL-USDT','rejection')");
 assert.equal(JSON.parse(storage.get('ir_favorites_v1'))['FIL-USDT'].scenarios.rejection,undefined,'the same button removes the favorite');
 const rejectionLevels={entry:100,stop:105,tp1:95,tp2:90,tp3:85,risk:5,rr:[1,2,3]};
-context.testEngine={live:102,shortSetup:true,shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
+context.testEngine={live:102,shortSetup:true,shortPattern:'rejection',directional:{shortScore:80,longScore:20},shortRejection:rejectionLevels,anchorKey:'1H',triggerKey:'15m',score:70,signals:[],confluences:[]};
 assert.equal(run('chooseFreshScenario(testEngine,"rejection")'),'rejection');
 assert.equal(run('scenarioLockFromEngine(testEngine,"rejection")?.entry'),100);
 assert.equal(run("isListedXperp('FIL-USDT-SWAP')"),false,'a public swap is not assumed available in the account');
@@ -31,7 +31,7 @@ context.testXperpInstruments.push({instId:'ZAMA-USD_UM_XPERP-310101',ruleType:'x
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers).length'),2,'public X-Perps beyond ALLO FIL SOL are scanned');
 assert.equal(run('xperpUniverse(testXperpInstruments,testXperpTickers)[0].id'),'ALLO-USD_UM_XPERP-310101');
 run("all=[{...xperpUniverse(testXperpInstruments,testXperpTickers)[0],analysisCoverage:'complete',marketFresh:true,marketTs:Date.now(),spreadPct:.2,hasLongScenario:true,longScore:80,signalModel:{qualityScore:80,extensionRisk:10},directional:{longScore:80,shortScore:60},scenarioModel:{breakout:{entry:.31,stop:.29,tp1:.33},pullback:{entry:.29,stop:.27,tp1:.32}}}];current=all[0]");
-run("Object.assign(all[0].scenarioModel,{analysisAt:Date.now(),triggerKey:'5m',F:Object.fromEntries(DECISION_SPECS.map(([tf])=>[tf,{cs:Array(40).fill({}),c:{t:Date.now()-timeframeMs(tf)}}]))})");
+run("Object.assign(all[0].scenarioModel,{instrumentId:all[0].id,live:all[0].price,longSetup:true,directional:{longScore:80,shortScore:60},analysisAt:Date.now(),triggerKey:'5m',F:Object.fromEntries(DECISION_SPECS.map(([tf])=>[tf,{cs:Array(40).fill({}),c:{t:Date.now()-timeframeMs(tf)}}]))})");
 assert.equal(run('scenarioCandidates()[0].market'),'perp','ALLO X-Perp is not mislabeled as Spot');
 assert.equal(run('scenarioMarket("breakout")'),'perp','a long X-Perp retains its contract market');
 context.testMarket={marketFresh:true,marketTs:Date.now(),spreadPct:.2,volUsd:150000};
