@@ -1,5 +1,7 @@
 # Institutional Radar — Traitement contrôlé de l’étape 1
 
+> **Archive intermédiaire :** les statuts en attente ci-dessous décrivent la situation avant validation de D01–D10. L’état actuel est dans [Cloture_Etape1_V8.9.16-rc.1.md](Cloture_Etape1_V8.9.16-rc.1.md).
+
 **Rapport intermédiaire — corrections A et décisions B · 25 septembre 2026**
 
 ## 1. État de la mission

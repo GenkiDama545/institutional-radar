@@ -1,0 +1,462 @@
+[
+  {
+    "id": "U01",
+    "initial": "Identité visuelle V8.9.15 et grand titre — KEEP — Baseline demandée ; aucun remplacement global",
+    "recommendation": "KEEP",
+    "action": "Conserver titre, palette, dispositions.",
+    "files": "Aucun CSS modifié",
+    "tests": "Captures 4 largeurs",
+    "result": "Identité préservée",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U02",
+    "initial": "Univers Spot USDT + X-Perp séparé — KEEP — Bon découplage d’instruments ; pas de favoritisme de ticker",
+    "recommendation": "KEEP",
+    "action": "Conserver IDs et univers.",
+    "files": "Aucun",
+    "tests": "engine.test: contrats exacts et tous Spot",
+    "result": "Aucune préférence ticker ajoutée",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U03",
+    "initial": "Analyse identique des six horizons — KEEP — Protège la confluence et l’accès des petits marchés",
+    "recommendation": "KEEP",
+    "action": "Même contrat de six horizons sur scan, fiche, cartes et projection de décision.",
+    "files": "app.js; engine-core.js",
+    "tests": "decisions-d02; decisions-d06; engine.test",
+    "result": "Aucun horizon supprimé ; profondeurs canoniques communes.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U04",
+    "initial": "Acquisition OI/funding — DOCUMENT — Couverture réelle, unités, erreurs et durée entre scans à expliciter",
+    "recommendation": "DOCUMENT",
+    "action": "Documenter unités/couverture ; pas de nouvelle source.",
+    "files": "README.md",
+    "tests": "Lecture des appels, absence non inventée",
+    "result": "Unités et absence documentées ; fiabilité historique des dérivés réservée au Signal Audit, D10 validée.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U05",
+    "initial": "Normalisation de bougies/cache — IMPROVE — Continuité/fraîcheur/corrections historiques à contrôler ; préserver avantage des lectures récentes",
+    "recommendation": "IMPROVE",
+    "action": "Normalisation/validation temporelle, fusion REST/WS, couverture explicite et TTL.",
+    "files": "app.js; candle-store.js; engine-core.js; market-screen.js",
+    "tests": "audit-p1; decisions-d02/d05; experience",
+    "result": "Données invalides non substituées ; barre ouverte réservée au graphique.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U06",
+    "initial": "Contrôles prix/spread/carnet — KEEP — Séparation pertinente entre signal et exécution ; étendre les preuves de fraîcheur plus tard",
+    "recommendation": "KEEP",
+    "action": "Conserver les seuils et appliquer le gate commun à classement/cartes/verrous et nouvelles activations.",
+    "files": "app.js; market-screen.js",
+    "tests": "engine.test; decisions-d05/d06",
+    "result": "Aucune entrée ne contourne carnet/spread/fraîcheur ; pas de seuil favorisant un ticker.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U07",
+    "initial": "« Taille » des cryptos — DOCUMENT — C’est le percentile de volume 24h, pas la capitalisation",
+    "recommendation": "DOCUMENT",
+    "action": "Préciser percentile de volume.",
+    "files": "README.md",
+    "tests": "Code tier vérifié",
+    "result": "Pas de market cap prétendue",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U08",
+    "initial": "Calcul des indicateurs — IMPROVE — Corriger le contrat ADX et décider une convention de bougies clôturées",
+    "recommendation": "IMPROVE",
+    "action": "Réparer la lecture ADX, valider puis exclure les bougies ouvertes des indicateurs de décision.",
+    "files": "engine-core.js; candle-store.js",
+    "tests": "decisions-d01/d02; baseline + deltas revus",
+    "result": "Formules/poids conservés ; changements de scores/niveaux explicités.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U09",
+    "initial": "Familles / régime 1H et régime multi-horizon — MERGE — Harmoniser le modèle de lecture ; pas simplement supprimer un moteur sans tests",
+    "recommendation": "MERGE",
+    "action": "Conserver modèles actifs ; aucune fusion stratégique.",
+    "files": "README.md",
+    "tests": "baseline",
+    "result": "Modèles actifs conservés selon D10 ; fusion réservée au Signal Audit.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U10",
+    "initial": "Scores Radar / direction / scénario — DOCUMENT — Rôles distincts à rendre lisibles avant harmonisation ; préserver valeurs de référence",
+    "recommendation": "DOCUMENT",
+    "action": "Documenter les rôles ; protéger référence immuable + deltas autorisés D01/D02.",
+    "files": "app.js; README.md",
+    "tests": "baseline; audit-ui; decisions-d01/d02",
+    "result": "Scores distinguent qualité/biais/admission ; aucun apprentissage des poids.",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U11",
+    "initial": "Top 5 — KEEP — Résumé utile ; préciser qu’il est global malgré les filtres d’une autre section",
+    "recommendation": "KEEP",
+    "action": "Conserver Top 5 global.",
+    "files": "Aucun",
+    "tests": "Lecture renderRank + documentation initiale",
+    "result": "Le filtre de la section suivante ne pilote pas ce Top",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U12",
+    "initial": "« Explorer les scénarios » / catégories — KEEP — Filtres utiles ; labels « confirmé » à distinguer d’« activé »",
+    "recommendation": "KEEP",
+    "action": "Conserver les filtres et distinguer admission, activation et résolution.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d03-d06; audit-ui",
+    "result": "Sens/kind exact conservé ; message de blocage explicite.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U13",
+    "initial": "Surveillance multi-horizon — IMPROVE — Motifs LONG moins précis, double affichage de certaines listes SHORT",
+    "recommendation": "IMPROVE",
+    "action": "Conserver motifs/listes pour éviter de redéfinir les signaux maintenant.",
+    "files": "README.md",
+    "tests": "Lecture code + baseline",
+    "result": "Explications/listes conservées selon D10 ; enrichissement lié au futur Signal Audit.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U14",
+    "initial": "Tableau de tout le marché — KEEP — Utile pour retrouver tous les actifs, y compris sans scénario",
+    "recommendation": "KEEP",
+    "action": "Conserver accès à tous les actifs.",
+    "files": "Aucun",
+    "tests": "engine.test: tous 170 Spot",
+    "result": "Marchés sans scénario visibles",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U15",
+    "initial": "Tri « OI / Volume » — REMOVE — `oiRatio` n’est pas alimenté en production ; action actuellement sans signification",
+    "recommendation": "REMOVE",
+    "action": "Retirer option/branche de tri ratio sans donnée.",
+    "files": "index.html; app.js",
+    "tests": "audit-ui",
+    "result": "Faux tri absent",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U16",
+    "initial": "Fiche Résumé — KEEP — Information centrale ; nommer le score et l’âge de son calcul",
+    "recommendation": "KEEP",
+    "action": "Résumé conservé ; âge du calcul et validité décisionnelle explicités.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d05; audit-p2",
+    "result": "Analyse périmée suspendue même si ticker récent.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U17",
+    "initial": "Lecture trader générique — IMPROVE — Beaucoup de texte constant ; relier chaque conclusion aux données de l’actif",
+    "recommendation": "IMPROVE",
+    "action": "Conserver contenu générique en l’identifiant comme lecture, pas nouveau signal.",
+    "files": "README.md",
+    "tests": "Lecture du code initial",
+    "result": "Lecture générique conservée selon D10 ; pas une nouvelle source de signal.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U18",
+    "initial": "Radars Prix/Score — KEEP — Valeurs et accès historique utiles",
+    "recommendation": "KEEP",
+    "action": "Conserver bornes réelles Prix et score 0–100.",
+    "files": "app.js",
+    "tests": "audit-ui: scope des bornes",
+    "result": "Pas de fausse borne indicative pour Prix",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U19",
+    "initial": "Radars OI/Volume/Funding/Momentum — IMPROVE — Plusieurs bornes MIN/MAX sont fabriquées à partir du courant ; leur jauge est presque constante",
+    "recommendation": "IMPROVE",
+    "action": "Nommer échelles indicatives.",
+    "files": "app.js",
+    "tests": "audit-ui",
+    "result": "Origine des bornes visible",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U20",
+    "initial": "Page Volume approfondie — IMPROVE — Double conversion du volume de cotation par le prix",
+    "recommendation": "IMPROVE",
+    "action": "Utiliser v sans multiplier par c.",
+    "files": "app.js",
+    "tests": "audit-p2 Volume",
+    "result": "Unité exacte conservée",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U21",
+    "initial": "Confluence MTF de la fiche — MERGE — Réutiliser une lecture cohérente des six horizons ; actuellement 30m omis",
+    "recommendation": "MERGE",
+    "action": "Réutiliser les six horizons et profondeurs de décision, 30m inclus.",
+    "files": "app.js",
+    "tests": "decisions-d06; engine.test",
+    "result": "Lecture MTF de la fiche complète ; warmup graphique distinct par décision.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U22",
+    "initial": "Lecture Doji/HH-HL par horizon — DOCUMENT — Présentation simplifiée, distincte du moteur de structure et sensible à la dernière bougie",
+    "recommendation": "DOCUMENT",
+    "action": "Documenter représentation simplifiée et distinction du moteur.",
+    "files": "README.md",
+    "tests": "Lecture fonctions struct/pattern",
+    "result": "Pas de prétendue batterie de patterns complète",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U23",
+    "initial": "Graphique de fiche / Prix / approfondi — MERGE — Partager contrôles, données et politique de calcul ; garder les emplacements utiles",
+    "recommendation": "MERGE",
+    "action": "Conserver emplacements ; fusion de composants réservée graphiques.",
+    "files": "README.md",
+    "tests": "audit-p1/UI + navigateur",
+    "result": "Refresh/interaction baseline protégés ; fusion de composants et warmup explicitement reportés à l’étape 2, D06/D10.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U24",
+    "initial": "Graphique approfondi / sélection de bougie — IMPROVE — Conserver style ; correction du refresh, puis zoom/pan/indicateurs en étape 2 seulement",
+    "recommendation": "IMPROVE",
+    "action": "Corriger refresh et prix bougie ; conserver contrôles existants.",
+    "files": "app.js",
+    "tests": "audit-p1/UI + navigateur",
+    "result": "Refresh/interaction baseline protégés ; fusion de composants et warmup explicitement reportés à l’étape 2, D06/D10.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U25",
+    "initial": "Projection de scénario — IMPROVE — Source canonique, état de fraîcheur, confirmation spécifique au kind et suivi cohérent",
+    "recommendation": "IMPROVE",
+    "action": "Même calcul/admission, exactitude du choix, confirmation commune, journal canonique et suspension TTL.",
+    "files": "app.js; engine-core.js; market-screen.js",
+    "tests": "decisions-d03-d06; navigateur",
+    "result": "Verrous immuables ; suivi non fiable UNVERIFIED ; pas de retest fictif.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U26",
+    "initial": "Badges d’indicateurs — DOCUMENT — Affichages informatifs, pas des boutons d’activation/désactivation",
+    "recommendation": "DOCUMENT",
+    "action": "Documenter badges informatifs.",
+    "files": "README.md",
+    "tests": "Lecture proChart",
+    "result": "Aucun faux toggle ajouté",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U27",
+    "initial": "Simulateur sous graphique approfondi — KEEP — Répond au besoin de projection libre ; indépendant du suivi",
+    "recommendation": "KEEP",
+    "action": "Conserver simulation libre.",
+    "files": "Aucun calcul modifié",
+    "tests": "experience + navigateur",
+    "result": "Saisie préservée pendant refresh",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U28",
+    "initial": "Simulateur de scénario et indépendant — KEEP — Même calcul pur, gains par allocation ; préciser séparation des hypothèses et observations",
+    "recommendation": "KEEP",
+    "action": "Conserver calcul pur partagé et hypothèses indépendantes.",
+    "files": "README.md",
+    "tests": "experience: 47,92/50,11, FX, coûts",
+    "result": "P&L inchangé",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U29",
+    "initial": "Scénarios chiffrés — IMPROVE — Éligibilité identique partout, niveaux valides pour tous les TP, conservation du choix utilisateur",
+    "recommendation": "IMPROVE",
+    "action": "Géométrie de tous les TP, admission commune, contrat/sens/kind conservés.",
+    "files": "app.js",
+    "tests": "audit-p1; decisions-d06",
+    "result": "Aucune substitution silencieuse ; niveaux identiques sur données identiques.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U30",
+    "initial": "Favoris — IMPROVE — Références stables et export complet ; ne pas suggérer un suivi permanent",
+    "recommendation": "IMPROVE",
+    "action": "Listing exact, anciens niveaux, export complet et restauration des références.",
+    "files": "app.js; README.md",
+    "tests": "audit-p2/storage; decisions-d07/d08; navigateur",
+    "result": "Conflits locaux conservés ; pas de prétendu suivi permanent.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U31",
+    "initial": "Journal utilisateur — IMPROVE — L’écran actuel agrège surtout ; il ne liste pas chaque observation avec sa chronologie",
+    "recommendation": "IMPROVE",
+    "action": "Journal agrégé conservé ; persistance renforcée, chronologie UI complète différée.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d07/d08; baseline",
+    "result": "D07 validée : pas de collecte automatique ni de nouvelle page chronologique.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U32",
+    "initial": "Statistiques Learning — IMPROVE — Même filtre de validité partout ; quarantaine des imports/legacy",
+    "recommendation": "IMPROVE",
+    "action": "Filtre vérifié unique et provenance importée séparée ; anciennes V3 sans provenance exclues.",
+    "files": "app.js",
+    "tests": "audit-p1; decisions-d08; navigateur",
+    "result": "Import jamais transformé automatiquement en observation vérifiée.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U33",
+    "initial": "Proposition d’apprentissage — DOCUMENT — Rapport descriptif, pas entraînement ni nouveaux poids issus des observations",
+    "recommendation": "DOCUMENT",
+    "action": "Décrire rapport descriptif sans entraînement.",
+    "files": "app.js; README.md",
+    "tests": "baseline: poids inchangés",
+    "result": "Pas de sufficiency statistique promise",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U34",
+    "initial": "Tests synthétiques visibles — MERGE — Centraliser les jeux de tests et distinguer diagnostic technique de performance",
+    "recommendation": "MERGE",
+    "action": "Conserver tests synthétiques ; préciser leurs 11 cas fixes.",
+    "files": "app.js; README.md",
+    "tests": "engine.test + baseline",
+    "result": "D10 validée : 11 cas fixes restent un diagnostic, non une mesure de performance.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U35",
+    "initial": "Laboratoire historique — IMPROVE — Format, temporalité, partitions et règles de sortie avant toute confiance",
+    "recommendation": "IMPROVE",
+    "action": "Format/temporalité/rejet réparés ; couverture incomplète et portée exploratoire affichées.",
+    "files": "app.js; engine.test.cjs",
+    "tests": "audit-p1; decisions-d09-d10",
+    "result": "D09 validée : pas de validation des poids ou de preuve de profit.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U36",
+    "initial": "Contexte & acteurs — DOCUMENT — BTC/ETH simplifiés et pédagogie ; aucun suivi réel de banques/fonds/baleines",
+    "recommendation": "DOCUMENT",
+    "action": "Conserver limites institutionnelles et contexte simple.",
+    "files": "README.md",
+    "tests": "Lecture contextHtml",
+    "result": "Aucune banque/baleine réellement identifiée",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U37",
+    "initial": "Blocs pédagogiques « Apprendre » — IMPROVE — Cartes d’aspect cliquable sans action ; leur donner une fonction ou un aspect statique",
+    "recommendation": "IMPROVE",
+    "action": "Rendre les cartes statiques.",
+    "files": "app.js",
+    "tests": "audit-ui + navigateur",
+    "result": "Pas d’action inexistante suggérée",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U38",
+    "initial": "Glossaire — KEEP — Utile ; préciser CVD/liquidations comme notions non collectées ici",
+    "recommendation": "KEEP",
+    "action": "Préciser CVD/liquidations non collectés.",
+    "files": "app.js",
+    "tests": "audit-ui",
+    "result": "Glossaire conservé comme pédagogie",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U39",
+    "initial": "Comparateur — IMPROVE — Marché/contrat exact et fraîcheur absents du résultat ; doublons autorisés",
+    "recommendation": "IMPROVE",
+    "action": "Afficher produit/ID/timestamp ; dédupliquer sélection.",
+    "files": "app.js",
+    "tests": "audit-ui",
+    "result": "Contrats homonymes distingués",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U40",
+    "initial": "Navigation basse — KEEP — Accès aux sections de l’accueil ; masquée dans le graphique approfondi, confirmé en navigateur",
+    "recommendation": "KEEP",
+    "action": "Conserver navigation basse masquée en sous-page.",
+    "files": "Aucun",
+    "tests": "Navigateur audit initial/actuel",
+    "result": "Hypothèse de bug réfutée",
+    "state": "DOCUMENTÉ"
+  },
+  {
+    "id": "U41",
+    "initial": "Mode compact — REMOVE — Toggle de classe sans règle `.compact` correspondante ; faux réglage actuellement",
+    "recommendation": "REMOVE",
+    "action": "Retirer réglage sans effet.",
+    "files": "app.js",
+    "tests": "audit-ui + navigateur",
+    "result": "Aucune option fictive",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U42",
+    "initial": "Effacer l’historique des scans — IMPROVE — Effacement du disque sans vider l’objet mémoire ; historique peut revenir au scan suivant",
+    "recommendation": "IMPROVE",
+    "action": "Effacer mémoire et disque.",
+    "files": "app.js",
+    "tests": "audit-p2 + navigateur",
+    "result": "Données anciennes ne reviennent pas",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U43",
+    "initial": "Service worker / versionnage — KEEP — Utile pour PWA ; ne pas confondre shell hors ligne et données live",
+    "recommendation": "KEEP",
+    "action": "Préparer V8.9.16-rc.1 : titre, assets et cache distincts ; pas de publication.",
+    "files": "app.js; index.html; sw.js; engine.test.cjs",
+    "tests": "release-assets; engine.test",
+    "result": "Version/cache cohérents ; shell hors ligne distinct des données marché.",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U44",
+    "initial": "Fonctions mortes et variables orphelines — REMOVE — Après contrôle d’usage, voir section dette technique",
+    "recommendation": "REMOVE",
+    "action": "Supprimer seulement après recherche de références.",
+    "files": "app.js; engine-core.js; signal-engine.js",
+    "tests": "orphan-reference-proof + baseline",
+    "result": "Neuf helpers, état de survol, branche morte et calculs locaux retirés",
+    "state": "CORRIGÉ"
+  },
+  {
+    "id": "U45",
+    "initial": "Connecteur frontend de veille minute inutilisé — REMOVE — `hosted-config.js`/`hosted-feed.js` débranchés ; conserver archive si utile",
+    "recommendation": "REMOVE",
+    "action": "Conserver en archive active du dépôt : modules testés séparément.",
+    "files": "README.md; server/README.md",
+    "tests": "hosted-feed.test + index sans script",
+    "result": "D10 validée : modules/service autonomes conservés, frontend débranché ; aucun coût Railway ou état du disque prétendu vérifié.",
+    "state": "DÉCISION VALIDÉE"
+  },
+  {
+    "id": "U46",
+    "initial": "Ancien service Railway — DOCUMENT — Isolé de la baseline ; décider séparément maintien/coût/archivage",
+    "recommendation": "DOCUMENT",
+    "action": "Corriger documentation de connexion obsolète, conserver service.",
+    "files": "server/README.md",
+    "tests": "server tests ; configuration lue",
+    "result": "D10 validée : modules/service autonomes conservés, frontend débranché ; aucun coût Railway ou état du disque prétendu vérifié.",
+    "state": "DÉCISION VALIDÉE"
+  }
+]

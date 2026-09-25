@@ -1,0 +1,46 @@
+{
+  "inlineCssUnchanged": true,
+  "experienceCssUnchanged": true,
+  "screenshots": [
+    {
+      "name": "baseline-home-1440.png",
+      "sha256": "3d18087fc4635e00842926d24ce6a4f7058e38e3de8fc29f6e60408707758dd1"
+    },
+    {
+      "name": "baseline-home-360.png",
+      "sha256": "b0ed54f0154458891f8e8fd9db73157680eb19532017c88a73bb08b6c9f1e2ba"
+    },
+    {
+      "name": "baseline-home-390.png",
+      "sha256": "b3c13295619174df3edd6d760cd0ff3eba7ae7c74a42e9cbbeae2d5d2a9ac137"
+    },
+    {
+      "name": "baseline-home-768.png",
+      "sha256": "9e79e04ed0116ba2dd06ec687b934a26c57b7d11ad0a76b3ee693c597d622b4b"
+    },
+    {
+      "name": "current-graph-390.png",
+      "sha256": "474f00ab43508285f7d9fbc039774d1ad01617c8ec5777041fd056863a880a63"
+    },
+    {
+      "name": "current-home-1440.png",
+      "sha256": "0e5413cecae184d1de074ed31a4c4eec481476c209d055aad33f67f5b37d25b6"
+    },
+    {
+      "name": "current-home-360.png",
+      "sha256": "7a8e01fd3ea2e6711e3fd67d0dc7531934c48052fa8a2f485cfc3262d63e8310"
+    },
+    {
+      "name": "current-home-390.png",
+      "sha256": "2775d9cdf389a1659c0f20f5cd7bbe3170e197c8a482eb744a35e134c2c855c9"
+    },
+    {
+      "name": "current-home-768.png",
+      "sha256": "1ab906042ce8a0cb41bb63ae67583249e79a28a226a1fb0042325206a0e0e734"
+    },
+    {
+      "name": "current-scenario-390.png",
+      "sha256": "14ca5756ef45a542c286a3f10898df0580227a30a79c820aa4b48ccc2cda78ca"
+    }
+  ]
+}

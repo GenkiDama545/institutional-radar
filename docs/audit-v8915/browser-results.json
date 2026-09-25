@@ -45,6 +45,12 @@
     },
     {
       "test": "settings and history removal"
+    },
+    {
+      "test": "exact X-Perp LONG lock, stale suspension, six-horizon refresh preserves levels and favorite"
+    },
+    {
+      "test": "real backup download and file import; conflict leaves local lock intact; imports not verified"
     }
   ],
   "errors": []

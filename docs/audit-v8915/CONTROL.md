@@ -110,3 +110,9 @@ Le test d'orchestration `existing Spot lock cannot activate with missing depth o
 Le « oui » utilisateur suivant la demande d'envoi autorise le push de la branche vers `GenkiDama545/institutional-radar`. Il n'autorise ni merge ni déploiement. Les commits existants sont préservés. V8.9.16-rc.1 identifie la candidate ; titre, APP_VERSION, URLs d'assets et cache Service Worker sont alignés et protégés par un test. Les clés de données utilisateur ne sont pas renommées. La validation finale est décrite dans le rapport de clôture.
 
 Le premier gate de la RC a signalé quatre assertions d'URL encore fixées à V8.9.15 dans `engine.test.cjs`. Seules ces attentes de version sont mises à V8.9.16-rc.1 ; aucune fixture de score/niveaux n'est régénérée. Le test indépendant des assets vérifie aussi l'alignement index/application/cache.
+
+## Audit final de clôture
+
+Les 77 tests Node passent, ainsi que les suites engine/hosted, la syntaxe et les parcours Chromium (graphique, simulation, scénario exact, suspension/refresh sans déplacement du verrou, favori, téléchargement et import réel). CSS intégré et experience.css identiques à V8.9.15. Tous les F01–F32, U01–U46 et T01–T22 sont réconciliés dans le rapport final et les registres JSON : 27 F corrigés, 5 conservations/reports explicitement validés. Les limites résiduelles ne sont pas présentées comme des fonctions réalisées.
+
+Le push Git HTTPS a échoué par absence d'identifiants. Le connecteur GitHub a transféré chaque lot sur des arbres Git strictement identiques, sans réécriture des commits locaux ni modification de main. Les SHA de transport et d'origine sont associés dans remote-commit-map.json. Gate distant Node 22 réussi : https://github.com/GenkiDama545/institutional-radar/actions/runs/36151048009, commit ce95002c41e9cacaae48c15a0df6568eacbc1e21, correspondant au code local c1aa2e7. Aucune fusion ni aucun déploiement. Les derniers changements sont uniquement documentaires.

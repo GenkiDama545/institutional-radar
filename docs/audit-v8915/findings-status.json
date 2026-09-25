@@ -21,7 +21,7 @@
     "tests": "audit-p1: clôture 1D et frontières",
     "result": "Lecture du futur exclue ; protocole exploratoire toujours limité.",
     "state": "CORRIGÉ",
-    "decision": "D09 pour le protocole global"
+    "decision": "D09 option 1 validée pour le protocole exploratoire"
   },
   {
     "id": "F03",
@@ -40,12 +40,12 @@
     "priority": "P1 · R",
     "initial": "En FORMING, seule la dernière bougie est examinée : une invalidation sur une bougie antérieure peut être oubliée après interruption, puis le scénario activé.",
     "category": "B",
-    "action": "Aucun changement de cycle FORMING.",
-    "files": "Aucun",
-    "tests": "Caractérisation existante ; futur replay FORMING",
-    "result": "Le problème demeure ; choix reconstruction/UNVERIFIED nécessaire.",
-    "state": "DOCUMENTÉ",
-    "decision": "D04 — non clôturé"
+    "action": "Rejouer les barres FORMING postérieures à la création ; historique ambigu/incomplet → UNVERIFIED.",
+    "files": "app.js",
+    "tests": "decisions-d03-d04: reprise, mèches, trous, ambiguïté",
+    "result": "Aucune activation reconstruite sans contexte fiable.",
+    "state": "CORRIGÉ",
+    "decision": "D04 option 1 validée"
   },
   {
     "id": "F05",
@@ -76,60 +76,60 @@
     "priority": "P1 · R",
     "initial": "ADX est stocké dans `feature.t.adx`, mais des branches du moteur lisent `trigger.adx`/`f.adx`. ADX réel 100, valeur lue `undefined` : bonus, choix du déclencheur et signal ADX non appliqués.",
     "category": "B",
-    "action": "Contrat ADX conservé jusqu’à arbitrage.",
-    "files": "Aucun",
-    "tests": "baseline: scores/niveaux ; sonde audit ADX",
-    "result": "Chemin erroné identifié ; correction changerait les scores.",
-    "state": "DOCUMENTÉ",
-    "decision": "D01 — non clôturé"
+    "action": "Consommer feature.t.adx aux quatre usages ; coefficients inchangés.",
+    "files": "engine-core.js; tests/fixtures/d02-reviewed-deltas.json; D01_D02_Comparaison.md",
+    "tests": "decisions-d01; baseline: 6 cas + départage du déclencheur",
+    "result": "Scores 89→100 et 69→81 expliqués ; départage 5m→15m couvert ; snapshots originaux intacts.",
+    "state": "CORRIGÉ",
+    "decision": "D01 option 1 validée"
   },
   {
     "id": "F08",
     "priority": "P1 · R/C",
     "initial": "Mélange clôturé/en formation : prix clôturé inchangé, RSI et volume modifiés par la bougie ouverte. Sonde RSI 100 → 1,097 sans nouvelle clôture.",
     "category": "B",
-    "action": "Mélange bougie clôturée/en formation caractérisé.",
-    "files": "Aucun",
-    "tests": "baseline: RSI change sans nouvelle clôture",
-    "result": "Politique de données non choisie arbitrairement.",
-    "state": "DOCUMENTÉ",
-    "decision": "D02 — non clôturé"
+    "action": "Valider OHLCV, ordre, continuité et temporalité ; exclure la bougie ouverte avant les décisions.",
+    "files": "candle-store.js; engine-core.js; tests/fixtures/d02-reviewed-deltas.json",
+    "tests": "decisions-d02; baseline; experience",
+    "result": "Indicateurs/niveaux invariants aux mutations de la barre ouverte ; deltas de fenêtres revus individuellement.",
+    "state": "CORRIGÉ",
+    "decision": "D02 option 1 validée"
   },
   {
     "id": "F09",
     "priority": "P1 · C",
     "initial": "La projection exige `e.biasBear` pour tous les SHORT, alors que le moteur autorise des rejets/reversals sans ancrage baissier. Scénario admis mais activation pouvant rester bloquée.",
     "category": "B",
-    "action": "Conserver le gate biasBear actuel en attendant décision.",
-    "files": "Aucun",
-    "tests": "Tests futurs admission/activation par kind",
-    "result": "Rejet SHORT encore susceptible de rester bloqué.",
-    "state": "DOCUMENTÉ",
-    "decision": "D03 — non clôturé"
+    "action": "Aligner le biais compatible sur le motif SHORT admis, notamment rejection/reversal.",
+    "files": "app.js",
+    "tests": "decisions-d03-d04: rejet sans biasBear",
+    "result": "Pas de veto global baissier contradictoire sur un rejet admis.",
+    "state": "CORRIGÉ",
+    "decision": "D03 option 1 validée"
   },
   {
     "id": "F10",
     "priority": "P1 · C",
     "initial": "Texte cassure + retest / défense du support, mais activation générique clôture + volume + biais : aucun automate de retest/défense propre au kind.",
     "category": "B",
-    "action": "Conserver les règles de confirmation ; arbitrage texte vs automate.",
-    "files": "Aucun",
-    "tests": "Tests futurs breakout/pullback/rejection",
-    "result": "Aucun retest fictif ajouté.",
-    "state": "DOCUMENTÉ",
-    "decision": "D03 — non clôturé"
+    "action": "Conserver confirmation commune ; retirer la promesse de retest/défense automatiquement reconnus.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d03-d04; decisions-d06",
+    "result": "Clôture + volume 1,15× + biais compatible ; automates par kind explicitement reportés au Signal Audit.",
+    "state": "DÉCISION VALIDÉE",
+    "decision": "D03 option 1, option 2 interdite à cette étape"
   },
   {
     "id": "F11",
     "priority": "P1 · C",
     "initial": "Invalidation annoncée « clôture confirmée » dans la carte, live immédiat dans le moniteur, high/low de bougie clôturée dans le journal. Trois sémantiques.",
     "category": "B",
-    "action": "Décrire séparément live, wick clôturée, clôture de prix.",
-    "files": "README.md",
-    "tests": "Tests actuels SL prioritaire ; futurs trois conventions",
-    "result": "Sémantiques non unifiées.",
-    "state": "DOCUMENTÉ",
-    "decision": "D04 — non clôturé"
+    "action": "Journal high/low clôturé canonique ; franchissement live provisoire ; ambiguïté de reprise non vérifiée.",
+    "files": "app.js; README.md",
+    "tests": "decisions-d03-d04; audit-p1",
+    "result": "Le moniteur ne transforme plus une simple mèche live en issue définitive.",
+    "state": "CORRIGÉ",
+    "decision": "D04 option 1 validée"
   },
   {
     "id": "F12",
@@ -148,60 +148,60 @@
     "priority": "P1 · C/V",
     "initial": "La fraîcheur technique n’expire pas globalement. Prix/carnets peuvent être rafraîchis longtemps sur un setup non recalculé ; profondeur/niveaux ne partagent pas un timestamp de décision.",
     "category": "B",
-    "action": "Documenter âge technique distinct de ticker/carnet.",
-    "files": "README.md",
-    "tests": "Tests futurs TTL par horizon",
-    "result": "Aucune durée de validité inventée.",
-    "state": "DOCUMENTÉ",
-    "decision": "D05 — non clôturé"
+    "action": "Politique centralisée : 2 intervalles déclencheur, ticker ≤120 s, fraîcheur de chaque horizon ; suspension.",
+    "files": "market-screen.js; app.js; README.md",
+    "tests": "decisions-d05; decisions-d06; navigateur",
+    "result": "Les six horizons sont rechargés à la demande sans déplacer le verrou ; sorties déjà activées suivies.",
+    "state": "CORRIGÉ",
+    "decision": "D05 option 2 validée"
   },
   {
     "id": "F14",
     "priority": "P2 · C",
     "initial": "La page scénario écrase `e.directional` par un nouvel appel sans boost SHORT, sans recalculer les booléens de setup associés. Les scores affichés peuvent contredire l’admission.",
     "category": "B",
-    "action": "Écrasement directionnel conservé et identifié.",
-    "files": "Aucun",
-    "tests": "baseline: moteur ; futur scénario UI",
-    "result": "Sa suppression peut changer le scénario principal choisi.",
-    "state": "DOCUMENTÉ",
-    "decision": "D06 — non clôturé"
+    "action": "Supprimer le second calcul directionnel ; garder le résultat du moteur commun.",
+    "files": "app.js",
+    "tests": "decisions-d06: moteur scan/cartes/projection",
+    "result": "Bonus SHORT, scores et booléens associés appartiennent au même calcul.",
+    "state": "CORRIGÉ",
+    "decision": "D06 option 2 validée"
   },
   {
     "id": "F15",
     "priority": "P2 · C",
     "initial": "Les cartes de scénarios ne sont pas toutes conditionnées par `execution.ok` ; la page peut annoncer aucune proposition principale et afficher des niveaux/projections malgré échec du carnet.",
     "category": "B",
-    "action": "Gate de cartes/projection non modifié.",
-    "files": "Aucun",
-    "tests": "Tests futurs carnet insuffisant sur toutes les entrées",
-    "result": "Politique uniforme d’admission à valider.",
-    "state": "DOCUMENTÉ",
-    "decision": "D06 — non clôturé"
+    "action": "Admission commune ; contrôles d’exécution sur toutes les créations et nouvelles activations de verrous existants.",
+    "files": "app.js",
+    "tests": "decisions-d06: carnet absent/spread excessif ; parcours réel",
+    "result": "Cartes et projection ne contournent plus le carnet Spot ni les exigences d’exécution.",
+    "state": "CORRIGÉ",
+    "decision": "D06 option 2 validée"
   },
   {
     "id": "F16",
     "priority": "P2 · C",
     "initial": "Scan exige six horizons complets ; page/projection peuvent continuer à partir de deux horizons. Les profondeurs et dates de recalcul changent aussi.",
     "category": "B",
-    "action": "Couvertures/depths distinctes conservées.",
-    "files": "README.md",
-    "tests": "engine.test: univers et six horizons ; futurs pages",
-    "result": "Aucun affaiblissement du scan ; divergences de pages restent.",
-    "state": "DOCUMENTÉ",
-    "decision": "D06 — non clôturé"
+    "action": "candidateModel et DECISION_SPECS imposent les mêmes six horizons/profondeurs de décision.",
+    "files": "app.js; engine-core.js",
+    "tests": "decisions-d06; engine.test; baseline",
+    "result": "Décision incomplète refusée ; warmup du graphique conservé séparément.",
+    "state": "CORRIGÉ",
+    "decision": "D06 option 2 validée"
   },
   {
     "id": "F17",
     "priority": "P2 · C",
     "initial": "La direction passée par une carte à `openDetail` n’est pas utilisée ; l’ouverture peut proposer un autre sens/kind.",
     "category": "B",
-    "action": "Conserver le choix actuel du moteur ; proposer verrouillage du sens/kind.",
-    "files": "Aucun",
-    "tests": "Tests futurs clic → même contrat/sens/kind",
-    "result": "Pas de nouvelle sélection automatique.",
-    "state": "DOCUMENTÉ",
-    "decision": "D06 — non clôturé"
+    "action": "Conserver instrument, contrat, sens et kind du clic ; refuser toute substitution silencieuse.",
+    "files": "app.js",
+    "tests": "decisions-d06: clic réel → cartes → verrou ; navigateur",
+    "result": "Même produit et mêmes niveaux sur données identiques ; changement de configuration signalé.",
+    "state": "CORRIGÉ",
+    "decision": "D06 option 2 validée"
   },
   {
     "id": "F18",
@@ -223,9 +223,9 @@
     "action": "Retirer le tri sans données ; conserver famille neutre/poids.",
     "files": "app.js; index.html; README.md",
     "tests": "audit-ui: absence faux tri ; baseline scores",
-    "result": "Aucune formule OI/Volume inventée.",
-    "state": "DOCUMENTÉ",
-    "decision": "D10 : conservation explicite de la famille avant Signal Audit"
+    "result": "Faux tri retiré ; positioning reste neutre, définition OI/Volume reportée au Signal Audit.",
+    "state": "DÉCISION VALIDÉE",
+    "decision": "D10 option 1, conservation explicite sans nouvelle pondération"
   },
   {
     "id": "F20",
@@ -244,12 +244,12 @@
     "priority": "P2 · C",
     "initial": "Fenêtre d’indicateurs varie : fiche 180 puis 120 barres, projection calcule sur le nombre visible. Zoom/changement de page peut modifier EMA/RSI au même point.",
     "category": "B",
-    "action": "Conserver warmup/zoom actuel ; définir politique avant harmonisation.",
-    "files": "README.md",
-    "tests": "baseline ; experience cache ; futurs indicateurs/viewport",
-    "result": "Pas de refonte graphique anticipée.",
-    "state": "DOCUMENTÉ",
-    "decision": "D06/D10 — non clôturé"
+    "action": "Conserver le warmup et les emplacements de graphiques ; isoler les profondeurs de décision.",
+    "files": "README.md; app.js",
+    "tests": "decisions-d06; experience; navigateur",
+    "result": "L’indicateur graphique peut encore varier selon sa fenêtre ; harmonisation réservée à l’étape 2.",
+    "state": "DÉCISION VALIDÉE",
+    "decision": "D06 option 2 et D10 option 1 : report explicite"
   },
   {
     "id": "F22",
@@ -271,21 +271,21 @@
     "action": "Limites TP1 terminal/suivi visible/absence expiration explicites.",
     "files": "app.js; README.md",
     "tests": "baseline: TP1 terminal/sans expiration ; audit-ui",
-    "result": "Aucun nouveau suivi automatique ajouté.",
-    "state": "DOCUMENTÉ",
-    "decision": "D07 — conservation étape 1 à valider"
+    "result": "Suivi ouvert seulement, TP1 terminal, absence d’expiration métier conservés ; pas de futur Learning anticipé.",
+    "state": "DÉCISION VALIDÉE",
+    "decision": "D07 option 1 validée"
   },
   {
     "id": "F24",
     "priority": "P2 · C",
     "initial": "Import peu validé, clés locales non toutes typées, sauvegardes non transactionnelles. Quota/migration peuvent interrompre l’UI ou laisser verrou sans journal. Export incomplet pour reprise.",
     "category": "A+B",
-    "action": "Typage défensif, import mal formé refusé, quotas signalés, favori ancien corrigé.",
-    "files": "app.js",
-    "tests": "audit-storage (4) ; audit-p2 favori ancien",
-    "result": "Portion A corrigée ; multi-clés, rétention, provenance/conflits et export complet ouverts.",
-    "state": "DOCUMENTÉ",
-    "decision": "D07/D08 — partiellement corrigé, non clôturé"
+    "action": "Sauvegarde IR_BACKUP_V1 complète ; reprise multi-clés ; toutes les ouvertes conservées ; conflits archivés, provenance importée imposée.",
+    "files": "app.js; README.md",
+    "tests": "audit-storage; decisions-d07 (6); decisions-d08 (5); navigateur export/import",
+    "result": "Restauration reconnectée et non destructive ; quota n’affiche pas une sauvegarde réussie ; imports exclus des vérifiées.",
+    "state": "CORRIGÉ",
+    "decision": "D07/D08 validées ; limite localStorage mono-onglet documentée"
   },
   {
     "id": "F25",
@@ -297,7 +297,7 @@
     "tests": "audit-p2 ticker offline ; audit-ui légende",
     "result": "Échec API n’est plus présenté comme un ticker LIVE.",
     "state": "CORRIGÉ",
-    "decision": "D05 réserve le gate d’activation sur fraîcheur"
+    "decision": "D05 validée : gate de fraîcheur actif ; prix bougie/ticker séparés"
   },
   {
     "id": "F26",
@@ -321,19 +321,19 @@
     "tests": "audit-ui libellés ; baseline",
     "result": "Pondérations inchangées.",
     "state": "CORRIGÉ",
-    "decision": "Déduplication réelle réservée Signal Audit D10"
+    "decision": "Déduplication stratégique reportée au Signal Audit selon D10 validée"
   },
   {
     "id": "F28",
     "priority": "P3 · C",
     "initial": "« Confirmé », « valide », « prêt », « activé » sont employés pour des étapes différentes. Biais baissier peut être étiqueté DÉFAVORABLE même pour un SHORT.",
     "category": "A+B",
-    "action": "Familles directionnelles HAUSSIER/BAISSIER ; lexique des scores/états.",
+    "action": "Distinguer biais directionnel, admission, seuil franchi, confirmation, entrée observée et issue du journal.",
     "files": "app.js; README.md",
-    "tests": "audit-ui: SHORT ; baseline",
-    "result": "Confusion négatif=défavorable corrigée pour familles ; états moteur réservés.",
-    "state": "DOCUMENTÉ",
-    "decision": "D03/D04/D06 pour l’unification restante"
+    "tests": "audit-ui; decisions-d03-d04; decisions-d05; decisions-d06",
+    "result": "Messages communs de confirmation et suspension ; l’observation reste distincte d’un ordre exécuté.",
+    "state": "CORRIGÉ",
+    "decision": "D03/D04/D06 validées ; pas de nouveau score"
   },
   {
     "id": "F29",
@@ -366,10 +366,10 @@
     "category": "A+B",
     "action": "Passer par scenarioLevelsFromEngine pour rejection ; décrire limites du replay.",
     "files": "app.js",
-    "tests": "audit-p1: vrai chemin UI rejet",
-    "result": "Rejet évalué ; toucher d’entrée reste différent de confirmation live.",
-    "state": "DOCUMENTÉ",
-    "decision": "D09 — non clôturé"
+    "tests": "audit-p1; decisions-d09-d10",
+    "result": "Accès au rejet réparé ; replay par toucher explicitement exploratoire, couverture incomplète signalée.",
+    "state": "DÉCISION VALIDÉE",
+    "decision": "D09 option 1 : aucune preuve de performance ni de nouveaux poids"
   },
   {
     "id": "F32",
