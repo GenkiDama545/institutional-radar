@@ -98,7 +98,7 @@ run('journalAdvance(cancelLock,"long",cancelBars,true,300000)');
 put('gapBars',[bar(now-barMs,101,105,98,104)]);
 run('journalAdvance(gapLock,"long",gapBars,false,300000)');
 records=JSON.parse(storage.get('ir_learning_journal_v866'));
-assert.equal(records[3].status,'CANCELLED','stop touched before entry cancels observation');
+assert.equal(records[3].status,'UNVERIFIED','same-bar entry and stop cannot establish order before activation (D04)');
 assert.equal(records[4].status,'UNVERIFIED','missing candles cannot create an outcome');
 const history=[0,1,2,3,4,5].map(i=>[i*1000,0,0,0,0,0,0,0,1]);put('testHistory',history);
 assert.equal(run('btSlice(testHistory,4000,2,1000).map(x=>x[0]).join(",")'),'2000,3000','use latest fully closed history, not the forming bar');

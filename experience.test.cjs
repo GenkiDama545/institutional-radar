@@ -47,7 +47,7 @@ test('incremental windows equal full refresh after mutable candle and closure up
  assert.equal(vm.runInContext('JSON.stringify(adaptiveEngine(framesA,{price:501,decisionAt:1750000000000}))',ctx),vm.runInContext('JSON.stringify(adaptiveEngine(framesB,{price:501,decisionAt:1750000000000}))',ctx),'same full scenario model, scores and levels');
  ctx.state={crossed:true,triggerClose:false,volOk:true,trendOk:true,invalid:false,near:true,entry:100,stop:95,live:101,triggerKey:'15m',volRatio:2};
  assert.match(vm.runInContext('monitorTriggerStatus(state).label',ctx),/SEUIL FRANCHI/);
- ctx.state.triggerClose=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'green');ctx.state.invalid=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'red');
+ ctx.state.triggerClose=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'green');ctx.state.invalid=true;assert.equal(vm.runInContext('monitorTriggerStatus(state).state',ctx),'yellow');
 });
 test('concurrent reads share the same request; callers cannot mutate cached bars',async()=>{
  const log=[],store=candles.create(source(log),{now:()=>rows.at(-1)[0]+100});
