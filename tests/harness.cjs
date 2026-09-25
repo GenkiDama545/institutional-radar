@@ -4,7 +4,7 @@ function env(initial={}){
  const store=new Map(Object.entries(initial)),nodes={},timers=new Map();let next=0;
  const node=id=>nodes[id]??=( {innerHTML:'',textContent:'',value:'',disabled:false,dataset:{},classList:{s:new Set(),add(x){this.s.add(x)},remove(x){this.s.delete(x)},contains(x){return this.s.has(x)},toggle(x){this.s.has(x)?this.s.delete(x):this.s.add(x)}},insertAdjacentHTML(where,html){this.innerHTML=html+this.innerHTML},setAttribute(){},querySelectorAll(){return []}});
  const ctx=vm.createContext({console,localStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)},setTimeout,clearTimeout,setInterval:f=>{timers.set(++next,f);return next},clearInterval:id=>timers.delete(id),crypto:{randomUUID:()=> 'fixture-lock'},alert:()=>{},document:{getElementById:node,querySelectorAll:()=>[],querySelector:()=>null,activeElement:null,visibilityState:'visible'}});
- for(const f of ['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f});
+ for(const f of ['chart-core.js','signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f});
  const app=fs.readFileSync(path.join(root,'app.js'),'utf8');vm.runInContext(app.slice(0,app.indexOf("document.querySelectorAll('#marketMode")),ctx,{filename:'app.js'});
  return {ctx,run:s=>vm.runInContext(s,ctx),store,nodes,node,timers};
 }

@@ -26,3 +26,13 @@ Le renderer SVG demeure le choix de repli autorisé.
 
 Chaque lot est un commit autonome. Revenir au commit du lot précédent ou inverser le lot ;
 ne jamais réécrire la branche de production. La baseline ci-dessus reste le point de retour complet.
+
+## L1 — Contrats et séparation
+
+- `chart-core.js` fournit des modèles copiés/immuables et un état visuel sans réseau ni stockage.
+- Les contrôles de projection relisent un snapshot ; ils n'appellent plus le moniteur, l'admission ou le journal.
+- Le rafraîchissement métier reste à 15m + horizon déclencheur verrouillé (comportement par défaut V8.9.16).
+  Le timeframe consulté ne choisit plus les données rafraîchies du moteur. Ce découplage est celui autorisé ;
+  les règles de confirmation et de résolution ne changent pas. Une série 1m consultée reste hors `scenarioMonitorFrames`.
+- Validation : 50 tests ciblés passent, dont toutes les décisions D01–D10 et les verrous/suivi existants.
+- Rendu SVG historique maintenu à ce stade. Aucune formule ni pondération modifiée.
