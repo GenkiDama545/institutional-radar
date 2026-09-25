@@ -7,10 +7,10 @@ test('L1: immutable chart model isolates input objects and rejects ghost levels'
  assert.equal(m.instrument,source.instrument);
 });
 test('L1/G02: timeframe, zoom and reset do not invoke the business cycle or alter storage',async()=>{
- const e=env();e.ctx.bars=frames(.1)['1H'];e.ctx.business=()=>{throw Error('Graph invoked business cycle')};
+ const e=env();e.ctx.bars=frames(.1)['1H'];e.ctx.candles=async()=>e.ctx.bars;e.ctx.business=()=>{throw Error('Graph invoked business cycle')};
  e.run("current={id:'T-USDT'};renderScenarioMonitor=business;candidateModel=business;journalAdvance=business;scenarioChartSnapshot=RadarChartCore.immutable({instrument:'T-USDT',kind:'breakout',frames:{'1H':bars,'15m':bars},lock:{entry:100},live:101,state:'yellow',overlays:[]});");
  const before=plain([...e.store]);await e.run("setScenarioMonitorBar('breakout','1H')");e.run("zoomScenarioMonitor('breakout',30);resetScenarioChartView()");
- assert.deepEqual(plain([...e.store]),before);assert.match(e.node('scenarioChartContent').innerHTML,/bougies affichées/);
+ assert.deepEqual(plain([...e.store]),before);assert.match(e.node('scenarioChartContent').textContent,/bougies visibles/);
 });
 test('L1: consultation-only 1m load cannot enter decision frames',async()=>{
  const e=env();e.ctx.bars=frames(.1)['1H'];e.ctx.candles=async()=>e.ctx.bars;

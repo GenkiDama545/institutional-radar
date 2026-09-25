@@ -68,3 +68,20 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - 7 tests de géométrie/DOM passent. Ils simulent les événements et ne prouvent pas les gestes natifs physiques.
 - Dépendance de test uniquement : jsdom 26.1.0, lockfile ; `npm ci --ignore-scripts` ajouté au gate CI.
 - Intégration aux quatre usages réservée au lot suivant ; aucun remplacement global prématuré.
+
+## L5 — Migration des quatre usages
+
+- Fiche, Prix (route commune avec approfondi), approfondi et projection utilisent `chart-host.js` + SVG commun.
+- Consultation : minimum 300 bougies, réserve 100, charge max 3 000, session bornée 6 000 ; paramètres centralisés,
+  uniquement pour les graphiques. Les six `DECISION_SPECS` sont inchangés. Les anciens indicateurs de fiche
+  hors graphique gardent leur fenêtre de 180 pour ne pas changer leur signification indirectement.
+- 30m disponible dans la toolbar. Le polling REST reste actif et son texte l'indique correctement.
+- Validation OHLC commune pour l'affichage WS ; réponse REST et message concurrent ordonnés comme F06.
+- Projection : référence moteur par défaut quand vérifiable, overlays du verrou exacts, structure actuelle nommée
+  et datée, événements observés seulement. La consultation recharge ses propres séries sans modifier les frames métier.
+- Les nœuds du graphique et du simulateur sont conservés au refresh du moniteur ; saisie conservée même hors focus.
+- Tests F06 adaptés aux nouveaux libellés et au ViewModel réel ; fixture corrigée pour que High ≥ close (avant : OHLC
+  impossible, accepté par le vieux rendu). Sens du test REST/WS inchangé. Aucun snapshot métier régénéré.
+- Harnais Node enrichi de nœuds DOM réels ; tests des champs et contrôles réels, distincts d'une recette navigateur.
+- Validation : 99 tests de la suite Node passent, dont 3 nouvelles intégrations. Mathématiques/engine-core,
+  signal-engine, market-screen, candle-store et trade-sim non modifiés.

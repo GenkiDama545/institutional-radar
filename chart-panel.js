@@ -5,7 +5,8 @@
  const palette={up:'#45dc7a',down:'#ff6974',ema20:'#ffd166',ema50:'#bd91ff',supertrend:'#65b8ff',rsi:'#65b8ff',stochK:'#bd91ff',stochD:'#65b8ff'};
  const names={ema20:'EMA 20',ema50:'EMA 50',supertrend:'Supertrend 10/3',rsi:'RSI 14',stoch:'StochRSI 14 · K3/D3',tp2:'TP2',tp3:'TP3',structure:'Structure du moteur',closedPrice:'Ligne clôture confirmée',formingPrice:'Ligne bougie en formation'};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const number=v=>!Number.isFinite(v)?'N/D':v!==0&&Math.abs(v)<1e-6?v.toExponential(6):v.toLocaleString('fr-FR',{maximumFractionDigits:Math.abs(v)<1?10:8});
+ const number=v=>!Number.isFinite(v)?'N/D':v.toLocaleString('fr-FR',{maximumSignificantDigits:17});
+ const axisNumber=(v,step)=>Math.abs(v)>0&&Math.abs(v)<1e-6?v.toExponential(3):v.toLocaleString('fr-FR',{maximumFractionDigits:Math.max(0,Math.min(8,1-Math.floor(Math.log10(Math.max(step,1e-12)))))});
  const short=v=>!Number.isFinite(v)?'N/D':Math.abs(v)>=1e6?number(v/1e6)+' M':Math.abs(v)>=1e3?number(Math.round(v)/1000)+' k':number(v);
  const stamp=t=>Number.isFinite(t)?new Date(t).toLocaleString('fr-FR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):'N/D';
  const timezone=()=>Intl.DateTimeFormat().resolvedOptions().timeZone||'locale';
@@ -33,7 +34,7 @@
   const g=geometry(vm,s,Math.max(180,width)),cs=C.visible(vm,s),iv=C.intervals[vm.timeframe],svg=[],q=esc(vm.quote),levels=C.activeOverlays(vm,s),maxVol=Math.max(1,...cs.map(c=>c.v));
   const body=Math.min(C.density.maxBody,Math.max(1.5,g.step*C.density.bodyFraction));
   svg.push(`<defs><clipPath id="price-clip"><rect x="8" y="${g.top}" width="${g.plotW}" height="${g.priceH}"/></clipPath></defs><rect width="100%" height="100%" fill="#0b0d11" rx="12"/>`);
-  for(let i=0;i<=5;i++){const v=g.range.max-(g.range.max-g.range.min)*i/5,y=g.y(v);svg.push(`<line x1="8" x2="${8+g.plotW}" y1="${y}" y2="${y}" stroke="#20252c"/><text x="${14+g.plotW}" y="${y+4}" fill="#c4cad3">${esc(short(v))}</text>`);}
+  for(let i=0;i<=5;i++){const v=g.range.max-(g.range.max-g.range.min)*i/5,y=g.y(v);svg.push(`<line x1="8" x2="${8+g.plotW}" y1="${y}" y2="${y}" stroke="#20252c"/><text x="${14+g.plotW}" y="${y+4}" fill="#c4cad3">${esc(axisNumber(v,(g.range.max-g.range.min)/5))}</text>`);}
   const ticks=Math.max(2,Math.floor(g.plotW/110));for(let i=0;i<=ticks;i++){const t=s.from+(s.to-s.from)*i/ticks,x=g.x(t),d=new Date(t),label=(s.to-s.from)>86400000?d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});svg.push(`<line x1="${x}" x2="${x}" y1="${g.top}" y2="${g.end}" stroke="#171c22"/><text x="${x}" y="${g.height-12}" text-anchor="${i===0?'start':i===ticks?'end':'middle'}" fill="#b6c4cd">${label}</text>`);}
   svg.push(`<text x="8" y="16" fill="#b6c4cd">Prix · ${q}</text><g clip-path="url(#price-clip)">`);
   for(const c of cs){const x=g.x(c.t),color=c.c>=c.o?palette.up:palette.down;svg.push(`<g class="ir-candle" data-ts="${c.t}"><line x1="${x}" x2="${x}" y1="${g.y(c.h)}" y2="${g.y(c.l)}" stroke="${color}" stroke-width="1.4"/><rect x="${x-body/2}" y="${g.y(Math.max(c.o,c.c))}" width="${body}" height="${Math.max(1.5,Math.abs(g.y(c.o)-g.y(c.c)))}" fill="${color}"/></g>`);}
