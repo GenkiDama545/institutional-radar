@@ -139,6 +139,8 @@ function adaptiveEngine(frames,currentData){
  const shortPattern = shortRejectionPattern?'rejection':shortBreakdownPattern?'breakdown':shortReversalPattern?'reversal':shortExtensionReversal?'reversal':null;
  const shortBoost = shortPattern ? (shortPattern==='reversal'?12:shortPattern==='rejection'?10:8) : 0;
  directional.shortScore=Math.max(0,Math.min(100,Math.round(directional.shortScore+shortBoost)));
+ directional.spread=Math.abs(directional.longScore-directional.shortScore);
+ directional.strongest=directional.longScore>directional.shortScore?'long':directional.shortScore>directional.longScore?'short':'neutral';
  directional.shortPattern=shortPattern;
  directional.shortEligible=!!(currentData?.perpId && shortPattern && directional.shortScore>=62 && directional.shortScore>=directional.longScore-3);
  // V8.6.5 — LONG remains independent; its instrument is selected later by the scenario layer.
