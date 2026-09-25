@@ -44,3 +44,9 @@ Chaque lot reçoit un commit distinct. Pour annuler un lot : `git revert <commit
 
 Tests : `node engine.test.cjs`, `node hosted-feed.test.cjs`, `node --test experience.test.cjs server/*.test.mjs tests/*.test.cjs`.
 Les instantanés de moteur caractérisent les scores/niveaux de six fixtures de la baseline. Les tests B sont des descriptions de l’existant, pas une validation de sa qualité métier.
+
+### Lot P1 A — preuve avant/après
+
+Les six tests initiaux de `tests/audit-p1.test.cjs` échouent sur la baseline (filtre statistique, trou interne, prix négatif, clôture future, chemin historique complet, REST écrasé). Après correction : sept tests passent, dont un passage des données API normalisées dans le vrai moteur adaptatif. Les six snapshots de scores/niveaux restent identiques. L'ancien test `btSlice` supposait qu'une ouverture était une clôture : son attendu est corrigé, avec intervalle explicite. Les observations TP1/SL et les poids restent ceux de la baseline. L’accès rejet F31 est réparé avec l’adaptateur F01 pour couvrir le chemin complet ; sa sémantique d’entrée reste B.
+
+Les paramètres du laboratoire (70/20/10, horizon 18) sont conservés. Les évaluations franchissant une frontière sont exclues au lieu d’accéder au futur de la partition. Ce correctif causal ne valide pas la pertinence statistique du laboratoire, sa profondeur historique ni son équivalence au live : décisions B toujours ouvertes.

@@ -101,7 +101,7 @@ records=JSON.parse(storage.get('ir_learning_journal_v866'));
 assert.equal(records[3].status,'CANCELLED','stop touched before entry cancels observation');
 assert.equal(records[4].status,'UNVERIFIED','missing candles cannot create an outcome');
 const history=[0,1,2,3,4,5].map(i=>[i*1000,0,0,0,0,0,0,0,1]);put('testHistory',history);
-assert.equal(run('btSlice(testHistory,4000,2).map(x=>x[0]).join(",")'),'3000,4000','use latest available history');
+assert.equal(run('btSlice(testHistory,4000,2,1000).map(x=>x[0]).join(",")'),'2000,3000','use latest fully closed history, not the forming bar');
 const future=(bars)=>bars.map((b,i)=>[i,0,b[0],b[1],0,0,0,0,1]);
 put('future',future([[99,97],[101,99],[104,94],[105,92]]));
 put('setup',{entry:100,stop:104,tp1:95});

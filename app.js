@@ -344,17 +344,17 @@ function subscribeCandleStream(instId,bar,onBar,onState){
  connect();return{stop(){stopped=true;clearTimeout(retry);cleanup()}};
 }
 async function graphPage(){
- let bar='1H',days=7,drawSeq=0,raw=[],lastRender=0;
+ let bar='1H',days=7,drawSeq=0,raw=[],lastRender=0,streamRevision=0;const streamUpdates=new Map();
  const instrument=activeInstrumentId();
  function limitForView(){let mins=bar==='1m'?days*24*60:bar==='5m'?days*24*12:bar==='15m'?days*24*4:bar==='1H'?days*24:bar==='4H'?days*6:days;return Math.min(1800,Math.max(2,mins))}
  function show(){if(raw.length<2||!$('garea'))return;const limit=limitForView(),cs=raw.slice(-limit),actualDays=(cs.at(-1).t-cs[0].t)/86400000,coverage=actualDays+0.05>=days?'Couverture complète':'Couverture partielle';$('garea').innerHTML=`<div class="metricGrid"><div class="metric"><small>Plus haut</small><b class="good">${price(Math.max(...cs.map(x=>x.h)))}</b></div><div class="metric"><small>Plus bas</small><b class="bad">${price(Math.min(...cs.map(x=>x.l)))}</b></div><div class="metric"><small>Variation</small><b class="${cs.at(-1).c>=cs[0].o?'good':'bad'}">${chg((cs.at(-1).c/cs[0].o-1)*100)}</b></div></div><div class="callout ${coverage==='Couverture complète'?'goodbox':''}" style="margin:8px 0"><b>${coverage}</b> · ${actualDays.toFixed(1)} J réellement chargés · ${cs.length} bougies.</div>${proChart(cs,raw)}`;$('gmeta').textContent=`${bar} · ${days} jour${days>1?'s':''} demandés · dernière bougie ${clockStamp(cs.at(-1).t)} · consultation ${clockStamp(Date.now())}`;}
- function receive(c){const i=raw.findIndex(x=>x.t===c.t);if(i>=0)raw[i]=c;else raw.push(c);raw.sort((a,b)=>a.t-b.t);raw=raw.slice(-1900);if(Date.now()-lastRender>700){lastRender=Date.now();show()}}
+ function receive(c){streamUpdates.set(c.t,++streamRevision);if(streamUpdates.size>1900)streamUpdates.delete(streamUpdates.keys().next().value);const i=raw.findIndex(x=>x.t===c.t);if(i>=0)raw[i]=c;else raw.push(c);raw.sort((a,b)=>a.t-b.t);raw=raw.slice(-1900);if(Date.now()-lastRender>700){lastRender=Date.now();show()}}
  function connect(){stopCandleStream();activeCandleStream=subscribeCandleStream(instrument,bar,receive,text=>{const el=$('liveState');if(el)el.textContent=text})}
- async function draw(){const seq=++drawSeq,limit=limitForView(),warmup=Math.max(40,bar==='1m'?60:40);try{const data=await candles(instrument,bar,Math.min(1800,limit+warmup));if(seq!==drawSeq||!$('garea')||$('deep').classList.contains('hidden'))return;if(data.length){const merged=new Map(data.map(c=>[c.t,c]));for(const c of raw)if(c.t>=data.at(-1).t)merged.set(c.t,c);raw=[...merged.values()].sort((a,b)=>a.t-b.t).slice(-1900);show()}else if(!raw.length)$('garea').innerHTML='<div class="empty">Aucune bougie disponible pour cette période.</div>'}catch(err){if(seq===drawSeq&&$('liveState'))$('liveState').textContent='Actualisation impossible · '+String(err.message||err)}}
+ async function draw(){const seq=++drawSeq,startedRevision=streamRevision,limit=limitForView(),warmup=Math.max(40,bar==='1m'?60:40);try{const data=await candles(instrument,bar,Math.min(1800,limit+warmup));if(seq!==drawSeq||!$('garea')||$('deep').classList.contains('hidden'))return;if(data.length){const merged=new Map(data.map(c=>[c.t,c]));for(const c of raw)if(c.t>data.at(-1).t||(streamUpdates.get(c.t)||0)>startedRevision)merged.set(c.t,c);raw=[...merged.values()].sort((a,b)=>a.t-b.t).slice(-1900);show()}else if(!raw.length)$('garea').innerHTML='<div class="empty">Aucune bougie disponible pour cette période.</div>'}catch(err){if(seq===drawSeq&&$('liveState'))$('liveState').textContent='Actualisation impossible · '+String(err.message||err)}}
  $('deepBody').innerHTML=`<button class="btn secondary" onclick="backDetail()">← ${current.sym}</button><div class="panel"><h2>📈 Graphique approfondi — ${current.sym}</h2><div class="sub">Les bougies évoluent via le flux OKX quand la connexion est active. Sinon elles sont redemandées toutes les 10 secondes. Le classement et le score restent ceux du dernier scan.</div>${rangeControls(bar,days)}<div id="gmeta" class="sub" style="margin:8px 0">Chargement…</div><div id="liveState" class="liveStatus" role="status">Connexion…</div><button class="smallbtn" id="graphRefresh" type="button">↻ Recharger les bougies</button><div id="garea"></div><div id="graphSimulator">${scenarioSimPanel({id:"graph-free",free:true,entry:current.price},"long")}</div><div class="panel" style="margin-top:10px;background:#15191f"><b>Comment lire ce graphique</b><div class="sub">Bougies : mouvement du prix. Volume : participation. EMA 20/50 et Supertrend : contexte. RSI et StochRSI : accélération ou excès. Une bougie en cours ne valide pas un scénario avant sa clôture.</div></div></div>`;
  bindScenarioSim();
  $('graphRefresh').onclick=draw;
- document.querySelectorAll('#bars button').forEach(b=>b.onclick=()=>{bar=b.dataset.bar;document.querySelectorAll('#bars button').forEach(x=>x.classList.toggle('active',x===b));raw=[];$('garea').innerHTML='<div class="empty">Changement de période…</div>';connect();draw()});
+ document.querySelectorAll('#bars button').forEach(b=>b.onclick=()=>{bar=b.dataset.bar;document.querySelectorAll('#bars button').forEach(x=>x.classList.toggle('active',x===b));raw=[];streamUpdates.clear();$('garea').innerHTML='<div class="empty">Changement de période…</div>';connect();draw()});
  document.querySelectorAll('#ranges button').forEach(b=>b.onclick=()=>{days=+b.dataset.days;document.querySelectorAll('#ranges button').forEach(x=>x.classList.toggle('active',x===b));draw()});
  connect();await draw();if($('deep').classList.contains('hidden')||!$('garea')||activeInstrumentId()!==instrument)return;if(graphLiveTimer)clearInterval(graphLiveTimer);graphLiveTimer=setInterval(()=>{if(document.visibilityState!=='hidden')draw()},10000)
 }
@@ -454,7 +454,7 @@ function verifiedObservation(r){return r?.status==='CLOSED'&&r?.schema==='IR_LEA
 function journalAdvance(lock,side,bars,activated,barMs,now=Date.now()){
  const j=loadScenarioJournal(),rec=j.find(x=>x.id===lock.id);
  if(!rec||rec.status==='CLOSED'||rec.status==='CANCELLED')return rec||null;
- const complete=(bars||[]).filter(b=>Number.isFinite(b.t)&&Number(b.confirm)===1).sort((a,b)=>a.t-b.t);
+ const complete=(bars||[]).filter(b=>Number.isFinite(b.t)&&Number(b.confirm)===1&&b.t+barMs<=now).sort((a,b)=>a.t-b.t);
  const latest=complete.at(-1),latestClose=latest?latest.t+barMs:null;
  if(rec.status==='FORMING'){
    if(latestClose>rec.createdAt&&latestClose<=now){
@@ -468,6 +468,8 @@ function journalAdvance(lock,side,bars,activated,barMs,now=Date.now()){
  if(complete.length&&complete[0].t>Math.max(rec.activatedBarTs,rec.lastProcessedBarTs||0)+barMs){rec.status='UNVERIFIED';rec.unverifiedReason='Bougies manquantes pendant le suivi';saveScenarioJournal(j);return rec}
  for(const bar of complete){
    if(bar.t<=Math.max(rec.activatedBarTs,rec.lastProcessedBarTs||0))continue;
+   const previous=Math.max(rec.activatedBarTs,rec.lastProcessedBarTs||0);
+   if(bar.t>previous+barMs){rec.status='UNVERIFIED';rec.unverifiedReason='Bougies manquantes pendant le suivi';break}
    const stopHit=side==='short'?bar.h>=lock.stop:bar.l<=lock.stop;
    const tpHit=side==='short'?bar.l<=lock.tp1:bar.h>=lock.tp1;
    rec.lastProcessedBarTs=bar.t;
@@ -498,7 +500,7 @@ function learningStats(){
 }
 function wilson(rate,n,z=1.96){if(!n)return [0,0];const d=1+z*z/n,c=(rate+z*z/(2*n))/d,m=z*Math.sqrt((rate*(1-rate)+z*z/(4*n))/n)/d;return [Math.max(0,c-m),Math.min(1,c+m)]}
 function learningProposal(){
- const s=learningStats(),closed=s.journal.filter(x=>x.status==='CLOSED'&&x.outcome&&Number.isFinite(Number(x.outcome.r)));
+ const s=learningStats(),closed=s.journal.filter(verifiedObservation);
  const byDir={long:[],short:[]};closed.forEach(r=>{if(byDir[r.direction])byDir[r.direction].push(r)});
  const summarize=a=>{const n=a.length,sl=a.filter(r=>r.outcome.status==='SL').length,tp=a.filter(r=>/^TP/.test(r.outcome.status)).length,avgR=n?a.reduce((z,r)=>z+(Number(r.outcome.r)||0),0)/n:0,rate=n?tp/n:0;return {n,hitRate:rate,slRate:n?sl/n:0,avgR,ci:wilson(rate,n),sampleReady:n>=30}};
  const configs=Object.entries(s.groups).map(([key,g])=>({key,n:g.n,tpRate:g.tpRate,avgR:g.avgR,ci:wilson(g.tpRate,g.n),sampleReady:g.n>=20})).sort((a,b)=>b.avgR-a.avgR);
@@ -511,9 +513,12 @@ function learningHtml(){const r=labLearningReport();const rows=r.groups.map(([k,
 function clearScenarioLock(id,kind){const key=scenarioLockKey(id,kind),old=scenarioLocks[key];if(old){const rec=loadScenarioJournal().find(x=>x.id===old.id);if(rec&&(rec.status==='FORMING'||rec.status==='ACTIVATED'))journalUpdate(old.id,{status:'CANCELLED',cancelledAt:Date.now(),cancelReason:'USER_RESET'})}delete scenarioLocks[key];saveScenarioLocks()}
 function isShortScenarioKind(kind){return kind==='breakdown'||kind==='rejection'}
 function scenarioValid(kind,sc,live){
- if(!sc||!Number.isFinite(live))return false;
+ if(!sc||!Number.isFinite(live)||live<=0)return false;
  const short=isShortScenarioKind(kind);
- if(!Number.isFinite(sc.entry)||!Number.isFinite(sc.stop)||!Number.isFinite(sc.tp1))return false;
+ const targets=[sc.tp1,sc.tp2,sc.tp3].filter(x=>x!==undefined);
+ if(![sc.entry,sc.stop,...targets].every(x=>Number.isFinite(x)&&x>0)||sc.tp1===undefined)return false;
+ if(sc.tp3!==undefined&&sc.tp2===undefined)return false;
+ if(targets.some((x,i)=>i>0&&(short?x>targets[i-1]:x<targets[i-1])))return false;
  if(short){if(!(sc.stop>sc.entry&&sc.entry>sc.tp1))return false;return live>sc.entry&&live<sc.stop}
  if(!(sc.stop<sc.entry&&sc.entry<sc.tp1))return false;
  return live<sc.entry&&live>sc.stop;
@@ -841,7 +846,7 @@ async function historyCandles(instId,bar,limit=300,before=null){
   const q=`/market/history-candles?instId=${encodeURIComponent(instId)}&bar=${encodeURIComponent(bar)}&limit=${Math.min(300,Math.max(20,limit))}`+(before?`&before=${encodeURIComponent(before)}`:'');
   return await get(q);
 }
-function btSlice(arr,ts,max=140){return arr.filter(c=>btTs(c)<=ts&&Number(c?.[8])===1).slice(-max)}
+function btSlice(arr,ts,max=140,barMs=3600000){return arr.filter(c=>btTs(c)+barMs<=ts&&Number(c?.[8])===1).sort((a,b)=>btTs(a)-btTs(b)).slice(-max)}
 function btOutcome(cs,idx,kind,sc,horizon=18){
  const end=Math.min(cs.length-1,idx+horizon),short=isShortScenarioKind(kind);
  const {entry,stop,tp1}=sc;let entered=false,entryIdx=null,mfe=0,mae=0;
@@ -871,19 +876,19 @@ async function runWalkForwardLab(){
     const inst=(currentScenarioInstrument==='perp'&&isListedXperp(current?.perpId)?current.perpId:current?.id)||'BTC-USDT';
     const specs=[['1D',90],['4H',180],['1H',220],['30m',260],['15m',300],['5m',300]];
     const got=await Promise.all(specs.map(async ([bar,lim])=>[bar,await historyCandles(inst,bar,lim)]));
-    const raw=Object.fromEntries(got.map(([k,v])=>[k,v.slice().reverse()]));
+    const raw=Object.fromEntries(got.map(([k,v])=>[k,v.filter(c=>Number(c?.[8])===1&&btTs(c)+timeframeMs(k)<=Date.now()).sort((a,b)=>btTs(a)-btTs(b))]));
     const base=raw['1H']; if(!base||base.length<100)throw Error('Historique 1H insuffisant');
     const cut1=Math.floor(base.length*.70),cut2=Math.floor(base.length*.90);
     const phases=[['DEV',0,cut1],['VALIDATION',cut1,cut2],['HOLDOUT',cut2,base.length]];
     const rows=[];
     for(const [phase,a,b] of phases){
-      for(let i=Math.max(80,a);i<b;i+=Math.max(1,Math.floor((b-a)/18))){
-        const ts=btTs(base[i]);
-        const frames={};for(const [k] of specs)frames[k]=btSlice(raw[k],ts,k==='1D'?90:120);
+      for(let i=Math.max(80,a);i+18<b;i+=Math.max(1,Math.floor((b-a)/18))){
+        const ts=btTs(base[i])+timeframeMs('1H');
+        const frames={};for(const [k] of specs)frames[k]=RadarCandles.decode(btSlice(raw[k],ts,k==='1D'?90:120,timeframeMs(k)));
         const px=btClose(base[i]);const prev=base[Math.max(0,i-24)],dayMove=btClose(prev)>0?(px/btClose(prev)-1)*100:null,historyWindow=base.slice(Math.max(0,i-24),i+1),low24=Math.min(...historyWindow.map(c=>Number(c[3]))),high24=Math.max(...historyWindow.map(c=>Number(c[2])));const historical={id:inst,perpId:inst.endsWith('-SWAP')?inst:(current?.perpId||null),price:px,chg:dayMove,rangePos:high24>low24?(px-low24)/(high24-low24):null,vol:Number(base[i][7])||null,oi:null,oiDelta:null,funding:null};const e=adaptiveEngine(frames,historical);
         if(!e)continue;
         let kind=chooseFreshScenario(e,null);let outcome='NO_SETUP',mfe=0,mae=0,rr1=null,riskPct=null;
-        if(kind&&e[kind]&&e[kind].entry){const sc=e[kind],risk=Math.abs(sc.entry-sc.stop);rr1=risk>0?Math.abs(sc.tp1-sc.entry)/risk:null;riskPct=sc.entry>0?risk/sc.entry*100:null;const o=btOutcome(base,i,kind,sc,18);outcome=o.hit;mfe=o.mfe;mae=o.mae}
+        if(kind&&scenarioLevelsFromEngine(e,kind)?.entry){const sc=scenarioLevelsFromEngine(e,kind),risk=Math.abs(sc.entry-sc.stop);rr1=risk>0?Math.abs(sc.tp1-sc.entry)/risk:null;riskPct=sc.entry>0?risk/sc.entry*100:null;const o=btOutcome(base,i,kind,sc,18);outcome=o.hit;mfe=o.mfe;mae=o.mae}
         rows.push({phase,ts,regime:e.regime?.key||'unknown',kind:kind||'none',decision:e.decision,score:e.score,outcome,mfe,mae,rr1,riskPct});
       }
     }
