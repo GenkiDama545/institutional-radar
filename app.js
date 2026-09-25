@@ -118,11 +118,11 @@ async function scan(){
    let processed=0;
    await chunk(deepUniverse,3,async x=>{
      try{
-       const specs=[['1D',120],['4H',100],['1H',140],['30m',140],['15m',180],['5m',180]];
+       const specs=DECISION_SPECS;
        const results=await Promise.allSettled(specs.map(([bar,limit])=>candles(x.id,bar,limit)));
-       const frames=Object.fromEntries(specs.map(([bar],i)=>[bar,results[i].status==='fulfilled'?results[i].value:[]]));
+       const checked=decisionFrames(Object.fromEntries(specs.map(([bar],i)=>[bar,results[i].status==='fulfilled'?results[i].value:[]]))),frames=checked.frames;
        const failed=results.map((result,i)=>result.status==='rejected'?specs[i][0]+': '+String(result.reason?.message||result.reason):null).filter(Boolean);
-       const full=specs.every(([bar])=>frames[bar].length>=40);
+       failed.push(...checked.issues);const full=specs.every(([bar])=>frames[bar].length>=40);
        const sufficient=frames['1H'].length>=40&&(frames['15m'].length>=40||frames['5m'].length>=40)&&(frames['4H'].length>=40||frames['1D'].length>=40);
        x.analysisCoverage=full?'complete':sufficient?'partial':'unavailable';x.scenarioFrames=frames;x.analysisIssues=failed;
        if(failed.length||!sufficient){shortScanErrors++;const reason=failed[0]||'Bougies insuffisantes';scanErrorReasons[reason]=(scanErrorReasons[reason]||0)+1}
@@ -618,7 +618,7 @@ async function renderScenarioMonitor(kind,initial=false){kind=scenarioMonitorKin
  const chartAll=scenarioMonitorFrames[scenarioMonitorBar]||triggerCs||[];
  const chartCs=chartAll.slice(-Math.min(scenarioMonitorZoom,chartAll.length));
  const sc=lock,displayKind=lock.kind||actualKind,side=lock.direction||scenarioDirection(displayKind);
- const closeC=(triggerCs||[]).filter(c=>Number(c.confirm)===1).at(-1);const volAvg=avgVol(triggerCs||[],20);const volRatio=volAvg&&closeC?closeC.v/volAvg:null;
+ const closeC=(triggerCs||[]).filter(c=>Number(c.confirm)===1).at(-1);const volAvg=avgVol(RadarCandles.decision(triggerCs||[],triggerKey),20);const volRatio=volAvg&&closeC?closeC.v/volAvg:null;
  const crossed=side==='long'?live>=sc.entry:live<=sc.entry;const triggerClose=side==='long'?closeC?.c>=sc.entry:closeC?.c<=sc.entry;const volOk=volRatio==null?false:volRatio>=1.15;const trendOk=side==='long'?e.biasBull:e.biasBear;const invalid=side==='long'?live<=sc.stop:live>=sc.stop;const near=Math.abs(live-sc.entry)<=Math.max((tf?.atr||0)*.55,live*.0015);const activated=crossed&&triggerClose&&volOk&&trendOk&&!invalid;
  const monitor=monitorTriggerStatus({crossed,triggerClose,volOk,trendOk,invalid,near,entry:sc.entry,stop:sc.stop,live,triggerKey,volRatio});
  let {state,label,reason}=monitor;
@@ -836,8 +836,8 @@ function shortEngineLab(){
    {name:'Moteur réel — hausse',slope:.10,perp:true,expected:false}
  ];
  const rows=cases.map(c=>{
-   const frame=count=>Array.from({length:count},(_,i)=>{const p=100+c.slope*i;return {t:i*60000,o:p,h:p+1,l:p-1,c:p+.15,v:10000+i*30,confirm:1}});
-   const frames=Object.fromEntries([['1D',120],['4H',100],['1H',140],['30m',140],['15m',180],['5m',180]].map(([key,count])=>[key,frame(count)]));
+   const frame=(count,key)=>Array.from({length:count},(_,i)=>{const p=100+c.slope*i;return {t:i*timeframeMs(key),o:p,h:p+1,l:p-1,c:p+.15,v:10000+i*30,confirm:1}});
+   const frames=Object.fromEntries([['1D',120],['4H',100],['1H',140],['30m',140],['15m',180],['5m',180]].map(([key,count])=>[key,frame(count,key)]));
    const e=adaptiveEngine(frames,{price:frames['5m'].at(-1).c,perpId:c.perp?'TEST-USDT-SWAP':null,chg:c.slope*10,vol:1e6,medVol:1e6});
    const result=!!e?.shortSetup;return {name:c.name,expected:c.expected,result,ok:result===c.expected,score:e?.directional?.shortScore??0};
  });

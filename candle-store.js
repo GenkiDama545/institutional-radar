@@ -2,7 +2,19 @@
 (function(root){
  'use strict';
  const intervals={'1m':60000,'5m':300000,'15m':900000,'30m':1800000,'1H':3600000,'4H':14400000,'1D':86400000};
- function decode(rows){return rows.map(a=>({t:+a[0],o:+a[1],h:+a[2],l:+a[3],c:+a[4],v:+a[7],baseVol:+a[5],quoteVol:+a[7],confirm:+a[8]})).filter(c=>[c.t,c.o,c.h,c.l,c.c,c.v].every(Number.isFinite));}
+ function validBar(c){return [c.t,c.o,c.h,c.l,c.c,c.v].every(Number.isFinite)&&c.t>=0&&Math.min(c.o,c.h,c.l,c.c)>0&&c.v>=0&&c.h>=Math.max(c.o,c.c,c.l)&&c.l<=Math.min(c.o,c.c,c.h)&&[0,1].includes(Number(c.confirm));}
+ function decode(rows){const seen=new Set();return rows.map(a=>{const c={t:+a[0],o:+a[1],h:+a[2],l:+a[3],c:+a[4],v:+a[7],baseVol:+a[5],quoteVol:+a[7],confirm:+a[8]};if(!validBar(c)||seen.has(c.t))throw Error('Bougie invalide ou timestamp dupliqué');seen.add(c.t);return c});}
+ // Decision-only contract. Charts retain the forming candle; never fabricate missing bars.
+ function decision(cs,bar,now=Date.now()){
+  const ms=intervals[bar];let previous=null;
+  for(const c of cs||[]){
+   if(!validBar(c))throw Error('OHLCV ou confirmation invalide');
+   if(c.t>now||(ms&&Number(c.confirm)===1&&c.t+ms>now))throw Error('Bougie future ou clôture prématurée');
+   if(previous&&(c.t<=previous.t||(ms&&c.t-previous.t!==ms)))throw Error('Doublon, désordre ou trou de bougies');
+   previous=c;
+  }
+  return (cs||[]).filter(c=>Number(c.confirm)===1);
+ }
  function merge(a,b){const m=new Map(a.map(c=>[c.t,c]));b.forEach(c=>m.set(c.t,c));return [...m.values()].sort((a,b)=>a.t-b.t);}
  function create(get,{now=()=>Date.now(),maxEntries=4000}={}){
   const cache=new Map(),pending=new Map();const stats={requests:0,rows:0,reused:0,shared:0};
@@ -37,5 +49,5 @@
   }
   return {load,stats,clear:()=>cache.clear()};
  }
- const api={create,decode,merge};root.RadarCandles=api;if(typeof module!=='undefined')module.exports=api;
+ const api={create,decode,merge,decision,intervals};root.RadarCandles=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

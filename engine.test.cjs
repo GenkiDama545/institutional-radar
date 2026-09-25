@@ -148,7 +148,7 @@ const ticker=(name)=>({instId:name+'-USDT',last:'100',open24h:'98',volCcy24h:'10
 put('spotRows',[ticker('BTC'),ticker('ETH')]);
 put('marketRequests',[]);run('get=async path=>{marketRequests.push(path);return path.includes("instType=SPOT")?spotRows:[]}');
 put('mockBars',Array.from({length:120},(_,i)=>({t:i*60000,o:80+i*.1,h:81+i*.1,l:79+i*.1,c:80.5+i*.1,v:10000,confirm:1})));
-run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars}');
+run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))}');
 run('scan()').then(()=>{
   assert.equal(run('all.length'),2,'market universe remains visible');
   assert.equal(run('all.find(x=>x.sym==="ETH").analysisCoverage'),'partial');
@@ -158,7 +158,7 @@ run('scan()').then(()=>{
   assert.match(elements.get('status').textContent,/incomplètes/);
   console.log('scan check: complete, partial and fresh prices');
   put('spotRows',Array.from({length:101},(_,i)=>ticker('ASSET'+i)));
-  run('candles=async ()=>mockBars');
+  run('candles=async (id,bar)=>mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))');
   return run('scan()').then(()=>{
     assert.equal(run('all.length'),101);
     assert.equal(run('all[100].analysisCoverage'),'complete','asset after previous top-100 limit is analyzed');

@@ -8,6 +8,6 @@ function env(initial={}){
  const app=fs.readFileSync(path.join(root,'app.js'),'utf8');vm.runInContext(app.slice(0,app.indexOf("document.querySelectorAll('#marketMode")),ctx,{filename:'app.js'});
  return {ctx,run:s=>vm.runInContext(s,ctx),store,nodes,node,timers};
 }
-function frames(slope=0,scale=1){return Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map((tf,j)=>[tf,Array.from({length:180},(_,i)=>{const p=(100+slope*i+Math.sin(i/8)*.4)*scale;return {t:1700000000000+i*300000,o:p,h:p+scale,l:p-scale,c:p+.15*scale,v:10000+i*30,confirm:i===179?0:1}})]))}
+function frames(slope=0,scale=1){return Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map((tf,j)=>[tf,Array.from({length:180},(_,i)=>{const p=(100+slope*i+Math.sin(i/8)*.4)*scale;return {t:1700000000000+i*({'1D':86400000,'4H':14400000,'1H':3600000,'30m':1800000,'15m':900000,'5m':300000}[tf]),o:p,h:p+scale,l:p-scale,c:p+.15*scale,v:10000+i*30,confirm:i===179?0:1}})]))}
 const plain=x=>JSON.parse(JSON.stringify(x));
 module.exports={env,frames,plain};
