@@ -1,6 +1,6 @@
-# Institutional Radar V8.9.16-rc.1
+# Institutional Radar V8.9.16
 
-Candidate de clôture de l’étape 1, non fusionnée et non déployée. Baseline de comparaison : V8.9.15. Voir `docs/audit-v8915/Cloture_Etape1_V8.9.16-rc.1.md` pour les preuves et limites. Les notes ci-dessous décrivent d’abord la baseline historique.
+Version finale issue de la candidate V8.9.16-rc.1 auditée et adoptée. Seuls le versionnage et les assertions correspondantes changent lors de la finalisation. Baseline de comparaison : V8.9.15. Voir `docs/audit-v8915/Cloture_Etape1_V8.9.16-rc.1.md` pour les preuves et limites. Les notes ci-dessous décrivent d’abord la baseline historique.
 
 ## V8.9.15 — lecture, simulation et rapidité
 
