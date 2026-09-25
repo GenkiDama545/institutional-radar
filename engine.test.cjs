@@ -69,7 +69,7 @@ assert.equal(run('scenarioCandidates().length'),0,'unverified swaps cannot becom
 const now=Date.now(),barMs=300000;
 const bar=(t,o,h,l,c,confirm=1)=>({t,o,h,l,c,v:100,confirm});
 const lock={id:'long-1',entry:100,stop:95,tp1:105};
-const forming={schema:'IR_LEARNING_V3',id:'long-1',status:'FORMING',createdAt:now-2*barMs,entry:100,stop:95,tp1:105,direction:'long'};
+const forming={schema:'IR_LEARNING_V3',provenance:{type:'local'},id:'long-1',status:'FORMING',createdAt:now-2*barMs,entry:100,stop:95,tp1:105,direction:'long'};
 storage.set('ir_learning_journal_v866',JSON.stringify([forming,{schema:'IR_LEARNING_V2',id:'legacy',status:'CLOSED',outcome:{r:3,status:'TP3'}}]));
 const put=(k,v)=>{context[k]=v};put('testLock',lock);put('testBar',bar(now-3*barMs,100,110,99,108));
 run('journalAdvance(testLock,"long",[testBar],false,300000)');

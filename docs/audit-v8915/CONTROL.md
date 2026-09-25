@@ -90,3 +90,7 @@ Avant : 4 nouveaux tests échouent (gate partagé absent, substitution de kind, 
 ### Lot D07 — persistance, rétention, export
 
 Quatre tests de départ échouent avant et passent après. Six tests couvrent maintenant : 1 601 observations ouvertes jamais purgées, plafond des 1 500 terminales, interruption entre écritures, reprise avant lecture, quota persistant pendant rollback, export complet versionné, absence de faux résultat résolu lorsque la sauvegarde échoue. Verrou + journal et reset sont transactionnels avec journal d'annulation local. Les anciennes clés de production sont conservées. Aucune collecte automatique ni nouveau type de résolution. La restauration/import avec provenance et conflits est finalisée dans D08, pour ne jamais réintroduire un import comme observation vérifiée.
+
+### Lot D08 — restauration et provenance
+
+Cinq tests échouaient avant ; cinq passent après, plus les six tests D07. Import complet reconnecté sans déplacement de niveaux ; conflits signalés/archivés ; contenu identique idempotent ; provenance JSON locale ignorée ; anciens résultats sans provenance conservés mais non vérifiés (impossibilité de prouver rétroactivement leur origine). Les tests de statistiques qui simulent des observations générées localement le déclarent explicitement ; les imports usurpant ce marqueur restent exclus. La restauration est une transaction sur les cinq sous-systèmes. Les imports disposent d'une synthèse séparée. Aucune donnée ne modifie de pondération.
