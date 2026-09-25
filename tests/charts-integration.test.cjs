@@ -25,3 +25,10 @@ test('L5: structural adapter reads existing levels and reports their actual hori
  const e=ready();const before=e.run('JSON.stringify(current.scenarioModel)');const output=plain(e.run("RadarChartHost.structure(current.scenarioModel.F['1H'],'1H')"));
  assert.ok(output.some(o=>o.key==='structure-resistance'));assert.ok(output.every(o=>o.timeframe==='1H'&&o.asOf>0&&!('bounds' in o)));assert.equal(e.run('JSON.stringify(current.scenarioModel)'),before);e.dom.window.close();
 });
+test('L6: returning from deep chart restores an interactive fiche and its refresh owner',async()=>{
+ const e=ready();e.ctx.prepareInteractive=()=>{};e.ctx.subscribeCandleStream=()=>({stop(){}});
+ await e.run('detailAsync()');const original=e.run("sharedChartViews.get('detailChartPlot').controller");
+ e.run('leavePage()');await e.run('graphPage()');await e.run('backDetail()');
+ const restored=e.run("sharedChartViews.get('detailChartPlot').controller");assert.ok(restored);assert.notEqual(restored,original);restored.panel.action('previous');restored.panel.redraw();assert.ok(restored.panel.state.selectedTs);assert.equal(e.timers.size,1);
+ e.run('leavePage()');e.dom.window.close();
+});

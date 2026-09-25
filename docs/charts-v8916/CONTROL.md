@@ -85,3 +85,21 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - Harnais Node enrichi de nœuds DOM réels ; tests des champs et contrôles réels, distincts d'une recette navigateur.
 - Validation : 99 tests de la suite Node passent, dont 3 nouvelles intégrations. Mathématiques/engine-core,
   signal-engine, market-screen, candle-store et trade-sim non modifiés.
+
+## L6 — Métriques et nettoyage ciblé
+
+- `chart-metrics.js` : observations placées au timestamp, zéros conservés, lacunes non reliées ; OI/Score en
+  points observés, Funding/Volume en histogrammes, Momentum signé avec axe zéro. Sélection date/valeur.
+- OI/Funding/Score n'affichent plus les boutons de timeframe sans effet. Couverture réellement disponible
+  et limite de 100 événements Funding explicites. Funding manquant reste absent, jamais remplacé par zéro.
+- Sparklines/jauges Funding et Momentum signées ; source et intervalle des aperçus précisés. Aucun signal changé.
+- Après recherche des appels JS, handlers et tests : retrait de `proChart`, `projectionChart`, `lineSvg`,
+  `svgPath`, `chartHover`, `chartReadout`, `chartSelectionMarkup`, `chartSelections`, `axisTime` et du zoom ancien.
+  Les sélecteurs CSS associés sont retirés ; dans les règles mixtes, les autres sélecteurs sont conservés.
+- Caractérisations L0 G04/G06/G07 converties en tests de correction : positions temporelles au lieu de 78/480/882,
+  niveau absent au lieu de « Missing TP 0 », extrema des bougies au lieu de TP3=150. Les preuves initiales restent
+  dans le commit L0 et l'audit. Aucun snapshot de score, scénario, admission ou déclencheur n'a été régénéré.
+- F18 teste le même volume de cotation via le nouveau composant ; F25 teste les trois prix du composant commun.
+- Retour vers la fiche : son propriétaire recharge et réattache les contrôles après disposition du graphique.
+  Un même host changeant d'instrument ne réutilise pas le provider de l'ancien contrat.
+- Validation : 104 tests Node passent ; cinq nouvelles vérifications métriques/navigation.

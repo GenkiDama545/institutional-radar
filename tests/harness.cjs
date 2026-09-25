@@ -5,7 +5,7 @@ function env(initial={}){
  const {JSDOM}=require('jsdom');const dom=new JSDOM('<body></body>');
  const node=id=>{let el=dom.window.document.getElementById(String(id));if(!el){el=dom.window.document.createElement('div');el.id=String(id);el.value='';dom.window.document.body.appendChild(el)}nodes[id]=el;return el};
  const ctx=vm.createContext({console,localStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)},setTimeout,clearTimeout,setInterval:f=>{timers.set(++next,f);return next},clearInterval:id=>timers.delete(id),crypto:{randomUUID:()=> 'fixture-lock'},alert:()=>{},document:{getElementById:node,querySelectorAll:()=>[],querySelector:s=>dom.window.document.querySelector(s),activeElement:null,visibilityState:'visible'}});
- for(const f of ['chart-core.js','chart-series.js','chart-panel.js','chart-host.js','signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f});
+ for(const f of ['chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),ctx,{filename:f});
  const app=fs.readFileSync(path.join(root,'app.js'),'utf8');vm.runInContext(app.slice(0,app.indexOf("document.querySelectorAll('#marketMode")),ctx,{filename:'app.js'});
  return {dom,ctx,run:s=>vm.runInContext(s,ctx),store,nodes,node,timers};
 }
