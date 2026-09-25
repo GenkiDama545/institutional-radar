@@ -68,3 +68,9 @@ Recherche intégrale des identifiants dans JS, HTML (handlers inline compris), t
 Le nettoyage ne supprime pas les fichiers `hosted-*` : ils ont des tests et un rôle historique autonome. Documentation du serveur corrigée : une URL ne reconnecte pas un script que l’index ne charge pas. Métadonnées de régime, Wilson, statistiques auxiliaires, unités et diagnostics conservés avec justification. Pas de suppression CSS sans inventaire complet ; pas de fusion des moteurs.
 
 Le gate complet a détecté pendant le travail un élargissement involontaire du libellé « bornes indicatives » aux graphiques : corrigé dans un commit dédié avant publication, avec test de rendu. Aucun défaut connu introduit par les correctifs ne reste ouvert à ce stade des tests contrôlés.
+
+## Arbitrages validés — 25 septembre 2026
+
+Autorisation utilisateur : D01 option 1 ; D02 option 1 ; D03 option 1 sans automates spécifiques ; D04 option 1 et UNVERIFIED si reconstruction non fiable ; D05 option 2 (2 intervalles déclencheur, ticker <=120 s, paramètres centralisés, suspension sans déplacement du verrou) ; D06 option 2 (instrument/sens/kind exact, six horizons, warmup graphique différé) ; D07 option 1 pour le suivi avec sauvegarde/restauration versionnée, reprise transactionnelle et protection des ouvertes ; D08 option 2 provenance/conflits ; D09/D10 option 1 conservation explicitement limitée.
+
+Ces changements B sont désormais autorisés, sans changement des coefficients ni des poids. Chaque lot dispose de tests avant/après et d'un commit. Aucune fusion, aucun déploiement ni étape 2 autorisés. La précédente tentative de push a été refusée par le contrôle automatique ; aucune nouvelle tentative n'est prévue sans autorisation explicite de transfert.

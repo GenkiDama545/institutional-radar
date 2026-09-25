@@ -85,7 +85,7 @@ function adaptiveEngine(frames,currentData){
  let anchorKey=keys[keys.length-1];for(const k of ['1D','4H','1H','30m','15m'])if(F[k]&&F[k].t.label!=='mixte'&&F[k].levels.support&&F[k].levels.resistance){anchorKey=k;break}
  const anchor=F[anchorKey];
  // Trigger selection: choose the shortest timeframe whose volatility, volume and structure can define a precise trigger without being excessively noisy.
- let triggerKey=null,best=-Infinity;for(const k of keys.filter(k=>['5m','15m','30m','1H'].includes(k))){let f=F[k],score=0;score+=(f.vol?.ratio>1?1:0)+(f.t.label===anchor.t.label?2:0)+(f.adx&&f.adx>18?1:0)+(f.eff&&f.eff>.25?1:0);score-=k==='1m'&&keys.length>3?.25:0;if(score>best){best=score;triggerKey=k}}
+ let triggerKey=null,best=-Infinity;for(const k of keys.filter(k=>['5m','15m','30m','1H'].includes(k))){let f=F[k],score=0;score+=(f.vol?.ratio>1?1:0)+(f.t.label===anchor.t.label?2:0)+(f.t.adx&&f.t.adx>18?1:0)+(f.eff&&f.eff>.25?1:0);score-=k==='1m'&&keys.length>3?.25:0;if(score>best){best=score;triggerKey=k}}
  const trigger=F[triggerKey||keys[0]], nearR=trigger.distR<=Math.max(trigger.atr*1.2,live*.004),nearS=trigger.distS<=Math.max(trigger.atr*1.2,live*.004), shortNearR=trigger.distR<=Math.max(trigger.atr*1.5,live*.006), shortNearS=trigger.distS<=Math.max(trigger.atr*1.5,live*.006);
  const biasBull=anchor.t.bull && (F['1H']?.t.bull||F['15m']?.t.bull||trigger.t.bull),biasBear=anchor.t.bear && (F['1H']?.t.bear||F['15m']?.t.bear||trigger.t.bear);
  const r=trigger.levels.resistance,s=trigger.levels.support,buf=Math.max(trigger.atr*.10,live*.00035),micro=Math.max(trigger.atr*.18,live*.00025);
@@ -97,7 +97,7 @@ function adaptiveEngine(frames,currentData){
  const bdEntry=Math.max(0,s-buf),bdStop=s+Math.max(trigger.atr*.65,micro),bdRisk=Math.max(1e-12,bdStop-bdEntry);
  const bdT1=trigger.levels.nextSupport&&trigger.levels.nextSupport<bdEntry?Math.min(bdEntry-bdRisk,trigger.levels.nextSupport):bdEntry-bdRisk,bdT2=bdT1-bdRisk*.9,bdT3=bdT2-bdRisk*.9;
  const confluences=[];
- if(anchor.t.label!=='mixte')confluences.push(`tendance ${anchorKey} ${anchor.t.label}`);if(trigger.t.label===anchor.t.label)confluences.push(`alignement ${triggerKey}`);if(trigger.vol?.ratio>=1.15)confluences.push(`volume ${trigger.vol.ratio.toFixed(2)}x`);if(trigger.adx&&trigger.adx>=18)confluences.push(`ADX ${trigger.adx.toFixed(0)}`);if(trigger.bb?.z!=null&&Math.abs(trigger.bb.z)>=1)confluences.push(`position Bollinger ${trigger.bb.z.toFixed(1)}σ`);if(trigger.eff!=null&&trigger.eff>.3)confluences.push(`efficacité ${trigger.eff.toFixed(2)}`);if(trigger.rsi!=null&&trigger.rsi>52&&biasBull)confluences.push(`RSI ${trigger.rsi.toFixed(0)} haussier`);if(trigger.rsi!=null&&trigger.rsi<48&&biasBear)confluences.push(`RSI ${trigger.rsi.toFixed(0)} baissier`);
+ if(anchor.t.label!=='mixte')confluences.push(`tendance ${anchorKey} ${anchor.t.label}`);if(trigger.t.label===anchor.t.label)confluences.push(`alignement ${triggerKey}`);if(trigger.vol?.ratio>=1.15)confluences.push(`volume ${trigger.vol.ratio.toFixed(2)}x`);if(trigger.t.adx&&trigger.t.adx>=18)confluences.push(`ADX ${trigger.t.adx.toFixed(0)}`);if(trigger.bb?.z!=null&&Math.abs(trigger.bb.z)>=1)confluences.push(`position Bollinger ${trigger.bb.z.toFixed(1)}σ`);if(trigger.eff!=null&&trigger.eff>.3)confluences.push(`efficacité ${trigger.eff.toFixed(2)}`);if(trigger.rsi!=null&&trigger.rsi>52&&biasBull)confluences.push(`RSI ${trigger.rsi.toFixed(0)} haussier`);if(trigger.rsi!=null&&trigger.rsi<48&&biasBear)confluences.push(`RSI ${trigger.rsi.toFixed(0)} baissier`);
  const signals=[];
  const addSig=(name,status,detail,family)=>signals.push({name,status,detail,family});
  addSig(`Tendance ${anchorKey}`,anchor.t.label==='mixte'?'neutral':((biasBull&&anchor.t.bull)||(biasBear&&anchor.t.bear))?'positive':'negative',anchor.t.label,'structure');
@@ -105,13 +105,13 @@ function adaptiveEngine(frames,currentData){
  addSig('Volume déclencheur',trigger.vol?.ratio==null?'neutral':trigger.vol.ratio>=1.15?'positive':trigger.vol.ratio>=.85?'warning':'negative',trigger.vol?.ratio==null?'N/D':trigger.vol.ratio.toFixed(2)+'x moyenne','volume');
  addSig('RSI',!Number.isFinite(trigger.rsi)?'neutral':((biasBull&&trigger.rsi>=52)||(biasBear&&trigger.rsi<=48))?'positive':(trigger.rsi>=70||trigger.rsi<=30)?'warning':'negative',Number.isFinite(trigger.rsi)?trigger.rsi.toFixed(1):'N/D','momentum');
  addSig('Bollinger',trigger.bb?.z==null?'neutral':Math.abs(trigger.bb.z)>=2?'warning':Math.abs(trigger.bb.z)>=1?'positive':'neutral',trigger.bb?.z==null?'N/D':trigger.bb.z.toFixed(2)+'σ','volatilité');
- addSig('ADX',trigger.adx==null?'neutral':trigger.adx>=25?'positive':trigger.adx>=18?'warning':'negative',trigger.adx==null?'N/D':trigger.adx.toFixed(1),'tendance');
+ addSig('ADX',trigger.t.adx==null?'neutral':trigger.t.adx>=25?'positive':trigger.t.adx>=18?'warning':'negative',trigger.t.adx==null?'N/D':trigger.t.adx.toFixed(1),'tendance');
  addSig('Efficacité',trigger.eff==null?'neutral':trigger.eff>=.4?'positive':trigger.eff>=.25?'warning':'negative',trigger.eff==null?'N/D':trigger.eff.toFixed(2),'price action');
  addSig('Volatilité',trigger.compression?'warning':trigger.expansion?'positive':'neutral',trigger.compression?'compression':trigger.expansion?'expansion':'normale','volatilité');
  addSig('Distance au niveau',nearR||nearS?'positive':'neutral',nearR?'résistance proche':nearS?'support proche':'hors zone','structure');
  if(currentData?.oiDelta!=null)addSig('Open Interest',Math.abs(currentData.oiDelta)>=2?'warning':'neutral',(currentData.oiDelta>=0?'+':'')+currentData.oiDelta.toFixed(2)+'% • participation, pas direction','dérivés');else addSig('Open Interest','neutral','historique insuffisant','dérivés');
  if(currentData?.funding!=null){let f=currentData.funding;let adverse=(biasBull&&f>.0008)||(biasBear&&f<-.0008);addSig('Funding',adverse?'warning':(biasBull&&f<0)||(biasBear&&f>0)?'positive':'neutral',(f*100).toFixed(4)+'%','dérivés')}else addSig('Funding','neutral','N/D','dérivés');
- let score=38+confluences.length*6+(anchor.t.label===trigger.t.label?8:0)+(trigger.vol?.ratio>1.5?6:0)+(trigger.adx>25?6:0)+(trigger.eff>.4?5:0);
+ let score=38+confluences.length*6+(anchor.t.label===trigger.t.label?8:0)+(trigger.vol?.ratio>1.5?6:0)+(trigger.t.adx>25?6:0)+(trigger.eff>.4?5:0);
  const majorCount=(mtf.rows||[]).filter(r=>['1D','4H','1H'].includes(r.tf)).length;
  score+=mtf.majorBull===majorCount&&majorCount>=2&&biasBull?8:0;
   score+=mtf.majorBear===majorCount&&majorCount>=2&&biasBear?8:0;
