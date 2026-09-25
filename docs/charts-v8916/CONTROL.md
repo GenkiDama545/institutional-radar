@@ -48,3 +48,10 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
 - 25 tests ciblés passent : invariance de toutes les séries, parité avec le RSI/EMA du modèle, six horizons,
   route classement → fiche → verrou identique, conservation des corrections REST/WS.
 - Migration de la fiche/Prix vers ces contrats prévue en L5, sans anticiper le remplacement du renderer.
+
+## L3 — Prototype isolé, pas de généralisation
+
+- Lightweight Charts 5.2.1 fourni dans `prototypes/` uniquement, avec bundle figé, licence, NOTICE et fixture.
+- Critères de fluidité/pinch/accessibilité non démontrables dans le navigateur Work qui refuse la recette locale.
+- Décision appliquée : SVG conservé pour l'application. Voir `L3-renderer-decision.md`.
+- Aucun script ni cache de production ne charge le prototype ou sa bibliothèque.
