@@ -36,3 +36,15 @@ ne jamais réécrire la branche de production. La baseline ci-dessus reste le po
   les règles de confirmation et de résolution ne changent pas. Une série 1m consultée reste hors `scenarioMonitorFrames`.
 - Validation : 50 tests ciblés passent, dont toutes les décisions D01–D10 et les verrous/suivi existants.
 - Rendu SVG historique maintenu à ce stade. Aucune formule ni pondération modifiée.
+
+## L2 — Références de calcul
+
+- Provider `chart-series.js` : mathématiques injectées depuis les helpers existants, aucune nouvelle formule.
+- Référence moteur : séries calculées sur les exactes `e.F[tf].cs`, donc mêmes bougies confirmées et amorçage.
+- Consultation : origine de calcul stable pendant la session. Un préchargement antérieur ajoute les bougies,
+  pas un nouvel amorçage ; les indicateurs sont indisponibles avant l'origine existante. Un renouvellement
+  explicite de la référence permet un calcul sur l'historique élargi (version de données distincte).
+- Les séries sont indexées par timestamp. Les tableaux visibles ne changent pas le provider.
+- 25 tests ciblés passent : invariance de toutes les séries, parité avec le RSI/EMA du modèle, six horizons,
+  route classement → fiche → verrou identique, conservation des corrections REST/WS.
+- Migration de la fiche/Prix vers ces contrats prévue en L5, sans anticiper le remplacement du renderer.
