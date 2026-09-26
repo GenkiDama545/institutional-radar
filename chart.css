@@ -1,0 +1,19 @@
+/* Scoped chart styles: V8.9.16 surfaces, palette and application typography preserved. */
+.ir-chart{min-width:0;color:#c4cad3;--ir-border:#39434e;--ir-surface:#191d24}
+.ir-chart-meta{font-weight:700;font-size:.88rem;line-height:1.5;margin:8px 0;color:#b6c4cd;overflow-wrap:anywhere}
+.ir-price-readings{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.78rem;line-height:1.5;margin:8px 0}.ir-price-readings span{display:block}.ir-price-readings b{color:#eef1f4}
+.ir-controls{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 8px}
+.ir-chart button,.ir-chart select{min-height:44px;min-width:44px;border:1px solid var(--ir-border);background:var(--ir-surface);color:#eef1f4;border-radius:12px;padding:8px 12px;font:inherit;font-size:.85rem;font-weight:700;cursor:pointer;touch-action:manipulation}
+.ir-chart button[aria-pressed=true]{background:#245f49;border-color:#49d486}.ir-chart button:disabled{opacity:.5;cursor:default}
+.ir-chart button:focus-visible,.ir-chart input:focus-visible,.ir-chart select:focus-visible,.ir-plot:focus-visible{outline:2px solid #65b8ff;outline-offset:3px}
+.ir-options{margin:8px 0}.ir-options summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:.9rem;font-weight:700}.ir-options>label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.ir-toggles{display:flex;flex-wrap:wrap;gap:4px 14px}.ir-toggles label{display:flex;gap:8px;align-items:center;min-height:44px;font-size:.85rem}.ir-toggles input{width:18px;height:18px;accent-color:#45dc7a}
+.ir-readout{border:1px solid var(--ir-border);border-radius:12px;background:rgba(11,13,17,.65);padding:10px 12px;font-size:.83rem;line-height:1.6;min-height:66px;margin:8px 0;color:#eef1f4;overflow-wrap:anywhere}
+.ir-ohlc,.ir-indicator-values{display:flex;flex-wrap:wrap;column-gap:14px}.ir-indicator-values{color:#b6c4cd;font-size:.8rem}
+.ir-plot{display:block;width:100%;border-radius:12px;touch-action:pan-y;user-select:none;-webkit-user-select:none;overflow:hidden;cursor:crosshair}
+.ir-plot text{font:11px Inter,system-ui,sans-serif;pointer-events:none}.ir-plot g{pointer-events:none}
+.ir-levels{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.ir-levels span{border-left:3px solid var(--series);background:rgba(11,13,17,.5);padding:6px 9px;border-radius:6px;font-size:.8rem;line-height:1.5;overflow-wrap:anywhere}.ir-levels b{color:#eef1f4}
+.ir-events,.ir-coverage,.ir-status{font-size:.78rem;line-height:1.5;overflow-wrap:anywhere;margin:6px 0}.ir-status{color:#ffd166}.ir-events{color:#8be2b1}
+.ir-more{margin:6px 0}.ir-chart [hidden]{display:none!important}
+.ir-metric{min-width:0;color:#c4cad3}.ir-metric-axis,.ir-metric-summary,.ir-metric-readout{font-size:.85rem;line-height:1.5;margin:8px 0;overflow-wrap:anywhere}.ir-metric-plot{display:block;width:100%;touch-action:pan-y}.ir-metric-plot text{font:11px Inter,system-ui,sans-serif}.ir-metric-controls{display:flex;gap:8px}.ir-metric-controls button{min-width:44px;min-height:44px;background:#191d24;color:#eef1f4;border:1px solid #39434e;border-radius:12px;font:inherit}.ir-metric-plot:focus-visible,.ir-metric-controls button:focus-visible{outline:2px solid #65b8ff;outline-offset:3px}
+@media(max-width:500px){.ir-controls{gap:5px}.ir-controls button{font-size:.78rem;padding:8px}.ir-price-readings{display:block}.ir-price-readings span{margin:4px 0}.ir-readout{font-size:.79rem}.ir-chart-meta{font-size:.82rem}}

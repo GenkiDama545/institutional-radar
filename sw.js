@@ -1,5 +1,5 @@
-const CACHE='institutional-radar-v8.9.16';
-const ASSETS=['./','./index.html','./experience.css?v=8.9.16','./signal-engine.js?v=8.9.16','./market-screen.js?v=8.9.16','./engine-core.js?v=8.9.16','./trade-sim.js?v=8.9.16','./candle-store.js?v=8.9.16','./app.js?v=8.9.16','./manifest.json','./icon-192.png','./icon-512.png'];
+const CACHE='institutional-radar-v8.9.17';
+const ASSETS=['./','./index.html','./experience.css?v=8.9.17','./signal-engine.js?v=8.9.17','./market-screen.js?v=8.9.17','./engine-core.js?v=8.9.17','./trade-sim.js?v=8.9.17','./candle-store.js?v=8.9.17','./chart-core.js?v=8.9.17','./chart-series.js?v=8.9.17','./chart.css?v=8.9.17','./chart-panel.js?v=8.9.17','./chart-host.js?v=8.9.17','./chart-metrics.js?v=8.9.17','./app.js?v=8.9.17','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('institutional-radar-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(r=>{if(r.ok)caches.open(CACHE).then(c=>c.put(e.request,r.clone()));return r}).catch(()=>caches.match(e.request).then(r=>r||(e.request.mode==='navigate'?caches.match('./index.html'):Response.error()))))});

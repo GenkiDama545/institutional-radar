@@ -1,0 +1,92 @@
+{
+  "source": "bd5c19f46eebad03ff8bd1f0d0ca7ef2797fb7c8",
+  "functions": {
+    "xperpUniverse": "043d940be0c9da56a39a00c655994ea949f9a5e811b9e7571da48e48553bceeb",
+    "scan": "ddaf15ce6d96121a1dab23dce227e23f6e7d69a80416884d5c55810d2660627b",
+    "decisionFreshness": "9243f875b075136c48071d1dd66dca13e83d9309ad1f5e12ac7aabc685d98bbf",
+    "candidateModel": "796d7857991d8f83decef54bf7d894ba19d0dd008be15f1a514457684b14b3fa",
+    "scenarioKindAllowed": "c49020d93dd15068541b1f5f888e3c36cf0aa36c24e57b54b483931f3ef8abc4",
+    "admitScenario": "0791da50a2caaa7a41c4d8eb578b7060b95f74a875ddb239017e81ab607ba996",
+    "refreshDecisionSource": "641feda50959bf1782662dd1bd814e83b9bd0d63098767e69e6b56ba36b6f13c",
+    "scenarioCandidates": "05e1b0d0e6d45e8be70d6e03b2a0dcc7e7bfdcf6e0fdbea01c6fe17d696c6ed7",
+    "refreshScenarioMarket": "97ea651458eb77d732c3f61dba62c17e78bbebd86a7e77ea2b7e2debdcd76709",
+    "ema": "c45e2d99c8f99eb18103e061ea510f569ad92f4f9d535d1e5a650acc9124e53d",
+    "rsi": "1ee23da28ae5038ace72356b21b88af570a4e31a49e8610e06a6a11f218997bd",
+    "stochRsi": "97ed604d8ea00a8fe623eb9e393e5aedf25ead0c695ea76485856300eee846c6",
+    "supertrend": "9a998bc652527b6a688cadb20eca7f6b9ea6f37444d6bb0fb518057e2f877b2c",
+    "scenarioBiasCompatible": "7bc732f5af64511cdeaac42083285c2847989419ed407fd38f14240660ef2690",
+    "monitorTriggerStatus": "525ac02cbf2da067d498a0157932623c5361a782ea8526338d2938826d10ec27",
+    "scenarioValid": "69c6806a6340249981b6d3e685adeb56aaf4b9469cfd09c131156c7ecb1e2029",
+    "scenarioLockFromEngine": "b05f7a6aaa73f55bc512ae274754747c8f8b6833d5666c9290f6f17129120c61",
+    "chooseFreshScenario": "2f956c3e56c7ace8b3eee160b70531436eeb1da184b5102859a4f6064c6ef8cc",
+    "scenarioLevelsFromEngine": "3bf68ce35710997dbaee5e1a2c39f1755591d8d78e338ddc941b592e93d019a6",
+    "scenarioDirection": "331f3ef42ad1dabe810a6bcb8c7214a5d28e1d6e966af27a81bff110080b18eb",
+    "scenarioMarket": "6e3d38437a75e4b4a65c626d772bac8fd1824fb4a4a3f426bd42e1cf70ff9384",
+    "journalAdvance": "b562c8affcce15d96f061401e49e9c804a90cbe15e852c76bc57861393a9ba30",
+    "journalCreate": "c3ebdd0872556a74da95eb2021fcb4467f050f478787d20a483d72920e270c16",
+    "journalUpdate": "3b45798d8d324ebf67761612834c57ba09b6bf100522dae0e5ea6d05662e2a05",
+    "learningSnapshot": "13b99c3849e781bc2f8ab04cb1998b9544e77944593265eb254e57b2248d72ad",
+    "scenarioFingerprint": "4110ee928b458b63a311efdcfb29453aba2ea2fa2bb7d6c3af6858214531523c",
+    "verifiedObservation": "7294f7f3e07c2e5790d1573ded53031e23a065f20dac59fe0e7439c9e0881cb2",
+    "retainJournal": "326ddda6665909dcba48778a50b4abcc551b8de32db7b956f0fde06527275a8b",
+    "loadScenarioJournal": "5af8efc6fe0274e2cd7970215bf58b65a78b207374892e31b1e01117b4b0c24a",
+    "saveScenarioJournal": "22a6220747a1821c272e243338a7887791bcfd945c7b634eb1f27c3a5ad49e8f",
+    "learningStats": "07c2bed2afc61495073163d143b25396f5012fabc797428fd1a90efa3e109c23",
+    "learningProposal": "93280ee59953cbabdd0beae735f602432f1ff6ef2f9dc009f8787ed81877bdd1",
+    "labLearningReport": "8f11cf83a4e20ddabbbd3656c29fce6c345f6171c5356ea16a9544df4aebef7e",
+    "restoreStateImport": "77afadf7637c01e5843a9a33883dd971c4cbf739f22d3cdaf5bf85bfbebf18b1",
+    "validateStateBackup": "a4a6b11deec42d1b41d1b68fda0f2042fd969ddeed96dc817d0cc066079a4186",
+    "validateLearningImport": "3a515a0cf2ccd06634a3fb2ee10cb83b751376c64900c47b4a694db3a8c04306",
+    "createStateBackup": "97e7282b3e1dc7c121d68c8e223f8af1a3264b51ea94d7acbf0f39929ffc91ad",
+    "migrateStorage": "cc2f02b935c04b699c2decc08bf10c69c455fa269c457653c49070813f525f97",
+    "storageTransaction": "bccc0dc67e507d3dee7085dcceba8d7f19ba5419990ec9fc4abc3d45aa6d81a8",
+    "scenarioSimRead": "3044cde59e704edfd694797c32d692ee27f677d15676a2f74c8c2fd7bbc0dfd7",
+    "scenarioSimSave": "60a94d7a93450ff16d4ae326007c1fc1975e516bc713272f7aae49bfd7338927",
+    "calcScenarioSim": "776fe70d3fb6c2ba50d45be7c687661f3b2aee6d16ddf4184af613e2380cc70c",
+    "scenarioSimKey": "cbacdaf81b29a335f707ee79e106351b2842f586468f87621428ba8ad3737dd1",
+    "scenarioSimPanel": "a26eb8b438ef576c4a50ade58e69e56fff8a83bc71109214726c1c34ad1be236"
+  },
+  "constants": {
+    "STORAGE": {
+      "scan": "ir_scan_history_v866",
+      "learning": "ir_learning_journal_v866",
+      "locks": "ir_scenario_locks_v871",
+      "favorites": "ir_favorites_v1",
+      "imports": "ir_import_archive_v1",
+      "transaction": "ir_state_transaction_v1"
+    },
+    "DECISION_SPECS": [
+      [
+        "1D",
+        120
+      ],
+      [
+        "4H",
+        100
+      ],
+      [
+        "1H",
+        140
+      ],
+      [
+        "30m",
+        140
+      ],
+      [
+        "15m",
+        180
+      ],
+      [
+        "5m",
+        180
+      ]
+    ]
+  },
+  "files": {
+    "engine-core.js": "35504af4b55e6540a6dc923e152d7b758bffceb374b7c8082a88f95e48a84cc2",
+    "signal-engine.js": "e54b9419daf29a78925168491bed765ce012113cb53dab32d815c864599d22f3",
+    "market-screen.js": "177021ea3f922de202c78cd811e2b69258bf13d0eb6cd7b06964f316ef0ecbaf",
+    "candle-store.js": "b0d7bd2b5a10e9811ed9a13f024a802c9e937b9387b90afce68f20518e2d0228",
+    "trade-sim.js": "4bca5f0b4fac52cd45ce4fc542b1bd111358ee96624c224d36d693d4cbb957ba"
+  }
+}

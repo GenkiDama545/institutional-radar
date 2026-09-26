@@ -1,0 +1,32 @@
+{
+  "baseline": "bd5c19f46eebad03ff8bd1f0d0ca7ef2797fb7c8",
+  "removedSelectors": [
+    "proChart",
+    "chartShell",
+    "chartToolbar",
+    "chartBadge",
+    "chartHint",
+    "chartTooltip",
+    "chartSelection",
+    "chartStats",
+    "candleHit",
+    "chartLegend",
+    "projectionLegend",
+    "projectionTag",
+    "scenarioZoomBtns",
+    "deepChart",
+    "chartAxisLabel"
+  ],
+  "files": {
+    "index.html": {
+      "nonChartStylesPreserved": true,
+      "expectedSHA256": "60e6f55ae641a6fd7b4018ec60ba78e5fcd5bcaa76bf3443310427de214f7068",
+      "actualSHA256": "60e6f55ae641a6fd7b4018ec60ba78e5fcd5bcaa76bf3443310427de214f7068"
+    },
+    "experience.css": {
+      "nonChartStylesPreserved": true,
+      "expectedSHA256": "e1655f9feffaeaf3436b9ab7e4394a11b721011b44b0552b3f54653d3e2d6d6a",
+      "actualSHA256": "e1655f9feffaeaf3436b9ab7e4394a11b721011b44b0552b3f54653d3e2d6d6a"
+    }
+  }
+}
