@@ -1,6 +1,6 @@
-# Institutional Radar V8.9.16
+# Institutional Radar V8.9.17
 
-Version finale issue de la candidate V8.9.16-rc.1 auditée et adoptée. Seuls le versionnage et les assertions correspondantes changent lors de la finalisation. Baseline de comparaison : V8.9.15. Voir `docs/audit-v8915/Cloture_Etape1_V8.9.16-rc.1.md` pour les preuves et limites. Les notes ci-dessous décrivent d’abord la baseline historique.
+Version finale issue de V8.9.17-rc.1, adoptée comme baseline graphique après la recette native déclarée satisfaisante sur PC Firefox et Samsung S24+ Chrome. La finalisation ne change que le versionnage et son assertion, sans modification fonctionnelle. Les invariants métier et le stockage de V8.9.16 restent protégés. Voir [le compte rendu d’adoption](docs/charts-v8916/Adoption_V8.9.17.md) pour la traçabilité, les limites connues et le rollback. Les notes ci-dessous décrivent les étapes historiques.
 
 ## V8.9.15 — lecture, simulation et rapidité
 
