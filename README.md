@@ -1,6 +1,6 @@
-# Institutional Radar V8.9.18-rc.7 — sélection NEAR
+# Institutional Radar V8.9.18-rc.8 — sélection NEAR
 
-Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Leur similarité n’a pas encore été mesurée ; cette liste initiale n’est pas un classement de rentabilité.
+Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Cette liste initiale est provisoire ; le nouvel outil de comparaison mesure leur ressemblance à la demande, sans classement de rentabilité.
 
 - Seuls les X-Perps sélectionnés et identifiés dans le catalogue public OKX reçoivent les analyses six horizons et les requêtes OI/funding. Aucune requête Spot dans le scan ciblé.
 - Les actifs restent visibles avec deux états LONG/SHORT, même sans scénario, avec données périmées, contrat absent ou panne API.
@@ -9,6 +9,14 @@ Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et 
 - La préférence de sélection utilise `ir_focus_universe_v1`, séparée des données métier et non incluse dans `IR_BACKUP_V1`.
 
 Voir [la reprise et les prochains lots](docs/near-focus/REPRISE.md). Cette branche est une candidate ; aucune fusion ni publication de production n’est effectuée par sa préparation.
+
+## RC8 — profils de mouvement et découverte manuelle
+
+Depuis « NEAR & ses semblables », comparer la sélection à NEAR sur quatre fenêtres communes de bougies clôturées : 15 min sur 24 h / 7 jours et 1 h sur 7 / 30 jours. Amplitude, fréquence des swings, mèches, directionnalité, volume et spread daté restent inspectables. L’indice de ressemblance est une heuristique distincte du score du Radar ; les historiques incomplets donnent N/D.
+
+« Explorer 5 nouveaux candidats » examine un lot de contrats hors sélection, en commençant par les volumes indicatifs les plus élevés. Chaque nouveau clic avance dans le catalogue. « Ajouter au Radar » modifie explicitement la sélection et lance le moteur habituel. Aucune recherche périodique ni addition automatique. Les rapprochements peuvent être retrouvés à au moins 24 h d’intervalle lors de lancements manuels ; une lecture isolée n’établit pas leur persistance.
+
+Les bougies validées en RC7 et le profil de risque RC4 sont conservés. Validation : 136 tests Node, parcours navigateur mobile/ordinateur avec erreurs et interruption simulées, puis comparaison et découverte avec l’API publique OKX. [Méthode, limites et relevé de validation](docs/near-focus/MOUVEMENT.md).
 
 ## Ajustements RC4
 

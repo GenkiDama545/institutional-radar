@@ -10,7 +10,7 @@ const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,set
 vm.runInContext(fs.readFileSync(path.join(root,'market-screen.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'signal-engine.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'engine-core.js'),'utf8'),context);
-for(const file of ['position-risk.js','focus-universe.js','trade-sim.js','candle-store.js','chart-core.js','chart-metrics.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
+for(const file of ['movement-profile.js','movement-panel.js','position-risk.js','focus-universe.js','trade-sim.js','candle-store.js','chart-core.js','chart-metrics.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
 assert.match(run('simForm()'),/Saisie manuelle/,'simulator remains available when the market API fails');
@@ -120,11 +120,11 @@ assert.equal(run('money(null)'),'N/D');
 assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.deepEqual([...html.matchAll(/<script src="\.\/([^?]+)\?v=/g)].map(m=>m[1]),['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js','chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','focus-universe.js','position-risk.js','app.js']);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.18-rc\.7"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.18-rc\.7"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.18-rc\.7"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.18-rc\.7'/);
+assert.deepEqual([...html.matchAll(/<script src="\.\/([^?]+)\?v=/g)].map(m=>m[1]),['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js','chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','focus-universe.js','position-risk.js','movement-profile.js','movement-panel.js','app.js']);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.18-rc\.8"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.18-rc\.8"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.18-rc\.8"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.18-rc\.8'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{

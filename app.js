@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.9.18-rc.7';
+const APP_VERSION='V8.9.18-rc.8';
 // Public listings identify X-Perps but do not verify account eligibility.
 function xperpBase(id){return String(id||'').match(/^([A-Z0-9]+)-USD_UM_XPERP-/)?.[1]||null}
 function isListedXperp(id){return !!xperpBase(id)}
@@ -106,6 +106,7 @@ function refreshScanFreshness(){const el=$('scanFreshness');if(!el)return;el.tex
 const executionCheck=RadarMarket.executionCheck;
 const bookDepthUsd=RadarMarket.bookDepthUsd;
 let discoveryExpanded=false;
+let movementBusy=false,movementPanel=null;
 let focusConfig=RadarFocus.config(safeJSON(RadarFocus.key,null)),focusMembers=[],focusScanError='',lastScanAttemptAt=0;
 function focusControls(){
  const symbols=$('focusSymbols'),auto=$('focusAuto');
@@ -113,7 +114,7 @@ function focusControls(){
 }
 function focusBusy(busy){for(const id of ['focusSymbols','focusApply','focusAuto']){const el=$(id);if(el)el.disabled=busy}}
 async function saveFocusSettings(){
- if(scanRunning||marketRefreshRunning)return;
+ if(scanRunning||marketRefreshRunning||movementBusy)return;
  let selected;try{selected=RadarFocus.symbols($('focusSymbols').value)}catch(err){$('focusFeedback').textContent=err.message;return}
  const next={scope:'focus',symbols:selected,auto:$('focusAuto').checked};
  if(!persistJSON(RadarFocus.key,next))return;
@@ -124,7 +125,7 @@ async function saveFocusSettings(){
 }
 async function refreshRadar(){
  if(focusConfig.scope!=='focus')return refreshScenarioMarket();
- if(!focusConfig.auto||document.hidden||document.visibilityState==='hidden'||$('home')?.classList.contains('hidden')||scanRunning||marketRefreshRunning||Date.now()-lastScanAttemptAt<RadarFocus.refreshMs)return;
+ if(movementBusy||!focusConfig.auto||document.hidden||document.visibilityState==='hidden'||$('home')?.classList.contains('hidden')||scanRunning||marketRefreshRunning||Date.now()-lastScanAttemptAt<RadarFocus.refreshMs)return;
  await scan();
 }
 function focusState(x,direction){
@@ -142,17 +143,17 @@ function renderFocusBoard(){
  const root=$('focusBoard');if(!root)return;
  const focused=focusConfig.scope==='focus';root.hidden=!focused;
  const spotFilter=document.querySelector('#marketMode [data-mode=spot]');if(spotFilter)spotFilter.hidden=focused;
- const intro=$('homeIntro');if(intro)intro.innerHTML=focused?'<span class="eyebrow">TABLEAU DE BORD · X-PERPS CIBLÉS</span><h2>NEAR au centre.<br><em>Chaque mouvement compte.</em></h2><p>Une sélection suivie dans les deux sens, même sans scénario. Les candidats seront comparés à NEAR sur leur amplitude, leur régularité et leur lisibilité.</p>':'<span class="eyebrow">TABLEAU DE BORD · SPOT & PERP</span><h2>Tous les marchés comptent.<br><em>La confluence décide.</em></h2><p>Scan large manuel : chaque marché admissible reçoit la même analyse multi-horizon.</p>';
+ const intro=$('homeIntro');if(intro)intro.innerHTML=focused?'<span class="eyebrow">TABLEAU DE BORD · X-PERPS CIBLÉS</span><h2>NEAR au centre.<br><em>Chaque mouvement compte.</em></h2><p>Une sélection suivie dans les deux sens, même sans scénario. Compare les candidats à NEAR sur leur amplitude, leur rythme et leurs mèches depuis le profil de mouvement.</p>':'<span class="eyebrow">TABLEAU DE BORD · SPOT & PERP</span><h2>Tous les marchés comptent.<br><em>La confluence décide.</em></h2><p>Scan large manuel : chaque marché admissible reçoit la même analyse multi-horizon.</p>';
  if(!focused)return;
  const members=focusMembers.length?focusMembers:focusConfig.symbols.map(sym=>({sym,asset:null,reason:scanRunning?'Recherche du contrat dans le catalogue OKX…':'En attente du prochain scan.'}));
- root.innerHTML=`<div class="sectionTitle"><div><span class="eyebrow">SÉLECTION SUIVIE</span><h2>NEAR & candidats à comparer</h2></div><span class="tag b">${members.length} actifs</span></div><p class="sub">NEAR est la référence. Les autres sont des candidats, leur similarité n’a pas encore été mesurée. Chaque actif reste visible lorsque son scénario expire ou que ses données manquent.</p><div class="focusCards">${members.map(member=>{
+ root.innerHTML=`<div class="sectionTitle"><div><span class="eyebrow">SÉLECTION SUIVIE</span><h2>NEAR & candidats à comparer</h2></div><span class="tag b">${members.length} actifs</span></div><p class="sub">NEAR est la référence. Les autres sont des candidats ; ouvre le profil de mouvement pour mesurer leur ressemblance. Chaque actif reste visible lorsque son scénario expire ou que ses données manquent.</p><div class="focusCards">${members.map(member=>{
   const x=member.asset,states=['long','short'].map(direction=>({...focusState(x,direction),direction}));
   const canOpen=x&&!focusScanError&&x.analysisCoverage!=='pending';
   return `<article class="focusCard" data-focus-symbol="${esc(member.sym)}"><div class="sectionTitle"><h3>${esc(member.sym)}</h3><span class="tag ${member.sym==='NEAR'?'g':'b'}">${member.sym==='NEAR'?'Référence':'Candidat'}</span></div><p class="focusContract">${x?esc(x.id):'Contrat indisponible'}</p>${x?`<div class="focusPrice">${price(x.price)} $ <span class="sub">${x.marketTs?'cotation du '+esc(clockStamp(x.marketTs)):'cotation non datée'}</span></div>`:''}${!x||focusScanError?`<p class="sub" role="status">${esc(focusScanError||member.reason)}</p>`:`<div class="focusDirections">${states.map(state=>`<div><b>${state.direction.toUpperCase()}</b> <span class="tag ${state.ready?'g':'y'}">${esc(state.label)}</span><p class="sub">${esc(state.reason)}</p></div>`).join('')}</div>`}${canOpen?`<button class="smallbtn" onclick="openDetail('${esc(x.id)}','perp')">Ouvrir l’analyse de ${esc(member.sym)}</button>`:''}</article>`;
  }).join('')}</div>`;
 }
 async function scan(){
- if(scanRunning||marketRefreshRunning)return;const focused=focusConfig.scope==='focus',scanStart=Date.now(),beforeStats={...candleStore.stats};lastScanAttemptAt=scanStart;scanRunning=true;focusBusy(true);focusScanError='';$('scan').disabled=true;refreshScanFreshness();
+ if(scanRunning||marketRefreshRunning||movementBusy)return;const focused=focusConfig.scope==='focus',scanStart=Date.now(),beforeStats={...candleStore.stats};lastScanAttemptAt=scanStart;scanRunning=true;focusBusy(true);focusScanError='';$('scan').disabled=true;refreshScanFreshness();
  $('status').textContent=focused?'Recherche des X-Perps sélectionnés…':'Construction de l’univers Spot…';
  try{
    const [spotResult,futureInstruments,futureTickers]=await Promise.allSettled([focused?Promise.resolve([]):get('/market/tickers?instType=SPOT'),get('/public/instruments?instType=FUTURES'),get('/market/tickers?instType=FUTURES')]);
@@ -347,7 +348,7 @@ async function detailAsync(){const page=pageRevision;try{const instrument=active
 function rangeControls(activeBar='1H',activeDays=1,showTimeframes=true){let dayLabel=d=>d===1?'24H':d+'J';return `${showTimeframes?`<div class="rangeBtns" id="bars">${['1m','5m','15m','30m','1H','4H','1D'].map(x=>`<button class="smallbtn ${x===activeBar?'active':''}" data-bar="${x}">${x}</button>`).join('')}</div>`:''}<div class="rangeBtns" id="ranges">${[1,3,7,14,30,90].map(d=>`<button class="smallbtn ${d===activeDays?'active':''}" data-days="${d}">${dayLabel(d)}</button>`).join('')}</div>`}
 let activeCandleStream=null;
 let pageRevision=0;
-function leavePage(){clearChartViews();pageRevision++;stopScenarioUpdates();stopGraphUpdates();if(detailLiveTimer){clearInterval(detailLiveTimer);detailLiveTimer=null}return pageRevision}
+function leavePage(){movementPanel?.dispose();movementPanel=null;clearChartViews();pageRevision++;stopScenarioUpdates();stopGraphUpdates();if(detailLiveTimer){clearInterval(detailLiveTimer);detailLiveTimer=null}return pageRevision}
 function stopCandleStream(){if(activeCandleStream){activeCandleStream.stop();activeCandleStream=null}}
 function stopScenarioUpdates(){if(scenarioMonitorTimer){clearInterval(scenarioMonitorTimer);scenarioMonitorTimer=null}scenarioMonitorSeq++}
 function stopGraphUpdates(){stopCandleStream();if(graphLiveTimer){clearInterval(graphLiveTimer);graphLiveTimer=null}}
@@ -1096,9 +1097,21 @@ async function runWalkForwardLab(){
   }catch(e){out.innerHTML=`<div class="panel danger"><b>Laboratoire interrompu</b><div class="sub">${esc(e.message)}</div></div>`}finally{btn.disabled=false;btn.textContent='▶ Lancer le diagnostic'}
 }
 function backtestHtml(){return `<button class="btn secondary" onclick="backHome()">← Radar</button><div class="panel"><h2>🧪 Laboratoire historique exploratoire</h2><div class="sub">Ce diagnostic n’est pas une preuve de performance et ne fournit aucune nouvelle pondération. Il utilise trois partitions temporelles (70 %, 20 %, 10 %). Il ne réentraîne pas le moteur et ne constitue pas encore une validation walk-forward statistique. Les horizons courts peuvent manquer sur les dates anciennes. Le HOLDOUT n'est jamais utilisé pour modifier les règles.</div><div class="toolbar"><button id="btRun" class="btn" onclick="runWalkForwardLab()">▶ Lancer le diagnostic</button></div><div class="callout">Le laboratoire utilise ici les chandeliers historiques. Les dérivés historiques (OI/funding) ne sont pas inventés. Les coûts affichés ensuite sont des hypothèses de sensibilité, pas un relevé de transactions.</div></div><div id="btOut"><div class="panel"><div class="empty">Aucun test lancé.</div></div></div>`}
-function toolPage(type){leavePage();stopGraphUpdates();$('back2').onclick=backHome;$('back2').textContent='← Radar';if(scenarioMonitorTimer){clearInterval(scenarioMonitorTimer);scenarioMonitorTimer=null;scenarioMonitorSeq++}$('drawer').classList.remove('open');$('home').classList.add('hidden');$('detail').classList.add('hidden');$('deep').classList.remove('hidden');if(type==='favorites'){$('deepBody').innerHTML=favoritesPage();renderFavorites()}else if(type==='memory'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${learningHtml()}`}else if(type==='backtest'){$('deepBody').innerHTML=backtestHtml()}else if(type==='brain'){current=current||all[0];$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button><div class="panel"><h2>🧠 Cerveau & laboratoire</h2><div class="sub">Architecture du moteur, familles de signaux et tests de résistance. Les adaptations restent proposées tant qu'elles ne sont pas validées hors échantillon.</div></div>${current?engineHtml():`<div class="panel"><div class="empty">Lance d'abord un scan pour alimenter le moteur.</div></div>`}`}else if(type==='sim'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button><div class="panel"><h2>🧮 Simulateur indépendant</h2><div class="sub">Choisis une crypto ou saisis tes niveaux manuellement.</div>${simForm()}</div>`;sim()}else if(type==='gloss'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${glossaryHtml()}`;bindAcc()}else if(type==='learn'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${learnHtml()}`}else if(type==='compare'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${compareHtml()}`}else{$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${settingsHtml()}`}}
+function mountMovement(){
+ movementPanel=RadarMovementPanel.mount($('deepBody'),{
+  get,decode:RadarCandles.decode,resolve:xperpUniverse,selected:()=>[...focusConfig.symbols],
+  canRun:()=>!scanRunning&&!marketRefreshRunning&&!movementBusy,
+  setBusy:busy=>{movementBusy=busy;focusBusy(busy||scanRunning);$('scan').disabled=busy||scanRunning},
+  add:async sym=>{
+   if(scanRunning||marketRefreshRunning||movementBusy)throw Error('Une analyse est en cours. Réessaie après sa fin.');
+   const next=RadarFocus.symbols([...focusConfig.symbols,sym]);$('focusSymbols').value=next.join(', ');$('focusAuto').checked=focusConfig.auto;
+   await saveFocusSettings();if(!focusConfig.symbols.includes(sym))throw Error('La sélection n’a pas pu être enregistrée.');
+  }
+ });
+}
+function toolPage(type){leavePage();stopGraphUpdates();$('back2').onclick=backHome;$('back2').textContent='← Radar';if(scenarioMonitorTimer){clearInterval(scenarioMonitorTimer);scenarioMonitorTimer=null;scenarioMonitorSeq++}$('drawer').classList.remove('open');$('home').classList.add('hidden');$('detail').classList.add('hidden');$('deep').classList.remove('hidden');if(type==='movement'){mountMovement()}else if(type==='favorites'){$('deepBody').innerHTML=favoritesPage();renderFavorites()}else if(type==='memory'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${learningHtml()}`}else if(type==='backtest'){$('deepBody').innerHTML=backtestHtml()}else if(type==='brain'){current=current||all[0];$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button><div class="panel"><h2>🧠 Cerveau & laboratoire</h2><div class="sub">Architecture du moteur, familles de signaux et tests de résistance. Les adaptations restent proposées tant qu'elles ne sont pas validées hors échantillon.</div></div>${current?engineHtml():`<div class="panel"><div class="empty">Lance d'abord un scan pour alimenter le moteur.</div></div>`}`}else if(type==='sim'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button><div class="panel"><h2>🧮 Simulateur indépendant</h2><div class="sub">Choisis une crypto ou saisis tes niveaux manuellement.</div>${simForm()}</div>`;sim()}else if(type==='gloss'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${glossaryHtml()}`;bindAcc()}else if(type==='learn'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${learnHtml()}`}else if(type==='compare'){$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${compareHtml()}`}else{$('deepBody').innerHTML=`<button class="btn secondary" onclick="backHome()">← Radar</button>${settingsHtml()}`}}
 function backHome(){leavePage();stopScenarioUpdates();stopGraphUpdates();$('deep').classList.add('hidden');$('detail').classList.add('hidden');$('home').classList.remove('hidden')}
 document.querySelectorAll('#marketMode .modeBtn').forEach(b=>b.onclick=()=>{marketMode=b.dataset.mode;document.querySelectorAll('#marketMode .modeBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');const visible=scenarioCandidates().filter(c=>marketMode==='all'||(marketMode==='spot'&&c.market==='spot')||(marketMode==='long'&&c.direction==='long')||(marketMode==='short'&&c.direction==='short'));if(visible.length&&!visible.some(c=>bucket(c.score)===filter))setFilter(preferredFilter(visible));renderRank();void refreshRadar()});$('scan').onclick=scan;$('back1').onclick=backHome;$('back2').onclick=backDetail;$('sort').onchange=drawTable;$('tier').onchange=drawTable;$('search').oninput=drawTable;document.querySelectorAll('#tradeTabs button').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('#tradeTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});document.querySelectorAll('.bottomnav [data-jump]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.bottomnav [data-jump]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.jump).scrollIntoView({behavior:'smooth',block:'start'})});$('toolsBtn').onclick=()=>$('drawer').classList.add('open');$('closeDrawer').onclick=()=>$('drawer').classList.remove('open');$('drawer').onclick=e=>{if(e.target===$('drawer'))$('drawer').classList.remove('open')};document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click()}});bindAcc();setInterval(()=>{refreshScanFreshness();renderRank()},60000);setInterval(()=>{if(!document.hidden)void refreshRadar()},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshRadar()});setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('fr-FR')},1000);$('clock').textContent=new Date().toLocaleTimeString('fr-FR');$('runtimeVersion').textContent=APP_VERSION+' • Radar ciblé';focusControls();$('focusApply').onclick=saveFocusSettings;render();scan();
 
 
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.18-rc.7',{updateViaCache:'none'}).catch(console.warn));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.18-rc.8',{updateViaCache:'none'}).catch(console.warn));

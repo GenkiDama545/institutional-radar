@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.7, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.8, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -11,7 +11,7 @@ La version de production confirmée est V8.9.17. L’étape Graphiques L0–L7 e
 
 ## Lot 1 réalisé — sélection et scan ciblé
 
-Le mode ciblé est le défaut. La sélection initiale est NEAR, SUI, HYPE, AVAX, SOL ; seuls NEAR et les critères de comparaison constituent des références. Les quatre autres restent des candidats provisoires, sans similarité mesurée ni classement de gain attendu. L’utilisateur peut modifier la liste, jusqu’à 15 symboles uniques, avec NEAR toujours inclus.
+Le mode ciblé est le défaut. La sélection initiale est NEAR, SUI, HYPE, AVAX, SOL ; seuls NEAR et les critères de comparaison constituent des références. Les quatre autres restent des candidats provisoires, sans classement de gain attendu. Depuis RC8, leur similarité peut être mesurée à la demande. L’utilisateur peut modifier la liste, jusqu’à 15 symboles uniques, avec NEAR toujours inclus.
 
 Le catalogue FUTURES et ses tickers servent à résoudre les contrats exacts. Aucun identifiant d’expiration n’est construit à partir du symbole. Un actif absent, sans cotation exploitable ou associé à plusieurs contrats reste visible et n’est pas analysé comme un contrat sélectionné. La résolution d’un choix entre plusieurs contrats reste un futur raffinement ; aucun choix silencieux d’échéance n’est fait. La présence publique ne prouve pas la disponibilité sur le compte.
 
@@ -46,18 +46,18 @@ Commandes : `npm test` ; test navigateur optionnel `node tests/browser-focus.cjs
 | Lot | Travail | Critère de sortie |
 |---|---|---|
 | 1 — Scan ciblé | Présente candidate | CI du commit, revue et recette avec données OKX puis autorisation de promotion |
-| 2 — Profil de mouvement | Mesurer amplitude en %, fréquence et régularité des swings, mèches/bruit, liquidité/coûts sur plusieurs fenêtres et régimes | Données comparables, méthode explicite, données manquantes visibles ; NEAR comme référence sans bonus automatique |
+| 2 — Profil de mouvement | RC8 : comparaison descriptive sur quatre fenêtres, volumes/spread, exploration manuelle et ajout explicite | Tests et contrôle API réussis ; recette utilisateur de la prévisualisation. Profondeur et coûts réels restent non mesurés |
 | 3 — Signal Audit / Confluence | Auditer les familles existantes, redondance tendance/Price Action, RSI/StochRSI, contexte OI/funding et stabilité selon le régime | Comparaison baseline/candidate, coût mesuré, validation hors échantillon avant toute nouvelle pondération |
 | 4 — Suivi des scénarios | États figés, IDs uniques, suivi jusqu’à résolution, TP partiels, expiration, MFE/MAE et interruptions | Cas ambigus explicitement non vérifiés, aucune assimilation à des ordres réels |
 | 5 — Learning | Reste en pause ; à reprendre seulement après audit et collecte validés | Données traçables et protocole Production/Challenger avec promotion contrôlée |
 
-Les cryptos hors sélection sont en pause ; aucune analyse de bougies, OI ou funding ne leur est demandée. Les réponses groupées du catalogue et des cotations sont conservées uniquement pour résoudre les contrats exacts et maintenir les références transversales du moteur. La découverte automatique des « semblables de NEAR » n’est pas encore implémentée : elle dépend du lot 2. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
+Les cryptos hors sélection restent en pause dans le scan courant. L’exploration RC8 lit seulement deux séries historiques pour cinq nouveaux contrats au plus, sur action explicite. Elle ne lance ni OI/funding ni moteur à six horizons pour ces candidats avant leur ajout. Le catalogue et les cotations groupées servent aussi à la résolution des contrats et aux références transversales du moteur. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
 
 ## Exigence du lot 2 — sélection évolutive
 
 Décision utilisateur du 8 octobre 2026 : pouvoir élargir la sélection si d’autres cryptos commencent à présenter les qualités recherchées chez NEAR. Les actifs hors sélection sont en pause, pas exclus définitivement. NEAR reste la référence initiale ; la liste des candidats ne doit pas être figée.
 
-La première candidate permet déjà l’ajout/retrait manuel de symboles dans la limite de 15 actifs. La découverte des nouveaux candidats reste à construire dans le lot 2, après définition et validation du profil de mouvement.
+La première candidate permet l’ajout/retrait manuel de symboles dans la limite de 15 actifs. La RC8 ajoute la découverte à la demande, avec une méthode exploratoire documentée et testée. Les exigences d’origine sont conservées ci-dessous pour tracer ce qui reste à approfondir.
 
 - Distinguer le scan fréquent des actifs suivis d’une recherche de candidats moins fréquente, déclenchable à la demande puis éventuellement périodique selon un budget de requêtes explicite. Une future exploration peut lire des données hors sélection sans réactiver leur analyse approfondie à chaque scan courant.
 - Comparer amplitude en pourcentage, régularité et fréquence des swings, structure, bruit/mèches et conditions d’exécution sur plusieurs fenêtres et régimes. Une seule hausse journalière ou une corrélation de prix avec NEAR ne suffit pas à établir la ressemblance recherchée.
@@ -66,7 +66,7 @@ La première candidate permet déjà l’ajout/retrait manuel de symboles dans l
 - Éviter les entrées/sorties incessantes de la liste à cause d’un pic isolé : exiger une persistance à définir et tester. Les favoris et scénarios verrouillés conservent leur historique lorsqu’un actif quitte la sélection active.
 - La limite actuelle de 15 actifs est un garde-fou initial de performance, pas une limite définitive du produit. Son élargissement devra être configurable et évalué selon le temps de scan, la fraîcheur et le coût des requêtes.
 
-Critère de sortie : un actif initialement hors sélection peut être détecté, expliqué, ajouté puis analysé par le même moteur, sans imposer un scan profond de tout le marché à chaque cycle et sans présenter de données manquantes comme une ressemblance confirmée. Cette section décrit une fonctionnalité prévue ; aucun service de surveillance externe ni aucune automatisation planifiée n’est activé par cette modification documentaire.
+Critère de sortie : un actif initialement hors sélection peut être détecté, expliqué, ajouté puis analysé par le même moteur, sans imposer un scan profond de tout le marché à chaque cycle et sans présenter de données manquantes comme une ressemblance confirmée. Ce parcours est réalisé et testé en RC8. La directionnalité fournit un régime descriptif, pas une classification complète de structure HH/HL ; la profondeur, les coûts réels, la recherche périodique et la validation statistique restent à traiter. Aucun service externe ni automatisation planifiée n’est activé.
 
 ## Promotion et retour
 
@@ -122,4 +122,14 @@ Validation RC6 : 126 tests existants et suites moteur/hosted-feed réussis. Cont
 
 L’utilisateur valide l’ensemble de RC6 mais trouve les couleurs trop peu vives. Aucun filtre ni opacité globale ne les atténue dans les styles ; les contours très clairs ajoutés en RC6 apportaient une composante pastel, surtout sur les corps étroits. RC7 utilise un vert citron `#b6ff00` et un rouge franc `#ff1744`, avec des contours eux aussi saturés (`#d2ff00` / `#ff3755`). La saturation HSV des corps passe de 73 % à 100 % pour le vert, et de 60 % à 91 % pour le rouge. La géométrie, les filets fins et le rendu validés en RC6 sont conservés. Aucun changement fonctionnel.
 
-Validation RC7 : 126 tests existants et suites moteur/hosted-feed réussis. Contrôle Chromium avec API publique OKX, vues large et détaillée : 76 / 28 bougies mobile et 142 sur grand écran, sans erreur JavaScript ni débordement. Preuve : `evidence/chart-rc7-live.json`. Le rendu reste à apprécier sur le téléphone réel.
+Validation RC7 : 126 tests existants et suites moteur/hosted-feed réussis. Contrôle Chromium avec API publique OKX, vues large et détaillée : 76 / 28 bougies mobile et 142 sur grand écran, sans erreur JavaScript ni débordement. Preuve : `evidence/chart-rc7-live.json`. L’utilisateur a ensuite validé ce rendu (« Parfait 👌 ») ; il devient la référence visuelle de la suite.
+
+## RC8 — profil de mouvement et découverte à la demande
+
+Après présentation du prochain lot, l’utilisateur a donné son feu vert. `movement-profile.js` calcule les mesures et collecte l’historique ; `movement-panel.js` présente la comparaison, la découverte et l’ajout explicite. Les formules, seuils, hypothèses et limites sont dans [MOUVEMENT.md](MOUVEMENT.md).
+
+Quatre fenêtres communes clôturées, couverture stricte, indice heuristique indépendant du moteur, détails par actif, actualisation finale des cotations et persistance entre lectures manuelles. L’exploration est limitée à cinq nouveaux candidats par clic ; l’ajout lance le même scan ciblé, sans modifier les scores ni les anciens scénarios. La page interdit le chevauchement avec un scan et permet d’arrêter après la requête en cours. Le cache historique est séparé, borné et propre à la session. Le registre compact `ir_movement_checks_v1` est séparé du journal, limité à 100 contrats et absent de l’ancien export métier.
+
+Validation : 136 tests Node et suites moteur/hosted-feed réussis, dix nouveaux tests de calcul, complétude, fraîcheur, comparaison, persistance, pagination/cache, découverte, interruption et isolation métier. Parcours Chromium à 390 / 1440 px avec fixtures : absence de requête à l’ouverture, changement de fenêtre sans réseau, données manquantes, interruption, ajout BTC après clic, conservation des modèles/scénarios/favoris et absence d’erreur JavaScript. [Preuve navigateur](evidence/browser-rc8-movement.json).
+
+Contrôle ponctuel avec API OKX publique le 8 octobre 2026 à 05:45 Paris : cinq profils comparables, découverte de cinq contrats hors sélection, 33 lectures logiques par parcours, aucune addition automatique, aucune erreur JavaScript ni débordement. [Relevé live](evidence/movement-rc8-live.json). La persistance sur 24 h n’est pas encore observée en réel ; ses transitions sont testées avec horloge simulée. La recette sur le téléphone réel et l’approbation de production restent distinctes.
