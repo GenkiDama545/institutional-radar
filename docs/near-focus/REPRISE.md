@@ -53,6 +53,21 @@ Commandes : `npm test` ; test navigateur optionnel `node tests/browser-focus.cjs
 
 Les cryptos hors sélection sont en pause ; aucune analyse de bougies, OI ou funding ne leur est demandée. Les réponses groupées du catalogue et des cotations sont conservées uniquement pour résoudre les contrats exacts et maintenir les références transversales du moteur. La découverte automatique des « semblables de NEAR » n’est pas encore implémentée : elle dépend du lot 2. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
 
+## Exigence du lot 2 — sélection évolutive
+
+Décision utilisateur du 8 octobre 2026 : pouvoir élargir la sélection si d’autres cryptos commencent à présenter les qualités recherchées chez NEAR. Les actifs hors sélection sont en pause, pas exclus définitivement. NEAR reste la référence initiale ; la liste des candidats ne doit pas être figée.
+
+La première candidate permet déjà l’ajout/retrait manuel de symboles dans la limite de 15 actifs. La découverte des nouveaux candidats reste à construire dans le lot 2, après définition et validation du profil de mouvement.
+
+- Distinguer le scan fréquent des actifs suivis d’une recherche de candidats moins fréquente, déclenchable à la demande puis éventuellement périodique selon un budget de requêtes explicite. Une future exploration peut lire des données hors sélection sans réactiver leur analyse approfondie à chaque scan courant.
+- Comparer amplitude en pourcentage, régularité et fréquence des swings, structure, bruit/mèches et conditions d’exécution sur plusieurs fenêtres et régimes. Une seule hausse journalière ou une corrélation de prix avec NEAR ne suffit pas à établir la ressemblance recherchée.
+- Présenter les nouveaux candidats avec les mesures, leur date, la couverture disponible et les raisons de leur rapprochement avec le profil recherché. Permettre leur ajout à la sélection et leur retrait ultérieur ; ne pas remplacer silencieusement la sélection de l’utilisateur.
+- Vérifier le contrat X-Perp exact et les données disponibles avant admission. Une similarité de mouvement ne constitue pas une validation de scénario LONG/SHORT ; les contrôles d’admission existants continuent de s’appliquer après ajout.
+- Éviter les entrées/sorties incessantes de la liste à cause d’un pic isolé : exiger une persistance à définir et tester. Les favoris et scénarios verrouillés conservent leur historique lorsqu’un actif quitte la sélection active.
+- La limite actuelle de 15 actifs est un garde-fou initial de performance, pas une limite définitive du produit. Son élargissement devra être configurable et évalué selon le temps de scan, la fraîcheur et le coût des requêtes.
+
+Critère de sortie : un actif initialement hors sélection peut être détecté, expliqué, ajouté puis analysé par le même moteur, sans imposer un scan profond de tout le marché à chaque cycle et sans présenter de données manquantes comme une ressemblance confirmée. Cette section décrit une fonctionnalité prévue ; aucun service de surveillance externe ni aucune automatisation planifiée n’est activé par cette modification documentaire.
+
 ## Promotion et retour
 
 La candidate reste sur sa branche et sa PR de revue. La production GitHub Pages depuis `main` reste V8.9.17. Aucune fusion ni publication de production n’est faite sans autorisation. En cas de rejet de la candidate, la production et son stockage sont inchangés. Une éventuelle promotion doit aligner la version finale, les assets et le cache, puis vérifier CI et Pages sur le commit publié.
