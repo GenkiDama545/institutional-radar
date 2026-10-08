@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.5, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.6, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -111,3 +111,9 @@ Contrôle ponctuel de NEAR 5m avec API OKX publique : 76 bougies mobile en vue l
 Retour utilisateur sur RC4 : ensemble validé, demande d’un éclat encore plus net et d’une meilleure distinction entre bougies. Corps vert citron / rose rouge plus lumineux, mèches opaques de 1 px, contours SVG nets pour éviter le mélange des pixels aux bords. Les bougies sont dessinées devant les courbes pour rester lisibles à leur croisement. La densité, la largeur théorique, les espacements, les prix et les réglages de risque restent ceux de RC4.
 
 Validation RC5 : les 126 tests existants et les suites moteur/hosted-feed réussissent. Contrôle Chromium avec données publiques OKX : 76 bougies en vue large mobile, 28 en vue détaillée, 142 dans un conteneur desktop de 910 px ; aucun débordement ni erreur JavaScript. Preuve : `evidence/chart-rc5-live.json`. La validation visuelle sur le téléphone réel reste à l’utilisateur.
+
+## RC6 — rouge vif et contour fin
+
+Retour utilisateur : vert citron validé, préférence pour le rouge vif de RC4 et pour un contour plus fin délimitant les bougies. RC6 conserve le vert citron, rétablit `#ff657d` pour la baisse et ajoute un filet lumineux de 0,5 px maximum, adapté aux corps très fins et aux dojis. Le contour est placé à l’intérieur de l’enveloppe du corps ; la largeur extérieure, les limites OHLC, l’espacement et la densité restent identiques. Les mèches restent nettes. Aucun changement de calcul ni de réglage de risque.
+
+Validation RC6 : 126 tests existants et suites moteur/hosted-feed réussis. Contrôle Chromium avec API OKX en vue large et détaillée : 76 / 28 bougies sur mobile, 142 sur grand écran (910 px), sans erreur JavaScript ni débordement. Preuve : `evidence/chart-rc6-live.json`. Le résultat visuel final reste à apprécier sur le téléphone réel.

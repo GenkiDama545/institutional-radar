@@ -121,10 +121,10 @@ assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert.deepEqual([...html.matchAll(/<script src="\.\/([^?]+)\?v=/g)].map(m=>m[1]),['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js','chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','focus-universe.js','position-risk.js','app.js']);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.18-rc\.5"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.18-rc\.5"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.18-rc\.5"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.18-rc\.5'/);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.18-rc\.6"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.18-rc\.6"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.18-rc\.6"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.18-rc\.6'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{

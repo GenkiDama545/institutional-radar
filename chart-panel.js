@@ -2,7 +2,7 @@
 (function(root){
  'use strict';
  const C=typeof module!=='undefined'&&module.exports?require('./chart-core.js'):root.RadarChartCore;
- const palette={up:'#b6ff45',down:'#ff819b',ema20:'#f2ca71',ema50:'#bda0f2',supertrend:'#65b8ff',rsi:'#65b8ff',stochK:'#bd91ff',stochD:'#65b8ff'};
+ const palette={up:'#b6ff45',down:'#ff657d',ema20:'#f2ca71',ema50:'#bda0f2',supertrend:'#65b8ff',rsi:'#65b8ff',stochK:'#bd91ff',stochD:'#65b8ff'};
  const names={ema20:'EMA 20',ema50:'EMA 50',supertrend:'Supertrend 10/3',rsi:'RSI 14',stoch:'StochRSI 14 · K3/D3',tp2:'TP2',tp3:'TP3',structure:'Structure du moteur',closedPrice:'Ligne clôture confirmée',formingPrice:'Ligne bougie en formation'};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const number=v=>!Number.isFinite(v)?'N/D':v.toLocaleString('fr-FR',{maximumSignificantDigits:17});
@@ -41,7 +41,12 @@
   const ticks=Math.max(2,Math.floor(g.plotW/110));for(let i=0;i<=ticks;i++){const raw=s.from+(s.to-s.from)*i/ticks,t=Math.max(Math.ceil(s.from/iv)*iv,Math.min(Math.floor(s.to/iv)*iv,Math.round(raw/iv)*iv)),x=g.x(t),d=new Date(t),label=(s.to-s.from)>86400000?d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});svg.push(`<line x1="${x}" x2="${x}" y1="${g.top}" y2="${g.end}" stroke="#18212a" stroke-width=".6"/><text x="${x}" y="${g.height-12}" text-anchor="${i===0?'start':i===ticks?'end':'middle'}" fill="#b6c4cd">${label}</text>`);}
   svg.push(`<text x="8" y="16" fill="#b6c4cd">Prix · ${q}</text><g clip-path="url(#price-clip)">`);
   for(const key of ['ema20','ema50','supertrend'])if(s.visibility[key])svg.push(`<path d="${path(vm,s,key,g,{top:g.top,height:g.priceH},g.range.min,g.range.max)}" fill="none" stroke="${palette[key]}" stroke-width="1.15"${key==='supertrend'?' stroke-dasharray="5 3"':''}/>`);
-  for(const c of cs){const x=g.x(c.t),color=c.c>=c.o?palette.up:palette.down;svg.push(`<g shape-rendering="crispEdges" class="ir-candle" data-ts="${c.t}"><line x1="${x}" x2="${x}" y1="${g.y(c.h)}" y2="${g.y(c.l)}" stroke="${color}" stroke-width="1"/><rect x="${x-body/2}" y="${g.y(Math.max(c.o,c.c))}" width="${body}" height="${Math.max(1,Math.abs(g.y(c.o)-g.y(c.c)))}" fill="${color}"/></g>`);}
+  for(const c of cs){
+   const x=g.x(c.t),rising=c.c>=c.o,color=rising?palette.up:palette.down,edge=rising?'#dfffad':'#ffabbc';
+   const top=g.y(Math.max(c.o,c.c)),height=Math.max(1,Math.abs(g.y(c.o)-g.y(c.c))),stroke=Math.min(.5,body*.25,height*.25);
+   // Inset the outline so the candle keeps its original OHLC bounds and spacing.
+   svg.push(`<g shape-rendering="crispEdges" class="ir-candle" data-ts="${c.t}"><line x1="${x}" x2="${x}" y1="${g.y(c.h)}" y2="${g.y(c.l)}" stroke="${color}" stroke-width="1"/><rect shape-rendering="geometricPrecision" x="${x-body/2+stroke/2}" y="${top+stroke/2}" width="${body-stroke}" height="${height-stroke}" fill="${color}" stroke="${edge}" stroke-width="${stroke}"/></g>`);
+  }
   for(const level of levels)if(level.value>=g.range.min&&level.value<=g.range.max)svg.push(`<line class="ir-level" data-value="${level.value}" x1="8" x2="${8+g.plotW}" y1="${g.y(level.value)}" y2="${g.y(level.value)}" stroke="${level.color||'#65b8ff'}" stroke-dasharray="6 4"/>`);
   const forming=vm.bars.findLast(c=>c.confirm===0),closed=vm.bars.findLast(c=>c.confirm===1),prices=[];
   if(tickerFresh(vm)&&C.valid(vm.ticker.value))prices.push({value:vm.ticker.value,color:palette.up,label:'Ticker'});
