@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.4, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.5, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -105,3 +105,9 @@ Références de calcul vérifiées le 8 octobre 2026 : [OKX — levier X-Perps](
 Validation RC4 : 126 tests Node, suites moteur/hosted-feed et 40 empreintes de fonctions / cinq modules métier réussis. Quatre tests supplémentaires couvrent marge/notionnel, x10 compté une fois, long/short, budget et taille, valeurs invalides, conservation des niveaux et anciens états, conservation du simulateur et conversion EUR/coûts. Le parcours Chromium à 390 px contrôle les boutons au-dessus du tracé, les changements rapides, le rafraîchissement de la période choisie, le profil et les pertes de 40 / 4 USD pour les deux interprétations d’un montant de 100 USD avec SL à 4 %. Pas de débordement mobile.
 
 Contrôle ponctuel de NEAR 5m avec API OKX publique : 76 bougies mobile en vue large, 28 en vue détaillée, 142 sur grand écran (conteneur 910 px). Pas d’erreur JavaScript ni débordement dans ce parcours. Les preuves RC4 sont séparées des précédentes. Le rendu reste à apprécier sur le téléphone réel.
+
+## RC5 — bougies plus lumineuses et séparées
+
+Retour utilisateur sur RC4 : ensemble validé, demande d’un éclat encore plus net et d’une meilleure distinction entre bougies. Corps vert citron / rose rouge plus lumineux, mèches opaques de 1 px, contours SVG nets pour éviter le mélange des pixels aux bords. Les bougies sont dessinées devant les courbes pour rester lisibles à leur croisement. La densité, la largeur théorique, les espacements, les prix et les réglages de risque restent ceux de RC4.
+
+Validation RC5 : les 126 tests existants et les suites moteur/hosted-feed réussissent. Contrôle Chromium avec données publiques OKX : 76 bougies en vue large mobile, 28 en vue détaillée, 142 dans un conteneur desktop de 910 px ; aucun débordement ni erreur JavaScript. Preuve : `evidence/chart-rc5-live.json`. La validation visuelle sur le téléphone réel reste à l’utilisateur.
