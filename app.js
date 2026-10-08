@@ -1,5 +1,5 @@
 const API='https://www.okx.com/api/v5';
-const APP_VERSION='V8.9.18-rc.1';
+const APP_VERSION='V8.9.18-rc.2';
 // Public listings identify X-Perps but do not verify account eligibility.
 function xperpBase(id){return String(id||'').match(/^([A-Z0-9]+)-USD_UM_XPERP-/)?.[1]||null}
 function isListedXperp(id){return !!xperpBase(id)}
@@ -108,18 +108,18 @@ const bookDepthUsd=RadarMarket.bookDepthUsd;
 let discoveryExpanded=false;
 let focusConfig=RadarFocus.config(safeJSON(RadarFocus.key,null)),focusMembers=[],focusScanError='',lastScanAttemptAt=0;
 function focusControls(){
- const scope=$('scanScope'),symbols=$('focusSymbols'),auto=$('focusAuto');
- if(scope)scope.value=focusConfig.scope;if(symbols)symbols.value=focusConfig.symbols.join(', ');if(auto)auto.checked=focusConfig.auto;
+ const symbols=$('focusSymbols'),auto=$('focusAuto');
+ if(symbols)symbols.value=focusConfig.symbols.join(', ');if(auto)auto.checked=focusConfig.auto;
 }
-function focusBusy(busy){for(const id of ['scanScope','focusSymbols','focusApply','focusAuto']){const el=$(id);if(el)el.disabled=busy}}
+function focusBusy(busy){for(const id of ['focusSymbols','focusApply','focusAuto']){const el=$(id);if(el)el.disabled=busy}}
 async function saveFocusSettings(){
  if(scanRunning||marketRefreshRunning)return;
  let selected;try{selected=RadarFocus.symbols($('focusSymbols').value)}catch(err){$('focusFeedback').textContent=err.message;return}
- const next={scope:$('scanScope').value==='wide'?'wide':'focus',symbols:selected,auto:$('focusAuto').checked};
+ const next={scope:'focus',symbols:selected,auto:$('focusAuto').checked};
  if(!persistJSON(RadarFocus.key,next))return;
  focusConfig=next;focusMembers=[];focusScanError='';all=[];lastReadyScenarios=[];lastCompletedScanAt=null;marketMode='all';
  document.querySelectorAll("#marketMode .modeBtn").forEach(b=>b.classList.toggle('active',b.dataset.mode==='all'));
- $('focusFeedback').textContent=next.scope==='focus'?'Sélection enregistrée. NEAR reste la référence.':'Scan large manuel sélectionné.';
+ $('focusFeedback').textContent='Sélection enregistrée. NEAR reste la référence.';
  focusControls();render();await scan();
 }
 async function refreshRadar(){
@@ -1063,4 +1063,4 @@ function backHome(){leavePage();stopScenarioUpdates();stopGraphUpdates();$('deep
 document.querySelectorAll('#marketMode .modeBtn').forEach(b=>b.onclick=()=>{marketMode=b.dataset.mode;document.querySelectorAll('#marketMode .modeBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');const visible=scenarioCandidates().filter(c=>marketMode==='all'||(marketMode==='spot'&&c.market==='spot')||(marketMode==='long'&&c.direction==='long')||(marketMode==='short'&&c.direction==='short'));if(visible.length&&!visible.some(c=>bucket(c.score)===filter))setFilter(preferredFilter(visible));renderRank();void refreshRadar()});$('scan').onclick=scan;$('back1').onclick=backHome;$('back2').onclick=backDetail;$('sort').onchange=drawTable;$('tier').onchange=drawTable;$('search').oninput=drawTable;document.querySelectorAll('#tradeTabs button').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('#tradeTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRank()});document.querySelectorAll('.bottomnav [data-jump]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.bottomnav [data-jump]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.jump).scrollIntoView({behavior:'smooth',block:'start'})});$('toolsBtn').onclick=()=>$('drawer').classList.add('open');$('closeDrawer').onclick=()=>$('drawer').classList.remove('open');$('drawer').onclick=e=>{if(e.target===$('drawer'))$('drawer').classList.remove('open')};document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click()}});bindAcc();setInterval(()=>{refreshScanFreshness();renderRank()},60000);setInterval(()=>{if(!document.hidden)void refreshRadar()},15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshRadar()});setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString('fr-FR')},1000);$('clock').textContent=new Date().toLocaleTimeString('fr-FR');$('runtimeVersion').textContent=APP_VERSION+' • Radar ciblé';focusControls();$('focusApply').onclick=saveFocusSettings;render();scan();
 
 
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.18-rc.1',{updateViaCache:'none'}).catch(console.warn));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=8.9.18-rc.2',{updateViaCache:'none'}).catch(console.warn));

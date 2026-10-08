@@ -14,7 +14,7 @@
   return selected;
  }
  function config(value){
-  try{return {scope:value?.scope==='wide'?'wide':'focus',symbols:symbols(value?.symbols??defaults),auto:value?.auto!==false}}catch{return {scope:'focus',symbols:[...defaults],auto:true}}
+  try{return {scope:'focus',symbols:symbols(value?.symbols??defaults),auto:value?.auto!==false}}catch{return {scope:'focus',symbols:[...defaults],auto:true}}
  }
  function resolve(selected,assets){
   return symbols(selected).map(sym=>{const matches=assets.filter(x=>x.market==='xperp'&&x.sym===sym);

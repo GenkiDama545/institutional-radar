@@ -57,9 +57,12 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   results.push('API outage leaves both cards visible, blocks readiness and recovers on next scan.');
   await page.setViewportSize({width:1440,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.screenshot({path:path.join(output,'focus-desktop.png'),fullPage:true});
-  await page.locator('#focusSettings summary').click();await page.locator('#scanScope').selectOption('wide');await page.locator('#focusApply').click();
-  await page.waitForFunction(()=>!scanRunning&&focusConfig.scope==='wide');assert.equal(await page.locator('#focusBoard').isVisible(),false);
-  assert.ok(requests.some(p=>p.includes('instType=SPOT')));results.push('Manual wide scan remains accessible.');
+  assert.equal(await page.locator('#scanScope').count(),0);
+  await page.evaluate(()=>localStorage.setItem(RadarFocus.key,JSON.stringify({...focusConfig,scope:'wide'})));
+  await page.reload();await page.waitForFunction(()=>lastCompletedScanAt&&!scanRunning);
+  assert.equal(await page.evaluate(()=>focusConfig.scope),'focus');assert.equal(await page.locator('[data-focus-symbol]').count(),2);
+  assert.ok(requests.every(p=>!p.includes('instType=SPOT')&&!p.includes(encodeURIComponent(inst('BTC')))));
+  results.push('Wide scan is absent from UI; an old wide-scope preference cannot reactivate other markets.');
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'browser-results.json'),JSON.stringify({results,errors,fixture:true},null,2));console.log(JSON.stringify({results,errors},null,2));
  }finally{await browser.close();server.close()}
 })().catch(err=>{console.error(err);server.close();process.exitCode=1});

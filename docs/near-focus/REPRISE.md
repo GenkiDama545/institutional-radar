@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.1, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.2, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -19,7 +19,7 @@ Le filtrage intervient avant les appels OI/funding et les six séries de bougies
 
 Le même moteur calcule les scénarios des deux modes. Les cartes de sélection sont indépendantes du classement : elles affichent LONG et SHORT, analyse en cours/incomplète, attente, analyse périmée, exécution à vérifier ou scénario chiffré. Un scénario chiffré reste conditionnel, ce n’est pas une entrée activée. En cas de péremption, d’erreur de cotation ou de disparition du contrat, l’admission échoue et l’actif reste visible avec sa raison.
 
-Le recalcul ciblé reprend toute la sélection, y compris les actifs sans scénario existant, via le cache de bougies déjà présent. Le minuteur vérifie toutes les 15 secondes si au moins 60 secondes se sont écoulées depuis le début du précédent scan. Aucun chevauchement : un scan lent décale donc la cadence effective. Il est suspendu lorsque l’onglet est caché ou lorsqu’une fiche, un graphique ou un outil est ouvert. La page doit rester ouverte ; il ne s’agit pas d’un service serveur permanent. Le mode large conserve son rafraîchissement de cotations et son scan complet manuel.
+Le recalcul ciblé reprend toute la sélection, y compris les actifs sans scénario existant, via le cache de bougies déjà présent. Le minuteur vérifie toutes les 15 secondes si au moins 60 secondes se sont écoulées depuis le début du précédent scan. Aucun chevauchement : un scan lent décale donc la cadence effective. Il est suspendu lorsque l’onglet est caché ou lorsqu’une fiche, un graphique ou un outil est ouvert. La page doit rester ouverte ; il ne s’agit pas d’un service serveur permanent. Le scan large est mis en pause : aucune commande ne permet de l’activer dans l’interface. Une ancienne préférence de mode large est ignorée au chargement. Le chemin historique reste dans le code pour les tests de comparaison, mais aucun parcours utilisateur ne le déclenche.
 
 Ce lot traite la visibilité et le renouvellement des analyses dans le mode ciblé. Il ne prétend pas corriger toutes les causes historiques de disparition du Top dans le mode large.
 
@@ -35,8 +35,8 @@ Les clés et données existantes de favoris, journal, verrous, scans et imports 
 
 - Baseline avant modification : syntaxe, moteur, hosted-feed et 110 tests Node réussis.
 - Candidate : mêmes suites et 12 tests additionnels sur sélection, contrats exacts, périmètre des requêtes, équivalence avec le scan large, péremption/recalcul, données partielles, pannes et reprise, retrait de contrat, cotation finale, minuteur et stockage.
-- Parcours Chromium avec endpoints OKX simulés : démarrage, sélection persistante, contrat manquant, fiche NEAR avec graphique commun, état périmé, panne/reprise, scan large. Aucune erreur JavaScript ; aucun débordement horizontal à 390 et 1440 pixels.
-- Preuves : [résultats navigateur](evidence/browser-results.json), [capture mobile](evidence/focus-mobile.png), [capture ordinateur](evidence/focus-desktop.png). Les prix et marchés des captures sont des fixtures, pas des données live.
+- Parcours Chromium avec endpoints OKX simulés : démarrage, sélection persistante, contrat manquant, fiche NEAR avec graphique commun, état périmé, panne/reprise et rejet d’une ancienne préférence de scan large. Aucune erreur JavaScript ; aucun débordement horizontal à 390 et 1440 pixels.
+- Preuves : [résultats navigateur](evidence/browser-results.json), [capture mobile RC1](evidence/focus-mobile.png), [capture ordinateur RC1](evidence/focus-desktop.png). Ces captures historiques précèdent le retrait du sélecteur de scan large en RC2 ; le parcours navigateur a été revérifié après ce retrait. Les prix et marchés des captures sont des fixtures, pas des données live.
 - La disponibilité des contrats, les performances réseau OKX et la recette sur le téléphone réel ne sont pas validées par ces simulations. Aucun temps de scan réel n’est promis.
 
 Commandes : `npm test` ; test navigateur optionnel `node tests/browser-focus.cjs <chromium-executable> <artifacts-directory>` (Playwright requis pour ce contrôle optionnel).
@@ -51,7 +51,7 @@ Commandes : `npm test` ; test navigateur optionnel `node tests/browser-focus.cjs
 | 4 — Suivi des scénarios | États figés, IDs uniques, suivi jusqu’à résolution, TP partiels, expiration, MFE/MAE et interruptions | Cas ambigus explicitement non vérifiés, aucune assimilation à des ordres réels |
 | 5 — Learning | Reste en pause ; à reprendre seulement après audit et collecte validés | Données traçables et protocole Production/Challenger avec promotion contrôlée |
 
-Le scan large reste disponible pour les explorations ponctuelles. La découverte automatique des « semblables de NEAR » n’est pas encore implémentée : elle dépend du lot 2. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
+Les cryptos hors sélection sont en pause ; aucune analyse de bougies, OI ou funding ne leur est demandée. Les réponses groupées du catalogue et des cotations sont conservées uniquement pour résoudre les contrats exacts et maintenir les références transversales du moteur. La découverte automatique des « semblables de NEAR » n’est pas encore implémentée : elle dépend du lot 2. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
 
 ## Promotion et retour
 

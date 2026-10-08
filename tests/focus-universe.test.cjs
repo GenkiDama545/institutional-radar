@@ -14,7 +14,7 @@ function market(initial={}){
 test('focus selection pins NEAR, normalizes symbols and rejects invalid/oversized lists',()=>{
  assert.deepEqual(Focus.symbols('sui, NEAR, sui;sol'),['NEAR','SUI','SOL']);assert.deepEqual(Focus.symbols(''),['NEAR']);
  assert.throws(()=>Focus.symbols('NEAR-USDT'));assert.throws(()=>Focus.symbols(Array.from({length:15},(_,i)=>'X'+i)));
- assert.equal(Focus.config(null).scope,'focus');assert.deepEqual(Focus.config({symbols:['<script>']}).symbols,[...Focus.defaults]);
+ assert.equal(Focus.config(null).scope,'focus');assert.equal(Focus.config({scope:'wide'}).scope,'focus','old broad-scan preference cannot reactivate paused markets');assert.deepEqual(Focus.config({symbols:['<script>']}).symbols,[...Focus.defaults]);
 });
 test('focus never substitutes Spot or another expiry for a missing or ambiguous contract',()=>{
  const result=Focus.resolve(['NEAR','SUI','HYPE'],[{sym:'NEAR',market:'spot',id:'NEAR-USDT'},{sym:'SUI',market:'xperp',id:'a'},{sym:'SUI',market:'xperp',id:'b'}]);
@@ -78,7 +78,7 @@ test('auto scan respects visibility, navigation, toggle, interval and concurrent
 });
 test('selection settings survive reload independently of existing favorites, locks and journal',async()=>{
  const prior={'ir_favorites_v1':'{}','ir_learning_journal_v866':'[]','ir_scenario_locks_v871':'{}'},e=market(prior);
- e.node('scanScope').value='focus';e.node('focusSymbols').value='SUI';e.node('focusAuto').checked=false;
+ e.node('focusSymbols').value='SUI';e.node('focusAuto').checked=false;
  await e.run('saveFocusSettings()');assert.deepEqual(plain(e.run('focusConfig.symbols')),['NEAR','SUI']);
  for(const [key,value] of Object.entries(prior))assert.equal(e.store.get(key),value);
  const reloaded=env(Object.fromEntries(e.store));assert.deepEqual(plain(reloaded.run('focusConfig')),{scope:'focus',symbols:['NEAR','SUI'],auto:false});
