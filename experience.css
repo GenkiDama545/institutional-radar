@@ -21,3 +21,6 @@
 .focusSettingsGrid select{width:100%;min-width:0}.focusAuto{display:flex;align-items:center;gap:9px;margin:15px 0;font-size:14px}
 .focusAuto input{width:20px;height:20px}#focusBoard[hidden]{display:none}
 @media(max-width:700px){.focusCards,.focusSettingsGrid{grid-template-columns:1fr}}
+.positionRisk{border:1px solid #495463;border-radius:12px;background:#111820;padding:12px;margin:12px 0}.positionRisk .grid{grid-template-columns:repeat(2,minmax(0,1fr))}.positionRiskSettings .simgrid label{display:grid;gap:6px;font-size:12px;color:#bdc6d0}.positionRiskSettings .select{max-width:100%;min-width:0}.positionRiskSettings input,.positionRiskSettings select{width:100%}.positionRiskSave{font-size:12px;color:#a8b7c4;min-height:18px;margin-top:6px}
+
+.positionRiskSettings .simgrid label:nth-child(n+3){grid-column:1/-1}

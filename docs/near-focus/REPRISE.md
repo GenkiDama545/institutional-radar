@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.3, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.4, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -27,7 +27,7 @@ Ce lot traite la visibilité et le renouvellement des analyses dans le mode cibl
 
 Les cinq modules métier `engine-core.js`, `signal-engine.js`, `market-screen.js`, `candle-store.js` et `trade-sim.js` sont identiques à la baseline. Les six horizons, seuils d’admission, fraîcheur D05, décisions sur clôtures, formules et pondérations restent protégés.
 
-La fonction `scan` est la seule exception intentionnelle aux 44 empreintes de fonctions gelées pour l’étape Graphiques. Les 43 autres empreintes restent vérifiées ; les anciennes fixtures ne sont pas régénérées. La couverture du scan large (170 Spot) reste testée, et un nouveau test compare intégralement les modèles, scores, niveaux, références et tiers des actifs communs aux deux modes à données identiques.
+Jusqu’en RC3, `scan` était la seule exception aux 44 empreintes de fonctions gelées. La RC4 ajoute les trois exceptions de présentation du simulateur décrites ci-dessous : les 40 autres fonctions et les cinq modules métier restent vérifiés ; les anciennes fixtures ne sont pas régénérées. La couverture du scan large (170 Spot) reste testée, et un nouveau test compare intégralement les modèles, scores, niveaux, références et tiers des actifs communs aux deux modes à données identiques.
 
 Les clés et données existantes de favoris, journal, verrous, scans et imports restent compatibles. La sélection utilise une préférence séparée `ir_focus_universe_v1` ; elle n’est pas exportée par la sauvegarde métier `IR_BACKUP_V1`. Les scans n’écrivent pas de nouveaux scénarios dans le journal. Les scénarios déjà verrouillés restent liés à leur contrat et à leurs niveaux.
 
@@ -88,3 +88,20 @@ Validation RC3 : 122 tests Node réussis, suites moteur/hosted-feed réussies, c
 La prévisualisation RC2 avait été publiée avec l’autorisation de l’utilisateur ; son scan public OKX, ses cinq contrats et l’ouverture de la fiche/du graphique NEAR ont fonctionné lors d’un contrôle ponctuel. Ce contrôle ne garantit ni disponibilité future ni performances sur tous les appareils. La production reste V8.9.17 ; seules des prévisualisations de la candidate sont autorisées.
 
 Contrôle ponctuel RC3 avec l’API publique OKX : NEAR en 5m, 76 bougies dans la vue large mobile et 28 dans la vue détaillée ; 142 bougies dans le conteneur de 910 px sur grand écran. Aucun débordement ni erreur JavaScript dans ce parcours. Preuves : `evidence/chart-rc3-live.json` (données live) et `evidence/browser-rc3-results.json` (fixtures). La présentation reste à apprécier sur le téléphone de l’utilisateur.
+
+## RC4 — éclat, timeframes et risque x10
+
+Demande utilisateur : conserver la finesse et la quantité de bougies de RC3, raviver leurs couleurs, placer les timeframes au contact du graphique et intégrer le risque de SL **trop éloignés** pour son usage courant x10 / 100 USD.
+
+- Palette plus lumineuse pour bougies, EMA et volumes. Aucun changement de géométrie. Barre 1m, 5m, 15m, 30m, 1H, 4H, 1D immédiatement avant le tracé, sur fiche, graphique approfondi et projection. La fiche conserve la période choisie lors du rafraîchissement ; les réponses dépassées sont ignorées. 1m reste uniquement consultatif.
+- `position-risk.js` calcule la perte de prix au stop : exposition × distance entrée/stop ÷ entrée. Marge × levier donne l’exposition ; un montant déjà notionnel n’est pas multiplié de nouveau. Long et short suivent la même distance absolue avec validation du sens du stop.
+- Le sens des 100 USD n’a pas été confirmé. Le profil impose donc le choix marge/position ; il ne présume aucun budget de perte. Les cartes montrent les deux interprétations tant que ce choix manque. La marge du nouveau simulateur reste vide jusqu’au choix.
+- Une fois la base et le budget choisis : distance en %, perte USD, perte en % de marge, et distance descriptive en ATR si disponible. Dépassement = « SL trop coûteux pour ce budget ». La taille théorique compatible est affichée avant coûts ; aucune modification du stop, de l’admission, du classement, des verrous ou du journal.
+- Frais/glissement/financement exclus des cartes ; le simulateur inclut les coûts saisis. La liquidation n’est pas calculée et une perte théorique atteignant la marge est signalée. Aucune garantie d’exécution du SL. Le profil local est séparé (`ir_position_risk_v1`) ; il n’est pas inclus dans l’ancien export de l’état métier.
+- `scenarioSimRead`, `scenarioSimPanel` et `calcScenarioSim` sont les trois nouvelles exceptions explicites aux empreintes historiques : défauts du profil et affichage du risque. `trade-sim.js` et les quatre autres modules métier restent identiques. Les saisies de simulation existantes ne sont pas remplacées ; application du profil par bouton dédié.
+
+Références de calcul vérifiées le 8 octobre 2026 : [OKX — levier X-Perps](https://www.okx.com/en-eu/help/okx-x-perps-eea-leverage-explained), [marge](https://www.okx.com/fr-fr/help/what-is-margin-in-xperps-trading) et [PnL](https://www.okx.com/fr-fr/help/okx-x-perps-eea-pnl-basics). La documentation distingue Amount (position totale), marge et levier.
+
+Validation RC4 : 126 tests Node, suites moteur/hosted-feed et 40 empreintes de fonctions / cinq modules métier réussis. Quatre tests supplémentaires couvrent marge/notionnel, x10 compté une fois, long/short, budget et taille, valeurs invalides, conservation des niveaux et anciens états, conservation du simulateur et conversion EUR/coûts. Le parcours Chromium à 390 px contrôle les boutons au-dessus du tracé, les changements rapides, le rafraîchissement de la période choisie, le profil et les pertes de 40 / 4 USD pour les deux interprétations d’un montant de 100 USD avec SL à 4 %. Pas de débordement mobile.
+
+Contrôle ponctuel de NEAR 5m avec API OKX publique : 76 bougies mobile en vue large, 28 en vue détaillée, 142 sur grand écran (conteneur 910 px). Pas d’erreur JavaScript ni débordement dans ce parcours. Les preuves RC4 sont séparées des précédentes. Le rendu reste à apprécier sur le téléphone réel.

@@ -1,4 +1,4 @@
-# Institutional Radar V8.9.18-rc.3 — sélection NEAR
+# Institutional Radar V8.9.18-rc.4 — sélection NEAR
 
 Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Leur similarité n’a pas encore été mesurée ; cette liste initiale n’est pas un classement de rentabilité.
 
@@ -9,6 +9,10 @@ Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et 
 - La préférence de sélection utilise `ir_focus_universe_v1`, séparée des données métier et non incluse dans `IR_BACKUP_V1`.
 
 Voir [la reprise et les prochains lots](docs/near-focus/REPRISE.md). Cette branche est une candidate ; aucune fusion ni publication de production n’est effectuée par sa préparation.
+
+## Ajustements RC4
+
+Bougies plus lumineuses et sept boutons de timeframe au-dessus de chaque graphique. Profil X-Perp : montant habituel 100 USD, levier x10, choix explicite marge/position et budget de perte personnel. Chaque scénario affiche la distance du SL et la perte théorique ; un dépassement du budget affiche la taille compatible avant coûts, sans déplacer le stop technique. Les hypothèses déjà saisies dans le simulateur restent conservées ; un bouton applique explicitement le profil.
 
 ## Baseline adoptée V8.9.17
 
