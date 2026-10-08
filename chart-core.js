@@ -19,12 +19,13 @@
  }
  const defaults=Object.freeze({ema20:true,ema50:true,supertrend:false,rsi:false,stoch:false,tp2:false,tp3:false,structure:false,closedPrice:false,formingPrice:false});
  function state(visibility={}){return {from:null,to:null,selectedTs:null,pinned:false,hoverTs:null,follow:true,fitLevels:false,visibility:{...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>typeof visibility[k]==='boolean').map(k=>[k,visibility[k]]))}};}
- const density=Object.freeze({preferredPitch:9,minPitch:4,minCount:5,bodyFraction:.68,maxBody:14});
+ const density=Object.freeze({preferredPitch:3,desktopPitch:5,detailPitch:8,minPitch:1.5,minCount:5,bodyFraction:.58,maxBody:8,rightSpace:.14});
  function viewport(vm,s,width=800){
   if(!vm.bars.length)return s;
-  const iv=intervals[vm.timeframe],plot=Math.max(40,width-84),last=vm.bars.at(-1).t+iv*.5,first=vm.bars[0].t-iv*.5;
-  const minSpan=iv*Math.min(density.minCount,vm.bars.length),maxSpan=Math.max(minSpan,Math.min(last-first,iv*Math.floor(plot/density.minPitch)));
-  let span=s.to>s.from?s.to-s.from:iv*Math.max(density.minCount,Math.floor(plot/density.preferredPitch));span=Math.max(minSpan,Math.min(maxSpan,span));
+  const iv=intervals[vm.timeframe],plot=Math.max(40,width-84),dataEnd=vm.bars.at(-1).t+iv*.5,first=vm.bars[0].t-iv*.5;
+  const minSpan=iv*Math.min(density.minCount,vm.bars.length),maxSpan=Math.max(minSpan,Math.min((dataEnd-first)/(1-density.rightSpace),iv*Math.floor(plot/density.minPitch)));
+  let span=s.to>s.from?s.to-s.from:iv*Math.max(density.minCount,Math.floor(plot/(width<500?density.preferredPitch:density.desktopPitch)));span=Math.max(minSpan,Math.min(maxSpan,span));
+  const last=dataEnd+span*density.rightSpace;
   let to=s.follow||s.to==null?last:s.to;to=Math.min(last,Math.max(first+span,to));s.to=to;s.from=to-span;return s;
  }
  function zoom(vm,s,width,factor,anchor=.5){

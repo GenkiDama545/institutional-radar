@@ -12,7 +12,7 @@ test('L4 DOM: tap pins a timestamp; append, zoom, pan and toggles preserve selec
   x.pointer('pointerdown',1,150,130);x.pointer('pointerup',1,150,130);x.panel.redraw();const selected=x.panel.state.selectedTs;assert.ok(selected);assert.equal(x.host.querySelectorAll('.ir-selection circle').length,2);
   x.host.querySelector('[data-action=zoomIn]').click();x.panel.redraw();assert.equal(x.panel.state.selectedTs,selected);
   x.pointer('pointerdown',1,150,130);x.pointer('pointermove',1,230,132);x.pointer('pointerup',1,230,132);x.panel.redraw();assert.equal(x.panel.state.selectedTs,selected);
-  const checkbox=x.host.querySelector('[data-toggle=rsi]');checkbox.checked=true;checkbox.dispatchEvent(new x.dom.window.Event('change',{bubbles:true}));x.panel.redraw();assert.ok(x.svg.getAttribute('height')>500);
+  const initialHeight=Number(x.svg.getAttribute('height')),checkbox=x.host.querySelector('[data-toggle=rsi]');checkbox.checked=true;checkbox.dispatchEvent(new x.dom.window.Event('change',{bubbles:true}));x.panel.redraw();assert.ok(Number(x.svg.getAttribute('height'))>initialHeight);
   const next=C.model({...x.vm,version:2,bars:[...x.vm.bars,{...x.vm.bars.at(-1),t:x.vm.bars.at(-1).t+3600000}]});x.panel.update(next);x.panel.redraw();assert.equal(x.panel.state.selectedTs,selected);
   assert.equal(x.dom.window.document.querySelector('input[value="91.13"]').value,'91.13');assert.match(x.host.querySelector('.ir-readout').textContent,/Volume.*USDT/);
  }finally{x.close()}

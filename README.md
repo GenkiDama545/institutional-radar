@@ -1,4 +1,28 @@
-# Institutional Radar V8.9.17
+# Institutional Radar V8.9.18-rc.8 — sélection NEAR
+
+Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Cette liste initiale est provisoire ; le nouvel outil de comparaison mesure leur ressemblance à la demande, sans classement de rentabilité.
+
+- Seuls les X-Perps sélectionnés et identifiés dans le catalogue public OKX reçoivent les analyses six horizons et les requêtes OI/funding. Aucune requête Spot dans le scan ciblé.
+- Les actifs restent visibles avec deux états LONG/SHORT, même sans scénario, avec données périmées, contrat absent ou panne API.
+- Le mode ciblé recalcule toute la sélection environ chaque minute tant que le tableau de bord est visible. Aucun scan concurrent ; désactivation possible. Les autres marchés et le scan large sont en pause, sans commande dans l’interface.
+- Les références de volume et rangs de taille restent calculés sur le catalogue X-Perp complet. Les formules, seuils, horizons, niveaux verrouillés, journal et simulateur sont conservés.
+- La préférence de sélection utilise `ir_focus_universe_v1`, séparée des données métier et non incluse dans `IR_BACKUP_V1`.
+
+Voir [la reprise et les prochains lots](docs/near-focus/REPRISE.md). Cette branche est une candidate ; aucune fusion ni publication de production n’est effectuée par sa préparation.
+
+## RC8 — profils de mouvement et découverte manuelle
+
+Depuis « NEAR & ses semblables », comparer la sélection à NEAR sur quatre fenêtres communes de bougies clôturées : 15 min sur 24 h / 7 jours et 1 h sur 7 / 30 jours. Amplitude, fréquence des swings, mèches, directionnalité, volume et spread daté restent inspectables. L’indice de ressemblance est une heuristique distincte du score du Radar ; les historiques incomplets donnent N/D.
+
+« Explorer 5 nouveaux candidats » examine un lot de contrats hors sélection, en commençant par les volumes indicatifs les plus élevés. Chaque nouveau clic avance dans le catalogue. « Ajouter au Radar » modifie explicitement la sélection et lance le moteur habituel. Aucune recherche périodique ni addition automatique. Les rapprochements peuvent être retrouvés à au moins 24 h d’intervalle lors de lancements manuels ; une lecture isolée n’établit pas leur persistance.
+
+Les bougies validées en RC7 et le profil de risque RC4 sont conservés. Validation : 136 tests Node, parcours navigateur mobile/ordinateur avec erreurs et interruption simulées, puis comparaison et découverte avec l’API publique OKX. [Méthode, limites et relevé de validation](docs/near-focus/MOUVEMENT.md).
+
+## Ajustements RC4
+
+Bougies plus lumineuses et sept boutons de timeframe au-dessus de chaque graphique. Profil X-Perp : montant habituel 100 USD, levier x10, choix explicite marge/position et budget de perte personnel. Chaque scénario affiche la distance du SL et la perte théorique ; un dépassement du budget affiche la taille compatible avant coûts, sans déplacer le stop technique. Les hypothèses déjà saisies dans le simulateur restent conservées ; un bouton applique explicitement le profil.
+
+## Baseline adoptée V8.9.17
 
 Version finale issue de V8.9.17-rc.1, adoptée comme baseline graphique après la recette native déclarée satisfaisante sur PC Firefox et Samsung S24+ Chrome. La finalisation ne change que le versionnage et son assertion, sans modification fonctionnelle. Les invariants métier et le stockage de V8.9.16 restent protégés. Voir [le compte rendu d’adoption](docs/charts-v8916/Adoption_V8.9.17.md) pour la traçabilité, les limites connues et le rollback. Les notes ci-dessous décrivent les étapes historiques.
 

@@ -9,7 +9,7 @@
   if(!frame?.levels||!frame.c)return [];
   return [['support','Support'],['resistance','Résistance'],['nextSupport','Support suivant'],['nextResistance','Résistance suivante']].flatMap(([key,label])=>C.valid(frame.levels[key])&&frame.levels[key]>0?[{key:'structure-'+key,value:frame.levels[key],label,timeframe:tf,origin:'structure actuelle du moteur',asOf:frame.c.t+C.intervals[tf],color:'#b6c4cd'}]:[]);
  }
- function create(host,{math,loadHistory,onError,tickerMaxAgeMs}={}){
+ function create(host,{math,loadHistory,onError,tickerMaxAgeMs,onTimeframeChange}={}){
   const providers=new Map(),states=new Map(),modes=new Map();let panel=null,input=null,disposed=false,renderKey=null,loadSeq=0;
   function provider(tf,mode){const key=tf+'|'+mode;if(!providers.has(key))providers.set(key,S.create(math,{reference:mode,maxBars:policy.maxSession}));return providers.get(key);}
   function paint(next){
@@ -22,7 +22,7 @@
    const vm=C.model({...next,ticker,asOf:referenceTime,reference:mode,bars:snapshot.bars,series:snapshot.series,version:snapshot.version,error:next.error||snapshot.error||(mode==='engine'&&!available?'Référence moteur indisponible pour cet horizon.':null),coverage:{notice:[next.notice,seedLabel,mode==='engine'?'Référence de l’analyse actuelle, pas une reconstitution de la création du verrou.':'Cette série historique ne prouve pas une ancienne décision.'].filter(Boolean).join(' ')}});
    if(panel&&renderKey!==tf){panel.dispose();panel=null;}renderKey=tf;
    if(!states.has(tf))states.set(tf,C.state(preferences()));
-   const options={state:states.get(tf),hasEngine:available,onPreferences:v=>{try{root.localStorage?.setItem(preferenceKey,JSON.stringify(v))}catch(_){}},
+   const options={state:states.get(tf),hasEngine:available,onTimeframeChange,onPreferences:v=>{try{root.localStorage?.setItem(preferenceKey,JSON.stringify(v))}catch(_){}},
     onReferenceChange:ref=>{if(ref==='engine'&&!input.engineBars?.length)return;modes.set(tf,ref);paint(input);},
     onRebase:()=>{if(modes.get(tf)==='historical'){source.rebase();paint(input);}},
     onLoadMore:loadHistory?async()=>{

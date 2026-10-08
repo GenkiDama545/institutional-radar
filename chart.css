@@ -9,11 +9,17 @@
 .ir-options{margin:8px 0}.ir-options summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:.9rem;font-weight:700}.ir-options>label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
 .ir-toggles{display:flex;flex-wrap:wrap;gap:4px 14px}.ir-toggles label{display:flex;gap:8px;align-items:center;min-height:44px;font-size:.85rem}.ir-toggles input{width:18px;height:18px;accent-color:#45dc7a}
 .ir-readout{border:1px solid var(--ir-border);border-radius:12px;background:rgba(11,13,17,.65);padding:10px 12px;font-size:.83rem;line-height:1.6;min-height:66px;margin:8px 0;color:#eef1f4;overflow-wrap:anywhere}
-.ir-ohlc,.ir-indicator-values{display:flex;flex-wrap:wrap;column-gap:14px}.ir-indicator-values{color:#b6c4cd;font-size:.8rem}
+.ir-ohlc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;font-variant-numeric:tabular-nums}.ir-ohlc>.ir-volume-value{grid-column:1/-1}.ir-ohlc b{font-weight:500;color:#a7b3be}.ir-indicator-values{display:flex;flex-wrap:wrap;gap:2px 14px;color:#a7b3be;font-size:.8rem;font-variant-numeric:tabular-nums}
 .ir-plot{display:block;width:100%;border-radius:12px;touch-action:pan-y;user-select:none;-webkit-user-select:none;overflow:hidden;cursor:crosshair}
+.ir-plot:focus:not(:focus-visible){outline:none}.ir-plot:focus-visible{outline-width:1px;outline-offset:2px}
+.ir-timeframes{display:flex;gap:4px;position:sticky;top:0;z-index:2;background:#10171e;padding:6px 0;border-bottom:1px solid #344454;border-radius:8px 8px 0 0}
+.ir-timeframes button{flex:1;min-width:0;min-height:44px;padding:6px 4px;border-radius:8px;font-size:.8rem}.ir-timeframes button[aria-pressed=true]{background:#224b42;color:#7dffb9;border-color:#48e59a}
 .ir-plot text{font:11px Inter,system-ui,sans-serif;pointer-events:none}.ir-plot g{pointer-events:none}
 .ir-levels{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.ir-levels span{border-left:3px solid var(--series);background:rgba(11,13,17,.5);padding:6px 9px;border-radius:6px;font-size:.8rem;line-height:1.5;overflow-wrap:anywhere}.ir-levels b{color:#eef1f4}
 .ir-events,.ir-coverage,.ir-status{font-size:.78rem;line-height:1.5;overflow-wrap:anywhere;margin:6px 0}.ir-status{color:#ffd166}.ir-events{color:#8be2b1}
 .ir-more{margin:6px 0}.ir-chart [hidden]{display:none!important}
 .ir-metric{min-width:0;color:#c4cad3}.ir-metric-axis,.ir-metric-summary,.ir-metric-readout{font-size:.85rem;line-height:1.5;margin:8px 0;overflow-wrap:anywhere}.ir-metric-plot{display:block;width:100%;touch-action:pan-y}.ir-metric-plot text{font:11px Inter,system-ui,sans-serif}.ir-metric-controls{display:flex;gap:8px}.ir-metric-controls button{min-width:44px;min-height:44px;background:#191d24;color:#eef1f4;border:1px solid #39434e;border-radius:12px;font:inherit}.ir-metric-plot:focus-visible,.ir-metric-controls button:focus-visible{outline:2px solid #65b8ff;outline-offset:3px}
 @media(max-width:500px){.ir-controls{gap:5px}.ir-controls button{font-size:.78rem;padding:8px}.ir-price-readings{display:block}.ir-price-readings span{margin:4px 0}.ir-readout{font-size:.79rem}.ir-chart-meta{font-size:.82rem}}
+@media(max-width:500px){#detailChartPlot,#garea,#scenarioPlot{margin-inline:-12px}#detailChartPlot>.ir-chart>:not(.ir-plot),#garea>.ir-chart>:not(.ir-plot),#scenarioPlot>.ir-chart>:not(.ir-plot){margin-left:12px;margin-right:12px}.ir-plot{border-radius:4px}.ir-readout{min-height:40px;border-color:#2b3642;background:#10171e}.ir-plot text{font-size:10px}}
+
+.ir-timeframes[hidden]{display:none}

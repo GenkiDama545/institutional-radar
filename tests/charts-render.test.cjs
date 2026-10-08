@@ -1,8 +1,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');const C=require('../chart-core.js'),P=require('../chart-panel.js');const {frames}=require('./harness.cjs');
 function fixture(){return C.model({instrument:'T-USD_UM_XPERP-310101',quote:'USD',timeframe:'1H',bars:frames(.1)['1H'],overlays:[{key:'entry',value:116,label:'Entrée'},{key:'tp1',value:1000,label:'TP1'},{key:'tp3',value:5000,label:'TP3'}],series:{ema20:{[frames(.1)['1H'].at(-1).t]:1e6}}});}
-test('L4: container density gives readable bodies on mobile with thousands of available candles',()=>{
+test('L4: wide default shows market context with thin candles and right-side space on mobile',()=>{
  const vm=fixture(),many=C.model({...vm,bars:Array.from({length:3000},(_,i)=>({...vm.bars[i%vm.bars.length],t:1700000000000+i*3600000}))});
- for(const width of [240,288,318,360,390,768,1440]){const state=C.state(),r=P.render(many,state,width);assert.ok(r.bodyWidth>=5.5,`${width}: ${r.bodyWidth}`);assert.ok(r.visible.length<=Math.ceil((width-84)/9));assert.ok(r.visible.length>=10);assert.ok(r.visible.length<3000);}
+ for(const width of [240,288,318,360,390,768,1440]){const state=C.state(),r=P.render(many,state,width);assert.ok(r.bodyWidth>=1&&r.bodyWidth<=3,`${width}: ${r.bodyWidth}`);assert.ok(r.visible.length>=Math.floor((width-84)/9)*(width<500?2:1.4));assert.ok(r.visible.length<3000);assert.ok(r.geometry.x(many.bars.at(-1).t)<8+r.geometry.plotW*.9);}
 });
 test('L4/G07/G08: price auto-fit includes only visible candles; distant levels remain truthful',()=>{
  const vm=fixture(),s=C.state({tp3:true});const r=P.render(vm,s,318),max=Math.max(...r.visible.map(c=>c.h));

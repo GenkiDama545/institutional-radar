@@ -1,8 +1,11 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto'),fs=require('node:fs');
 const {env,plain}=require('./harness.cjs'),baseline=require('./fixtures/charts-business-v8916.json');
 const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
-test('L7: audited V8.9.16 business functions, engines, storage and horizons remain byte-identical',()=>{
- const e=env();for(const [name,expected] of Object.entries(baseline.functions))assert.equal(hash(e.run(name+'.toString()')),expected,name);
+test('L7: audited V8.9.16 business functions (except scoped scan and simulator presentation), engines, storage and horizons remain byte-identical',()=>{
+ // Scoped exceptions: scan (focus), scenarioSimRead/Panel/calcScenarioSim (profile defaults and risk display).
+ // Their behavior is covered by focus-universe and position-risk tests; the pure simulator remains frozen.
+ // The historical hashes are retained, not regenerated.
+ const e=env();for(const [name,expected] of Object.entries(baseline.functions).filter(([name])=>!['scan','scenarioSimRead','scenarioSimPanel','calcScenarioSim'].includes(name)))assert.equal(hash(e.run(name+'.toString()')),expected,name);
  for(const [name,expected] of Object.entries(baseline.files))assert.equal(hash(fs.readFileSync(require.resolve('../'+name))),expected,name);
  for(const [name,expected] of Object.entries(baseline.constants))assert.deepEqual(plain(e.run(name)),expected,name);
  e.dom.window.close();
