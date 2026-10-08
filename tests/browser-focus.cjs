@@ -39,6 +39,11 @@ const server=http.createServer((req,res)=>{const pathname=new URL(req.url,'http:
   results.push('Default targeted scan: five stable cards, four exact contracts analysed, absent HYPE explicit, no Spot or BTC analysis.');
   await page.screenshot({path:path.join(output,'focus-mobile.png'),fullPage:true});
   await page.getByRole('button',{name:'Ouvrir l’analyse de NEAR'}).click();await page.waitForSelector('#detailChartPlot .ir-chart');
+  const plot=page.locator('#detailChartPlot .ir-plot'),wideCount=Number(await plot.getAttribute('data-visible-count'));assert.ok(wideCount>=65);
+  await page.locator('#detailChartPlot [data-action=detail]').click();await page.waitForFunction(n=>Number(document.querySelector('#detailChartPlot .ir-plot').dataset.visibleCount)<n,wideCount);
+  await page.locator('#detailChartPlot [data-action=reset]').click();await page.waitForFunction(n=>Number(document.querySelector('#detailChartPlot .ir-plot').dataset.visibleCount)>=n,wideCount);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await plot.screenshot({path:path.join(output,'chart-wide-mobile.png')});
+  results.push('Wide mobile chart shows at least 65 candles, detail enlarges them, wide reset restores context without horizontal overflow.');
   assert.equal(await page.evaluate(()=>current.id),inst('NEAR'));await page.locator('#back1').click();
   results.push('NEAR card opens its exact X-Perp detail and shared chart; return to home succeeds.');
   await page.evaluate(()=>{all.forEach(x=>{if(x.scenarioModel)x.scenarioModel.analysisAt=Date.now()-86400000});renderRank()});

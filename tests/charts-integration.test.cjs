@@ -8,7 +8,7 @@ test('L5: projection gestures preserve scenario, model and journal; periodic ref
  const controller=e.run("sharedChartViews.get('scenarioPlot').controller");assert.ok(controller);assert.equal(controller.panel.model.reference,'engine');
  const lock=e.run('JSON.stringify(scenarioLocks)'),model=e.run('JSON.stringify(current.scenarioModel)'),journal=e.store.get('ir_learning_journal_v866');
  const input=e.dom.window.document.querySelector('#sim_entry');input.value='111.123';const element=input;
- for(const action of ['zoomIn','zoomOut','previous','next','levels','latest','reset'])controller.panel.action(action);controller.panel.redraw();
+ for(const action of ['zoomIn','zoomOut','previous','next','levels','latest','detail','reset'])controller.panel.action(action);controller.panel.redraw();
  await e.run("setScenarioMonitorBar('breakout','1H')");
  assert.equal(e.run('JSON.stringify(scenarioLocks)'),lock);assert.equal(e.run('JSON.stringify(current.scenarioModel)'),model);assert.equal(e.store.get('ir_learning_journal_v866'),journal);
  await e.run("renderScenarioMonitor('breakout',false)");assert.equal(e.dom.window.document.querySelector('#sim_entry'),element);assert.equal(element.value,'111.123');assert.equal(e.run('JSON.stringify(scenarioLocks)'),lock);

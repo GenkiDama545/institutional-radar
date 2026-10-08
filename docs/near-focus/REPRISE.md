@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.2, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.3, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -71,3 +71,20 @@ Critère de sortie : un actif initialement hors sélection peut être détecté,
 ## Promotion et retour
 
 La candidate reste sur sa branche et sa PR de revue. La production GitHub Pages depuis `main` reste V8.9.17. Aucune fusion ni publication de production n’est faite sans autorisation. En cas de rejet de la candidate, la production et son stockage sont inchangés. Une éventuelle promotion doit aligner la version finale, les assets et le cache, puis vérifier CI et Pages sur le commit publié.
+
+
+## Retour mobile et retouche graphique RC3 — 8 octobre 2026
+
+L’utilisateur a testé la prévisualisation RC2 sans ralentissement, puis signalé des bougies trop grossières et une vue trop serrée. Sa capture du Radar montrait 34 bougies sur 388 chargées ; sa vue OKX NEAR 5m sert de référence visuelle (traits fins, contexte plus large, espace à droite), sans adopter ses réglages d’indicateurs.
+
+La RC3 élargit la fenêtre initiale selon la largeur disponible : pas horizontal de 3 px sur mobile et 5 px sur grand écran, avec 14 % d’espace à droite du dernier cours. Les bougies, mèches, courbes et grille sont affinées ; les teintes du graphique sont adoucies. Le graphique récupère de la largeur dans ses cartes mobiles. « Vue large » restaure la fenêtre initiale et « Vue détaillée » agrandit la période consultée. Le prix se recadre toujours sur les bougies visibles ; les niveaux restent distincts.
+
+Les valeurs de consultation sont présentées avec au plus 7 chiffres significatifs, le volume avec au plus 2 décimales, et la valeur complète reste disponible dans l’attribut de détail. Les données et calculs conservent toute leur précision. Les graduations temporelles sont alignées sur l’intervalle de bougie et la période réellement visible est indiquée séparément de l’historique chargé.
+
+La sélection initiale de cinq actifs ne constitue pas un résultat de recherche de ressemblance : les quatre candidats restent provisoires. L’ajout manuel est disponible jusqu’à 15 actifs ; le lot 2 doit encore établir une sélection mesurée et évolutive.
+
+Validation RC3 : 122 tests Node réussis, suites moteur/hosted-feed réussies, contrôle de la conservation des 43 fonctions métier protégées et des cinq modules moteur. Le parcours Chromium simulé vérifie également Vue large → Vue détaillée → Vue large, sans débordement mobile. Les preuves RC3 sont séparées des preuves RC1/RC2.
+
+La prévisualisation RC2 avait été publiée avec l’autorisation de l’utilisateur ; son scan public OKX, ses cinq contrats et l’ouverture de la fiche/du graphique NEAR ont fonctionné lors d’un contrôle ponctuel. Ce contrôle ne garantit ni disponibilité future ni performances sur tous les appareils. La production reste V8.9.17 ; seules des prévisualisations de la candidate sont autorisées.
+
+Contrôle ponctuel RC3 avec l’API publique OKX : NEAR en 5m, 76 bougies dans la vue large mobile et 28 dans la vue détaillée ; 142 bougies dans le conteneur de 910 px sur grand écran. Aucun débordement ni erreur JavaScript dans ce parcours. Preuves : `evidence/chart-rc3-live.json` (données live) et `evidence/browser-rc3-results.json` (fixtures). La présentation reste à apprécier sur le téléphone de l’utilisateur.
