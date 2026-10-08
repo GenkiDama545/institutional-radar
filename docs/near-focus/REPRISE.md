@@ -1,7 +1,7 @@
 # Reprise du Radar — périmètre NEAR
 
 Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
-Candidate : V8.9.18-rc.6, branche `feature/near-focused-radar`.
+Candidate : V8.9.18-rc.7, branche `feature/near-focused-radar`.
 
 ## Décision de produit
 
@@ -117,3 +117,9 @@ Validation RC5 : les 126 tests existants et les suites moteur/hosted-feed réuss
 Retour utilisateur : vert citron validé, préférence pour le rouge vif de RC4 et pour un contour plus fin délimitant les bougies. RC6 conserve le vert citron, rétablit `#ff657d` pour la baisse et ajoute un filet lumineux de 0,5 px maximum, adapté aux corps très fins et aux dojis. Le contour est placé à l’intérieur de l’enveloppe du corps ; la largeur extérieure, les limites OHLC, l’espacement et la densité restent identiques. Les mèches restent nettes. Aucun changement de calcul ni de réglage de risque.
 
 Validation RC6 : 126 tests existants et suites moteur/hosted-feed réussis. Contrôle Chromium avec API OKX en vue large et détaillée : 76 / 28 bougies sur mobile, 142 sur grand écran (910 px), sans erreur JavaScript ni débordement. Preuve : `evidence/chart-rc6-live.json`. Le résultat visuel final reste à apprécier sur le téléphone réel.
+
+## RC7 — saturation renforcée
+
+L’utilisateur valide l’ensemble de RC6 mais trouve les couleurs trop peu vives. Aucun filtre ni opacité globale ne les atténue dans les styles ; les contours très clairs ajoutés en RC6 apportaient une composante pastel, surtout sur les corps étroits. RC7 utilise un vert citron `#b6ff00` et un rouge franc `#ff1744`, avec des contours eux aussi saturés (`#d2ff00` / `#ff3755`). La saturation HSV des corps passe de 73 % à 100 % pour le vert, et de 60 % à 91 % pour le rouge. La géométrie, les filets fins et le rendu validés en RC6 sont conservés. Aucun changement fonctionnel.
+
+Validation RC7 : 126 tests existants et suites moteur/hosted-feed réussis. Contrôle Chromium avec API publique OKX, vues large et détaillée : 76 / 28 bougies mobile et 142 sur grand écran, sans erreur JavaScript ni débordement. Preuve : `evidence/chart-rc7-live.json`. Le rendu reste à apprécier sur le téléphone réel.

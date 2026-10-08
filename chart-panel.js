@@ -2,7 +2,7 @@
 (function(root){
  'use strict';
  const C=typeof module!=='undefined'&&module.exports?require('./chart-core.js'):root.RadarChartCore;
- const palette={up:'#b6ff45',down:'#ff657d',ema20:'#f2ca71',ema50:'#bda0f2',supertrend:'#65b8ff',rsi:'#65b8ff',stochK:'#bd91ff',stochD:'#65b8ff'};
+ const palette={up:'#b6ff00',down:'#ff1744',ema20:'#f2ca71',ema50:'#bda0f2',supertrend:'#65b8ff',rsi:'#65b8ff',stochK:'#bd91ff',stochD:'#65b8ff'};
  const names={ema20:'EMA 20',ema50:'EMA 50',supertrend:'Supertrend 10/3',rsi:'RSI 14',stoch:'StochRSI 14 · K3/D3',tp2:'TP2',tp3:'TP3',structure:'Structure du moteur',closedPrice:'Ligne clôture confirmée',formingPrice:'Ligne bougie en formation'};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const number=v=>!Number.isFinite(v)?'N/D':v.toLocaleString('fr-FR',{maximumSignificantDigits:17});
@@ -42,7 +42,7 @@
   svg.push(`<text x="8" y="16" fill="#b6c4cd">Prix · ${q}</text><g clip-path="url(#price-clip)">`);
   for(const key of ['ema20','ema50','supertrend'])if(s.visibility[key])svg.push(`<path d="${path(vm,s,key,g,{top:g.top,height:g.priceH},g.range.min,g.range.max)}" fill="none" stroke="${palette[key]}" stroke-width="1.15"${key==='supertrend'?' stroke-dasharray="5 3"':''}/>`);
   for(const c of cs){
-   const x=g.x(c.t),rising=c.c>=c.o,color=rising?palette.up:palette.down,edge=rising?'#dfffad':'#ffabbc';
+   const x=g.x(c.t),rising=c.c>=c.o,color=rising?palette.up:palette.down,edge=rising?'#d2ff00':'#ff3755';
    const top=g.y(Math.max(c.o,c.c)),height=Math.max(1,Math.abs(g.y(c.o)-g.y(c.c))),stroke=Math.min(.5,body*.25,height*.25);
    // Inset the outline so the candle keeps its original OHLC bounds and spacing.
    svg.push(`<g shape-rendering="crispEdges" class="ir-candle" data-ts="${c.t}"><line x1="${x}" x2="${x}" y1="${g.y(c.h)}" y2="${g.y(c.l)}" stroke="${color}" stroke-width="1"/><rect shape-rendering="geometricPrecision" x="${x-body/2+stroke/2}" y="${top+stroke/2}" width="${body-stroke}" height="${height-stroke}" fill="${color}" stroke="${edge}" stroke-width="${stroke}"/></g>`);

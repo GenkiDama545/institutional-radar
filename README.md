@@ -1,4 +1,4 @@
-# Institutional Radar V8.9.18-rc.6 — sélection NEAR
+# Institutional Radar V8.9.18-rc.7 — sélection NEAR
 
 Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Leur similarité n’a pas encore été mesurée ; cette liste initiale n’est pas un classement de rentabilité.
 
