@@ -1,0 +1,12 @@
+{
+  "results": [
+    "Default targeted scan: five stable cards, four exact contracts analysed, absent HYPE explicit, no Spot or BTC analysis.",
+    "NEAR card opens its exact X-Perp detail and shared chart; return to home succeeds.",
+    "Expired analyses remain visible and cannot enter scenario ranking.",
+    "Selection and auto-refresh choice persist after reload, with NEAR pinned.",
+    "API outage leaves both cards visible, blocks readiness and recovers on next scan.",
+    "Manual wide scan remains accessible."
+  ],
+  "errors": [],
+  "fixture": true
+}

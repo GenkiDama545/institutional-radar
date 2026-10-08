@@ -1,4 +1,16 @@
-# Institutional Radar V8.9.17
+# Institutional Radar V8.9.18-rc.1 — sélection NEAR
+
+Candidate de reprise depuis la production V8.9.17. Le scan démarre sur NEAR et quatre candidats à comparer (SUI, HYPE, AVAX, SOL), modifiables jusqu’à 15 actifs. NEAR reste inclus. Leur similarité n’a pas encore été mesurée ; cette liste initiale n’est pas un classement de rentabilité.
+
+- Seuls les X-Perps sélectionnés et identifiés dans le catalogue public OKX reçoivent les analyses six horizons et les requêtes OI/funding. Aucune requête Spot dans le scan ciblé.
+- Les actifs restent visibles avec deux états LONG/SHORT, même sans scénario, avec données périmées, contrat absent ou panne API.
+- Le mode ciblé recalcule toute la sélection environ chaque minute tant que le tableau de bord est visible. Aucun scan concurrent ; désactivation possible. Le scan large reste manuel.
+- Les références de volume et rangs de taille restent calculés sur le catalogue X-Perp complet. Les formules, seuils, horizons, niveaux verrouillés, journal et simulateur sont conservés.
+- La préférence de sélection utilise `ir_focus_universe_v1`, séparée des données métier et non incluse dans `IR_BACKUP_V1`.
+
+Voir [la reprise et les prochains lots](docs/near-focus/REPRISE.md). Cette branche est une candidate ; aucune fusion ni publication de production n’est effectuée par sa préparation.
+
+## Baseline adoptée V8.9.17
 
 Version finale issue de V8.9.17-rc.1, adoptée comme baseline graphique après la recette native déclarée satisfaisante sur PC Firefox et Samsung S24+ Chrome. La finalisation ne change que le versionnage et son assertion, sans modification fonctionnelle. Les invariants métier et le stockage de V8.9.16 restent protégés. Voir [le compte rendu d’adoption](docs/charts-v8916/Adoption_V8.9.17.md) pour la traçabilité, les limites connues et le rollback. Les notes ci-dessous décrivent les étapes historiques.
 

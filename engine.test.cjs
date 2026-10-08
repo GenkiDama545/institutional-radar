@@ -10,7 +10,7 @@ const context=vm.createContext({localStorage,console,setTimeout,clearTimeout,set
 vm.runInContext(fs.readFileSync(path.join(root,'market-screen.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'signal-engine.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'engine-core.js'),'utf8'),context);
-for(const file of ['trade-sim.js','candle-store.js','chart-core.js','chart-metrics.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
+for(const file of ['focus-universe.js','trade-sim.js','candle-store.js','chart-core.js','chart-metrics.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
 vm.runInContext(source.slice(0,source.indexOf("document.querySelectorAll('#marketMode")),context);
 const run=(code)=>vm.runInContext(code,context);
 assert.match(run('simForm()'),/Saisie manuelle/,'simulator remains available when the market API fails');
@@ -120,11 +120,11 @@ assert.equal(run('money(null)'),'N/D');
 assert.equal(run('rankingCalibrationLab().ok'),true);
 assert.equal(run('shortEngineLab().ok'),run('shortEngineLab().total'),'synthetic cases exercise actual short engine');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.deepEqual([...html.matchAll(/<script src="\.\/([^?]+)\?v=/g)].map(m=>m[1]),['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js','chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','app.js']);
-assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.17"><\/script>/);
-assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.17"><\/script>/);
-assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.17"><\/script>/);
-assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.17'/);
+assert.deepEqual([...html.matchAll(/<script src="\.\/([^?]+)\?v=/g)].map(m=>m[1]),['signal-engine.js','market-screen.js','engine-core.js','trade-sim.js','candle-store.js','chart-core.js','chart-series.js','chart-panel.js','chart-host.js','chart-metrics.js','focus-universe.js','app.js']);
+assert.match(html,/<script src="\.\/market-screen\.js\?v=8\.9\.18-rc\.1"><\/script>/);
+assert.match(html,/<script src="\.\/engine-core\.js\?v=8\.9\.18-rc\.1"><\/script>/);
+assert.match(html,/<script src="\.\/app\.js\?v=8\.9\.18-rc\.1"><\/script>/);
+assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/'\.\/app\.js\?v=8\.9\.18-rc\.1'/);
 assert.match(html,/<details class="panel homeFold" id="marketExplorer">/);
 assert.match(html,/<details class="panel homeFold" id="radarHelp">/);
 class MockSocket{
@@ -150,7 +150,7 @@ put('spotRows',[ticker('BTC'),ticker('ETH')]);
 put('marketRequests',[]);run('get=async path=>{marketRequests.push(path);return path.includes("instType=SPOT")?spotRows:[]}');
 put('mockBars',Array.from({length:120},(_,i)=>({t:i*60000,o:80+i*.1,h:81+i*.1,l:79+i*.1,c:80.5+i*.1,v:10000,confirm:1})));
 run('candles=async (id,bar)=>{if(id==="ETH-USDT"&&bar==="30m")throw Error("mock timeframe unavailable");return mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))}');
-run('scan()').then(()=>{
+run("focusConfig.scope='wide';scan()").then(()=>{
   assert.equal(run('all.length'),2,'market universe remains visible');
   assert.equal(run('all.find(x=>x.sym==="ETH").analysisCoverage'),'partial');
   assert.equal(run('all.find(x=>x.sym==="BTC").analysisCoverage'),'complete');
@@ -160,12 +160,12 @@ run('scan()').then(()=>{
   console.log('scan check: complete, partial and fresh prices');
   put('spotRows',Array.from({length:101},(_,i)=>ticker('ASSET'+i)));
   run('candles=async (id,bar)=>mockBars.map((c,i)=>({...c,t:i*timeframeMs(bar)}))');
-  return run('scan()').then(()=>{
+  return run("focusConfig.scope='wide';scan()").then(()=>{
     assert.equal(run('all.length'),101);
     assert.equal(run('all[100].analysisCoverage'),'complete','asset after previous top-100 limit is analyzed');
     console.log('universe check: asset 101 receives full analysis');
     put('spotRows',Array.from({length:170},(_,i)=>ticker('COIN'+i)));
-    return run('scan()').then(()=>{
+    return run("focusConfig.scope='wide';scan()").then(()=>{
       assert.equal(run('all.length'),170,'every Spot remains visible');
       assert.equal(run('all.find(x=>x.sym==="COIN169").analysisCoverage'),'complete','market after the old top-150 cutoff receives full analysis');
       assert.match(elements.get('discovery').innerHTML,/multi-horizons/,'watchlist is based on the same multi-horizon engine');

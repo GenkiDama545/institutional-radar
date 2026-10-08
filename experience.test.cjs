@@ -41,7 +41,7 @@ test('incremental windows equal full refresh after mutable candle and closure up
  const warm=await store.load('X','5m',180),fresh=await candles.create(source([]),{now:()=>rows.at(-1)[0]+100}).load('X','5m',180);
  assert.deepEqual(warm,fresh);assert.ok(store.stats.reused>=175);assert.match(log[1],/limit=5/);
  const ctx=vm.createContext({console,localStorage:{getItem:()=>null,setItem:()=>{}},setTimeout,clearTimeout,setInterval,clearInterval});
- for(const f of ['market-screen.js','signal-engine.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+ for(const f of ['focus-universe.js','market-screen.js','signal-engine.js','engine-core.js','trade-sim.js','candle-store.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
  const app=fs.readFileSync('app.js','utf8');vm.runInContext(app.slice(0,app.indexOf("document.querySelectorAll('#marketMode")),ctx);
  ctx.framesA=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,warm.map((c,i)=>({...c,t:1700000000000+i*candles.intervals[tf]}))]));ctx.framesB=Object.fromEntries(['1D','4H','1H','30m','15m','5m'].map(tf=>[tf,fresh.map((c,i)=>({...c,t:1700000000000+i*candles.intervals[tf]}))]));
  assert.equal(vm.runInContext('JSON.stringify(adaptiveEngine(framesA,{price:501,decisionAt:1750000000000}))',ctx),vm.runInContext('JSON.stringify(adaptiveEngine(framesB,{price:501,decisionAt:1750000000000}))',ctx),'same full scenario model, scores and levels');

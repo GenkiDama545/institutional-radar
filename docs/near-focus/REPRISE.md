@@ -1,0 +1,58 @@
+# Reprise du Radar — périmètre NEAR
+
+Date : 8 octobre 2026. Baseline GitHub : V8.9.17, commit `645bf78f4f622c3923eee809b29f3bbd169e53f8`.
+Candidate : V8.9.18-rc.1, branche `feature/near-focused-radar`.
+
+## Décision de produit
+
+L’utilisateur souhaite reprendre les chantiers ouverts avec un univers considérablement réduit : NEAR comme référence, puis quelques X-Perps dont l’amplitude, la régularité des swings et la lisibilité conviennent à son usage. Le levier du simulateur reste distinct de la sélection et du score. Aucun ordre d’exchange n’est envoyé.
+
+La version de production confirmée est V8.9.17. L’étape Graphiques L0–L7 et l’audit précédent sont déjà intégrés. Les décisions historiques concernant des essais Scan/Confluence et la pause du Learning ont été retrouvées, mais aucun code postérieur à V8.9.17 n’a pu être récupéré dans les branches GitHub ou fichiers recherchés. Les anciens chiffres de tests/pilotes ne valident donc pas cette candidate.
+
+## Lot 1 réalisé — sélection et scan ciblé
+
+Le mode ciblé est le défaut. La sélection initiale est NEAR, SUI, HYPE, AVAX, SOL ; seuls NEAR et les critères de comparaison constituent des références. Les quatre autres restent des candidats provisoires, sans similarité mesurée ni classement de gain attendu. L’utilisateur peut modifier la liste, jusqu’à 15 symboles uniques, avec NEAR toujours inclus.
+
+Le catalogue FUTURES et ses tickers servent à résoudre les contrats exacts. Aucun identifiant d’expiration n’est construit à partir du symbole. Un actif absent, sans cotation exploitable ou associé à plusieurs contrats reste visible et n’est pas analysé comme un contrat sélectionné. La résolution d’un choix entre plusieurs contrats reste un futur raffinement ; aucun choix silencieux d’échéance n’est fait. La présence publique ne prouve pas la disponibilité sur le compte.
+
+Le filtrage intervient avant les appels OI/funding et les six séries de bougies. Le mode ciblé ne dépend pas de l’endpoint Spot. Les références transversales de volume et le rang de taille utilisent toujours tout le catalogue X-Perp exploitable, ce qui évite de changer les scores par simple réduction du groupe de comparaison.
+
+Le même moteur calcule les scénarios des deux modes. Les cartes de sélection sont indépendantes du classement : elles affichent LONG et SHORT, analyse en cours/incomplète, attente, analyse périmée, exécution à vérifier ou scénario chiffré. Un scénario chiffré reste conditionnel, ce n’est pas une entrée activée. En cas de péremption, d’erreur de cotation ou de disparition du contrat, l’admission échoue et l’actif reste visible avec sa raison.
+
+Le recalcul ciblé reprend toute la sélection, y compris les actifs sans scénario existant, via le cache de bougies déjà présent. Le minuteur vérifie toutes les 15 secondes si au moins 60 secondes se sont écoulées depuis le début du précédent scan. Aucun chevauchement : un scan lent décale donc la cadence effective. Il est suspendu lorsque l’onglet est caché ou lorsqu’une fiche, un graphique ou un outil est ouvert. La page doit rester ouverte ; il ne s’agit pas d’un service serveur permanent. Le mode large conserve son rafraîchissement de cotations et son scan complet manuel.
+
+Ce lot traite la visibilité et le renouvellement des analyses dans le mode ciblé. Il ne prétend pas corriger toutes les causes historiques de disparition du Top dans le mode large.
+
+## Invariants et stockage
+
+Les cinq modules métier `engine-core.js`, `signal-engine.js`, `market-screen.js`, `candle-store.js` et `trade-sim.js` sont identiques à la baseline. Les six horizons, seuils d’admission, fraîcheur D05, décisions sur clôtures, formules et pondérations restent protégés.
+
+La fonction `scan` est la seule exception intentionnelle aux 44 empreintes de fonctions gelées pour l’étape Graphiques. Les 43 autres empreintes restent vérifiées ; les anciennes fixtures ne sont pas régénérées. La couverture du scan large (170 Spot) reste testée, et un nouveau test compare intégralement les modèles, scores, niveaux, références et tiers des actifs communs aux deux modes à données identiques.
+
+Les clés et données existantes de favoris, journal, verrous, scans et imports restent compatibles. La sélection utilise une préférence séparée `ir_focus_universe_v1` ; elle n’est pas exportée par la sauvegarde métier `IR_BACKUP_V1`. Les scans n’écrivent pas de nouveaux scénarios dans le journal. Les scénarios déjà verrouillés restent liés à leur contrat et à leurs niveaux.
+
+## Validation
+
+- Baseline avant modification : syntaxe, moteur, hosted-feed et 110 tests Node réussis.
+- Candidate : mêmes suites et 12 tests additionnels sur sélection, contrats exacts, périmètre des requêtes, équivalence avec le scan large, péremption/recalcul, données partielles, pannes et reprise, retrait de contrat, cotation finale, minuteur et stockage.
+- Parcours Chromium avec endpoints OKX simulés : démarrage, sélection persistante, contrat manquant, fiche NEAR avec graphique commun, état périmé, panne/reprise, scan large. Aucune erreur JavaScript ; aucun débordement horizontal à 390 et 1440 pixels.
+- Preuves : [résultats navigateur](evidence/browser-results.json), [capture mobile](evidence/focus-mobile.png), [capture ordinateur](evidence/focus-desktop.png). Les prix et marchés des captures sont des fixtures, pas des données live.
+- La disponibilité des contrats, les performances réseau OKX et la recette sur le téléphone réel ne sont pas validées par ces simulations. Aucun temps de scan réel n’est promis.
+
+Commandes : `npm test` ; test navigateur optionnel `node tests/browser-focus.cjs <chromium-executable> <artifacts-directory>` (Playwright requis pour ce contrôle optionnel).
+
+## Suite de la reprise
+
+| Lot | Travail | Critère de sortie |
+|---|---|---|
+| 1 — Scan ciblé | Présente candidate | CI du commit, revue et recette avec données OKX puis autorisation de promotion |
+| 2 — Profil de mouvement | Mesurer amplitude en %, fréquence et régularité des swings, mèches/bruit, liquidité/coûts sur plusieurs fenêtres et régimes | Données comparables, méthode explicite, données manquantes visibles ; NEAR comme référence sans bonus automatique |
+| 3 — Signal Audit / Confluence | Auditer les familles existantes, redondance tendance/Price Action, RSI/StochRSI, contexte OI/funding et stabilité selon le régime | Comparaison baseline/candidate, coût mesuré, validation hors échantillon avant toute nouvelle pondération |
+| 4 — Suivi des scénarios | États figés, IDs uniques, suivi jusqu’à résolution, TP partiels, expiration, MFE/MAE et interruptions | Cas ambigus explicitement non vérifiés, aucune assimilation à des ordres réels |
+| 5 — Learning | Reste en pause ; à reprendre seulement après audit et collecte validés | Données traçables et protocole Production/Challenger avec promotion contrôlée |
+
+Le scan large reste disponible pour les explorations ponctuelles. La découverte automatique des « semblables de NEAR » n’est pas encore implémentée : elle dépend du lot 2. Le suivi actuel conserve TP1 comme état terminal et n’est pas une veille serveur de tous les favoris.
+
+## Promotion et retour
+
+La candidate reste sur sa branche et sa PR de revue. La production GitHub Pages depuis `main` reste V8.9.17. Aucune fusion ni publication de production n’est faite sans autorisation. En cas de rejet de la candidate, la production et son stockage sont inchangés. Une éventuelle promotion doit aligner la version finale, les assets et le cache, puis vérifier CI et Pages sur le commit publié.
